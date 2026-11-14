@@ -32,6 +32,8 @@ Each theme pack only sets the base variables (`--glass2`, `--line2`, `--r-xl`, `
    - Frames built by JS: add the selector to `fitBoxes()` (gets class `.fitc` and its height from `VHs()`, the stable small viewport height).
    - Frames with their own wrapper: outer box `overflow:hidden`, inner element scrolls (`#plBody > .plsc`, `.dframe > .dsc`).
 3. Every renderer that changes a frame's content calls `fitBoxes()` at the end.
+   - Pages with several frames stacked (delays, data centre, work desk on short screens): the page body (`#schedBody`, `#fiBody`, `#wkBody`) gets `.pgsc` from `fitBoxes()` and scrolls as one; add new such bodies to that list. `fitBoxes()` also runs after every tab / segment click.
+   - Label text is never smaller than 10.5px.
 4. Heights use `VHs()` / `svh`, never `dvh`, so the Safari toolbar showing/hiding does not shrink a frame (the home frame uses `homeFix()`).
 5. Sticky headers inside a frame use `top:0` (the scroller is the inner box, it has no padding offset).
 6. `overscroll-behavior:contain` on scrollers; `html, body` have `overscroll-behavior-y:none`.
