@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1c1c1f">
+<title>فایل منیجر · {brand}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="files.css">
+<script src="../shared/brand.js"></script>
+<script src="../shared/demo.js"></script>
+</head>
+<body>
+<section id="login" hidden><form id="lf"><h1><img data-brand="logo" alt=""><span>VII — فایل منیجر</span></h1>
+<p>اسناد و فایل‌های شرکت و پروژه‌ها در یک جا. با همان کد و رمز پنل کاربری وارد شوید.</p>
+<label class="f">کد کاربری<input class="inp" id="lc" autocapitalize="off" autocomplete="username" required></label>
+<label class="f">رمز<input class="inp" id="lp" type="password" autocomplete="current-password" required></label>
+<div class="err" id="le" role="alert"></div><button class="btn w">ورود</button><p id="demoNote" hidden>حالت نمایشی: کد <b>Admin</b> و رمز <b>Admin123</b></p></form></section>
+
+<div class="app" id="app" hidden>
+<aside class="side" id="side" aria-label="فهرست کناری">
+ <div class="brand"><img data-brand="logo" alt=""><div>فایل منیجر<small>VII — <span data-brand="name">VERTEX</span></small></div></div>
+ <nav class="snav" id="snav"></nav>
+ <div class="stor" id="stor"></div>
+ <div class="who"><span id="who"></span><button class="ib" id="thm" title="تم روشن/تیره" aria-label="تغییر تم"></button><button class="ib" id="out" title="خروج" aria-label="خروج"></button></div>
+</aside>
+<main class="main">
+ <div class="tb" id="tb"></div>
+ <div class="pb" id="pb"></div>
+ <div class="body"><section class="cnt" id="cnt" tabindex="-1"></section><section class="pane2" id="pane2" hidden></section><aside class="inf" id="inf" hidden></aside></div>
+ <div class="sb" id="sb"></div>
+</main>
+</div>
+<input type="file" id="up" multiple hidden><input type="file" id="upImg" accept="image/*,video/*" multiple hidden>
+<div id="ov"></div>
+<script src="files.js"></script>
+</body>
+</html>

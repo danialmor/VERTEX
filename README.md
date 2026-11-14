@@ -9,6 +9,7 @@
 - صفحه‌ی اول: <https://danialmor.github.io/VERTEX/>
 - پنل کاربری: <https://danialmor.github.io/VERTEX/admin/>
 - کنترل پروژه: <https://danialmor.github.io/VERTEX/msp-bi/>
+- فایل منیجر: <https://danialmor.github.io/VERTEX/files/>
 - دستیار (Aide): <https://danialmor.github.io/VERTEX/aide/>
 /
 ## ساختار

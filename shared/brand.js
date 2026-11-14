@@ -25,7 +25,7 @@
       ['IV', 'users-panel', 'User Control Panel', 'کنترل پنل کاربران', 'Accounts and permissions', 'حساب‌ها و دسترسی‌ها', '#fbb817', 'users', 'admin/'],
       ['V', 'executive-desk', 'CEO & Secretary Desk', 'میز مدیرعامل و منشی', 'Management and decisions', 'مدیریت و تصمیم‌گیری', '#e8d200', 'tie', 'aide/'],
       ['VI', 'mail', 'Letters & Email', 'نامه‌نگاری و ایمیل', 'Smart correspondence', 'مکاتبات هوشمند', '#8dc63f', 'mail', 'msp-bi/'],
-      ['VII', 'file-manager', 'File Manager', 'فایل منیجر', 'Documents and files', 'اسناد و فایل‌ها', '#00a650', 'folder', 'msp-bi/'],
+      ['VII', 'file-manager', 'File Manager', 'فایل منیجر', 'Documents and files', 'اسناد و فایل‌ها', '#00a650', 'folder', 'files/'],
       ['VIII', 'portfolio', 'Portfolio', 'پرتفولیو', 'Activity and profile analysis', 'تحلیل فعالیت و سوابق', '#00a99d', 'chart', ''],
       ['IX', 'shared-cursor', 'Shared Cursor', 'موس مشترک', 'Real-time collaboration', 'همکاری هم‌زمان', '#0072bc', 'cursor', ''],
       ['X', 'designer', 'Designer Workspace', 'فضای طراح', 'Design and creativity', 'طراحی و خلاقیت', '#2e3192', 'pal', ''],
