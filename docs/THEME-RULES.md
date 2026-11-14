@@ -3,6 +3,21 @@
 These rules exist so that changing a theme never requires fixing individual boxes again.
 The single source is the **THEME CONTRACT** block at the end of the `<style>` in `msp-bi/index.html`.
 
+## 0. Standard box (since v3.53.0) — read this first
+There are exactly **two** box shapes in the whole dashboard. The single source is the **STANDARD BOX** block at the very end of the `<style>`.
+
+| level | what it is | tokens | look |
+|---|---|---|---|
+| 1 — **frame** | any large box that sits directly on the page background (`.card`, `.dframe`, `.bigbox`, `.fitc`, `.pane`, `.kcol`, `#pjPick`) | `--bx-rad`, `--bx-pad`, `--bx-bg`, `--bx-line`, `--bx-shadow` | radius `--rad`, 1px line, glass background, shadow, 14px padding |
+| 2 — **card** | any box inside a frame (`.card` nested in a frame, `.kt`, `.need`, `.pvbox`, `.pvl`, `.icd`, `.plc`, `.dcst`, `.pc2`, `.gwrap`, home `.row`) | `--bx2-rad`, `--bx2-pad`, `--bx2-bg`, `--bx2-line` | radius `--rad − 8px`, 1px line, no shadow, no blur |
+
+Rules:
+1. A new box never writes its own radius, border, shadow or background. Give it `.card` (it becomes a frame on the page, a card inside a frame automatically) or add its class to the level-2 selector list.
+2. No third nesting level with a border: inside a card use divider lines only.
+3. Scrolling frames (`.fitc`) keep the same look; their padding is a transparent border so the scrollbar stays inside the frame.
+4. The old `--tf-*` / `--tc-*` tokens now point to `--bx-*` / `--bx2-*` (`--tf-line` stays as the divider-line colour).
+5. Exceptions: chat bubbles, pills/chips, buttons, the dark hero on the home page (radius only).
+
 ## 1. Tokens — the only allowed source of colour and shape
 | token | used for |
 |---|---|
