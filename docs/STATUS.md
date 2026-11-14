@@ -19,7 +19,7 @@
 | Deployment | ✅ (dry-run only) | `install.sh` verified in a dry run; **never run on a real server yet**. |
 
 ## Not done / known limitations
-1. **Not deployed.** The owner has no VPS yet. The repository was renamed to **`danialmor/TSUBA`**; GitHub Pages (`danialmor.github.io/TSUBA/`) shows the landing page, the control panel in demo mode and the dashboard in local mode.
+1. **Not deployed.** The owner has no VPS yet. The repository was renamed to **`danialmor/VERTEX`**; GitHub Pages (`danialmor.github.io/VERTEX/`) shows the landing page, the control panel in demo mode and the dashboard in local mode.
 2. **`msp-bi/index.html` is ~800 KB**, too large for the AI's GitHub connector. The owner uploads it manually (v3.53.0 is on GitHub since 2026-11-14). Sessions whose repository access includes push (`git push`) can commit it directly; the file connector cannot. Planned fix: split into modules (see next steps). The dashboard's own title/manifest still say "داشبورد پروژه‌ها"; only its login screen (in `hub-bridge.js`) reads the brand root.
 3. Some dashboard parts still render **built-in sample data** regardless of the server: the WBS tree (`RAW`), legacy delay list (`DL`), project list fallback (`PJ`). They must be moved to server data.
 4. Delay responses: anyone can respond during design phase (`DLR_ENFORCE=false`). Target: only CEO and deputies (open question: should the project manager keep this right?).

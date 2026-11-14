@@ -23,7 +23,7 @@
                                          nightly backups /var/lib/danimor/backups (30 kept)
 ```
 One VPS (Ubuntu 24.04), one domain, path-based sites. Shared hosting is not supported (needs a running Python process).
-All page links are **relative**, so the same files work at the domain root on the server and under `https://danialmor.github.io/TSUBA/` on GitHub Pages.
+All page links are **relative**, so the same files work at the domain root on the server and under `https://danialmor.github.io/VERTEX/` on GitHub Pages.
 
 ## 2. Ecosystem modules (registry seeded in `hub/server.py` → `MODULES`)
 | # | slug | Persian name | status | path | access via site grant |
@@ -130,7 +130,7 @@ UI: `admin/index.html` (single file, own blue design, no CSS framework) = unifie
 - `shared/demo.js` only switches on for `*.github.io` (or `?demo=1`); its data lives in that browser only and never reaches a server.
 
 ## 8. Deployment & updates
-`hub/deploy/install.sh <domain|IP> [--zip file]` installs Python, Caddy, the hub service, nightly backups and the **auto-update timer** (`git pull` of `main` from `github.com/danialmor/TSUBA` every 10 minutes, syntax check, restart hub only if `hub/` changed). It also downloads Tabler CSS once into `/var/www/danimor/vendor/` (kept across updates; currently unused). Owner guide: `docs/DEPLOY-fa.md`.
+`hub/deploy/install.sh <domain|IP> [--zip file]` installs Python, Caddy, the hub service, nightly backups and the **auto-update timer** (`git pull` of `main` from `github.com/danialmor/VERTEX` every 10 minutes, syntax check, restart hub only if `hub/` changed). It also downloads Tabler CSS once into `/var/www/danimor/vendor/` (kept across updates; currently unused). Owner guide: `docs/DEPLOY-fa.md`.
 
 ## 9. Brand root and GitHub Pages demo
 - `shared/brand.js` defines `window.BRAND`: `name`, `kanji`, `tagline_en`, `tagline_fa`, `motto`, `logo` (`assets/tsuba-emblem.svg`), `base` (site root URL, computed from the script's own address) and `platforms[]` (`n` Roman numeral, `slug`, `en`, `fa`, `desc_en`, `desc_fa`, `color`, `icon`, `href`).

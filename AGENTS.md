@@ -4,7 +4,7 @@ This file is the entry point for any AI assistant or developer opening this repo
 Read it fully, then read the documents it links. **Do not start from scratch**: most of the system exists and is tested.
 
 ## What this project is
-**VERTEX** (formerly TSUBA and Danimor; repo still `danialmor/TSUBA`) is a private business ecosystem for a construction / interior-design company in Isfahan, Iran
+**VERTEX** (formerly TSUBA and Danimor; repo `danialmor/VERTEX`, renamed from TSUBA on 2026-11-14) is a private business ecosystem for a construction / interior-design company in Isfahan, Iran
 (owner: Danial, architect and construction project manager; ~10 active projects, 30–40 users).
 One domain hosts several sites ("modules") that share **one login, one database, one permission system and one integration layer**.
 

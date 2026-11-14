@@ -8,7 +8,7 @@ Each entry: date · decision · reason. Do not reverse without the owner's appro
 - **2026-11** · Offline writes are not supported in hub mode for the dashboard (saves show an error and retry); the SDK supports an outbox for other sites. · Simplicity; data must reach the server.
 - **2026-11** · Conflict policy: merge arrays by `id`, the saving user wins for the same item; never silently drop changes. · Multi-user editing of shared documents.
 - **2026-11** · Test mode with `Admin` / `Admin123` for every environment until real data. · Owner request; must be switched off before production.
-- **2026-11** · GitHub repo `danialmor/TSUBA` (formerly `Dash-Project---MSP`) is the source of truth; the server pulls `main` every 10 minutes. · Owner wants automatic updates without manual uploads.
+- **2026-11** · GitHub repo `danialmor/VERTEX` (formerly `Dash-Project---MSP`) is the source of truth; the server pulls `main` every 10 minutes. · Owner wants automatic updates without manual uploads.
 - **2026-11** · No GitHub Actions dependency. · The AI connector cannot write workflow files.
 - **2026-11** · Dashboard keeps a "local mode" for preview (claude.ai artifact, GitHub Pages). · Design reviews happen in the preview.
 - **2026-11** · Landing page is `noindex`; shows the 12 ecosystem modules; only live modules link to their sites. · Private business system.
