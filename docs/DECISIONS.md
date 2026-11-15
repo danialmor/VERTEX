@@ -29,3 +29,6 @@ Each entry: date · decision · reason. Do not reverse without the owner's appro
 - **2026-11** · GitHub Pages runs a browser-only demo hub for the panel (`shared/demo.js`). · Owner wants to see results on GitHub before having a server.
 - **2026-11-14** · Brand renamed **VERTEX**; mark = glowing inverted triangle with a lime point at its lower vertex (`assets/vertex-mark.svg`). The repository is still named `TSUBA` until the owner renames it. · Owner decision.
 - **2026-11-14** · Landing page: the twelve platforms sit on the three sides of the triangle (four per side), dark violet with lime accents. · Owner asked for a triangle identity.
+
+## 2026-11-15 — Uploaded dashboard data is stored in the public repo
+Owner chose to keep uploaded Excel data (schedules, project information, delay reports with names) in `msp-bi/data/store/` of the public repo, after being told it is visible to everyone and hard to remove from history. Writes need a fine-grained token entered per device. Revisit when the hub server is live.
