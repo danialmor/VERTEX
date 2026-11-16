@@ -25,8 +25,9 @@ One domain hosts several sites ("modules") that share **one login, one database,
 | `shared/brand.js` | **Brand root**: name, logo, taglines and the 12 platforms (numeral, name, description, colour, icon, link). Change the brand only here. |
 | `shared/demo.js` | In-browser demo hub used only on GitHub Pages (`*.github.io`) so the panel can be tried without a server. |
 | `assets/vertex-mark.svg` | The logo (plain SVG triangle). `assets/tsuba-emblem.svg` is the previous logo, unused. |
+| `mail/` | **Letters platform** (VI): for now a full-screen frame that runs `msp-bi/index.html?app=mail` (letters + my work desk only, same data and login). Project Control hides those two tabs unless connected in Settings → «اتصال پلتفرم‌ها» (`localStorage.pcConn`). Own design for this platform continues here. |
 | `files/` | **File Manager** (platform VII): `index.html` + `files.css` + `files.js`. State is one hub record `data/file-manager/state/main`; file bytes stay in the browser (IndexedDB) until the server gets blob storage. Owner-only overview tab: `admin/filemap.js`. |
-| `msp-bi/` | **Project Control** dashboard (single large HTML app, v3.63.0) + `hub-bridge.js` (server sync) + `sw.js` + PWA files. |
+| `msp-bi/` | **Project Control** dashboard (single large HTML app, v3.64.0) + `hub-bridge.js` (server sync) + `sw.js` + PWA files. |
 | `admin/` | **User Control Panel** + unified login: ecosystem-admin console (subscriptions, requests, modules, staff, system) and subscription-admin panel (users, 10 levels, profile). |
 | `admin/extras.js`, `admin/sitemap.js`, `admin/lib/` | Panel extensions (permissions, notifications, search, import, security, sales) and the ecosystem site map (Drawflow, MIT). They reach the panel through `window.TSP`. |
 | `aide/` | Connection/test page for the CEO & Secretary desk. The real Aide app lives in repo `danialmor/aide`. |
