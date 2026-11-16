@@ -38,6 +38,18 @@
   /* «I — Project Control» یا «I — کنترل پروژه» */
   B.label = function (slug, lang) { var p = typeof slug === 'object' ? slug : B.platform(slug); return p ? p.n + ' \u2014 ' + (lang === 'fa' ? p.fa : p.en) : String(slug || '') };
   B.desc = function (slug, lang) { var p = typeof slug === 'object' ? slug : B.platform(slug); return p ? (lang === 'fa' ? p.desc_fa : p.desc_en) : '' };
+  /* نشان هر پلتفرم (قانون G1): مثلث وارونه‌ی ورتکس به رنگ همان پلتفرم و شماره‌ی رومی‌اش داخل آن.
+     B.mark('project-control', 40) → رشته‌ی SVG ؛ B.markURL(slug) → نشانی data برای favicon یا <img> */
+  B.mark = function (slug, size, opt) {
+    var p = typeof slug === 'object' ? slug : B.platform(slug); if (!p) return ''; size = size || 40; opt = opt || {};
+    var c = p.color, id = 'vm' + p.n + Math.random().toString(36).slice(2, 6), L = p.n.length, fs = L >= 4 ? 21 : L === 3 ? 25 : L === 2 ? 30 : 34;
+    var lum = (function (h) { h = h.replace('#', ''); var r = parseInt(h.substr(0, 2), 16), g = parseInt(h.substr(2, 2), 16), b = parseInt(h.substr(4, 2), 16); return (0.299 * r + 0.587 * g + 0.114 * b) / 255 })(c), ink = lum > 0.62 ? '#1a1a1a' : '#ffffff';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="' + size + '" height="' + size + '" role="img" aria-label="' + p.n + ' — ' + p.en + '"' + (opt.cls ? ' class="' + opt.cls + '"' : '') + '>' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + c + '"/><stop offset="1" stop-color="' + c + '" stop-opacity=".78"/></linearGradient></defs>' +
+      '<path d="M8 14 Q4 8 11 8 H89 Q96 8 92 14 L54 86 Q50 93 46 86 Z" fill="url(#' + id + ')" stroke="' + c + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<text x="50" y="' + (L >= 3 ? 44 : 46) + '" text-anchor="middle" dominant-baseline="middle" font-family="Georgia,\'Times New Roman\',serif" font-weight="700" font-size="' + fs + '" fill="' + ink + '" letter-spacing=".5">' + p.n + '</text></svg>';
+  };
+  B.markURL = function (slug, size) { return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(B.mark(slug, size || 64)) };
   /* پر کردن جاهای data-brand در صفحه */
   B.apply = function (root) {
     root = root || document;
@@ -50,6 +62,9 @@
       else if (k === 'tagline-fa') el.textContent = B.tagline_fa;
       else if (k === 'motto') el.textContent = B.motto;
     });
+    /* data-mark="slug": نشان پلتفرم داخل عنصر؛ data-mark-favicon="slug" روی <link rel=icon> */
+    [].forEach.call(root.querySelectorAll('[data-mark]'), function (el) { el.innerHTML = B.mark(el.getAttribute('data-mark'), +el.getAttribute('data-mark-size') || 40) });
+    [].forEach.call(root.querySelectorAll('[data-mark-favicon]'), function (el) { el.href = B.markURL(el.getAttribute('data-mark-favicon')) });
     if (document.title.indexOf('{brand}') >= 0) document.title = document.title.replace(/\{brand\}/g, B.name);
   };
   window.BRAND = B;

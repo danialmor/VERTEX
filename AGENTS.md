@@ -69,3 +69,11 @@ node hub/tests/e2e_panel.js         # control panel: admin creates subscription,
 
 ## Where to start
 See **"Next steps"** in `docs/STATUS.md`. The top item is always the current priority.
+
+## Standing rules from the owner (2026-11-17) — always apply
+1. Platform names follow the landing image: "I — Project Control" … "XII — Company Space".
+2. Platform mark = inverted triangle in the platform color with its Roman numeral inside: `BRAND.mark(slug, size)` / `BRAND.markURL(slug)` in `shared/brand.js`. Use it wherever a platform logo appears.
+3. Global policy lives only in `shared/policy.json`. When policy changes, edit it there; the admin panel tab "لوگو و سیاست" and `docs/POLICY.md` follow (run `node tools/platform_meta.js`).
+4. Admin panel (`admin/eco.js`): "لوگو و سیاست", "سایت کلی" (whole site), and one tab per platform (currently "I — کنترل پروژه"). Add a tab for each new platform.
+5. Each platform keeps an English, AI-readable `<platform>/PLATFORM.md` (purpose, build, data, rules, connections, open needs) and a generated `<platform>/platform.json` (version + changelog). Update both on every release so the panel records every change.
+6. Visits: pages include `shared/track.js` with `data-site="<slug>"`. Real all-user stats need the private server (`POST /api/v1/track`, not yet implemented server-side).

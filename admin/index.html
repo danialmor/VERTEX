@@ -10,6 +10,7 @@
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
 <script src="../shared/demo.js"></script>
+<script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="panel.css">
@@ -204,6 +205,7 @@ if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeI
 <script src="extras.js"></script>
 <script src="sitemap.js"></script>
 <script src="filemap.js"></script>
+<script src="eco.js"></script>
 <script src="fx.js"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
