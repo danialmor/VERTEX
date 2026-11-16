@@ -46,3 +46,11 @@ Each theme pack only sets the base variables (`--glass2`, `--line2`, `--r-xl`, `
 5. The simulation ("ghost") mode must show **15 projects** on every page so layouts are checked at full load.
 
 - (3.61) Side-by-side columns inside `#schedBody`, `#fiBody`, `#wkBody` are stretched to the bottom of the screen by `fillBody()` (classes `.fillg/.fillk/.fillw`); each column scrolls inside itself. Stacked layouts fall back to `.pgsc`.
+
+## 6. Height and scroll rule (since v3.62.0) — must follow
+1. **Never write `100vh`** (CSS or JS). Use `var(--vh)`; `setVH()` keeps it equal to the real visible height (`VHs()` = `innerHeight` / `visualViewport.height`). On iPad Safari `100vh` is taller than the visible area, which made every page scroll a little.
+2. On desktop / iPad landscape the **page itself never scrolls**. Every frame is fitted by `fitPanes()` / `fitBoxes()` and scrolls inside itself; side-by-side columns use `fillBody()`, stacked bodies use `.pgsc`.
+3. Height changes (Safari bars, bookmarks bar) re-fit the frames; only while typing in a field are small changes ignored (keyboard).
+4. Minimum frame height is 220px (360px only when the screen is shorter than 560px) so a frame never pushes the page down.
+5. A frame that scrolls inside itself has **no backdrop blur** (`backdrop-filter:none`) and a slightly more solid background; on Safari, blur + inner scroll + rounded corners draws broken corners.
+6. Check with the crawler: every tab and sub-tab at 1366×922, 1180×760 and 1024×700, light and dark — page scroll (`ps`) must be 0.
