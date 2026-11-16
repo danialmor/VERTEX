@@ -44,3 +44,5 @@ Each theme pack only sets the base variables (`--glass2`, `--line2`, `--r-xl`, `
 3. With many items, charts switch to a dense layout (`.efx.many`) and scroll inside their card; with one item they show detail views (`efOne`).
 4. Do not duplicate an action on the same page (e.g. the delay form is opened only by "گزارش تأخیر" in the header).
 5. The simulation ("ghost") mode must show **15 projects** on every page so layouts are checked at full load.
+
+- (3.61) Side-by-side columns inside `#schedBody`, `#fiBody`, `#wkBody` are stretched to the bottom of the screen by `fillBody()` (classes `.fillg/.fillk/.fillw`); each column scrolls inside itself. Stacked layouts fall back to `.pgsc`.
