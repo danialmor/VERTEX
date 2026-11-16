@@ -54,3 +54,5 @@ Each theme pack only sets the base variables (`--glass2`, `--line2`, `--r-xl`, `
 4. Minimum frame height is 220px (360px only when the screen is shorter than 560px) so a frame never pushes the page down.
 5. A frame that scrolls inside itself has **no backdrop blur** (`backdrop-filter:none`) and a slightly more solid background; on Safari, blur + inner scroll + rounded corners draws broken corners.
 6. Check with the crawler: every tab and sub-tab at 1366×922, 1180×760 and 1024×700, light and dark — page scroll (`ps`) must be 0.
+7. (3.63) **Page lock:** at ≥900px `html`/`body` are exactly `var(--vh)` tall with `overflow:hidden`; the top bar never moves; only `.view.active` may scroll (fallback). Fitted frames are sized with `Math.floor(...) - 2` so no 1px inner scroll appears.
+8. (3.63) **Dashboard tiles** are packed in tidy rows by `tlPlace()`: each row has one height, shorter tiles of the same width stack in a column, the last column widens to close any gap. Tile padding 10px 13px, gap 8px, row unit 40–50px.
