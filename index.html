@@ -139,7 +139,7 @@ footer{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);text-al
   if(!p.href)el.addEventListener('click',function(){held=true;show(i)});tri.appendChild(el);nodes.push(el)});
  show(0);
  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(function(){if(!held&&!document.hidden)show((cur+1)%P.length)},3200);
- document.getElementById('mods').innerHTML=P.map(function(p){var tag=p.href?'a':'div';return '<li><'+tag+' class="pc"'+(p.href?' href="'+esc(p.href)+'"':'')+' style="--c:'+p.color+'"><span class="ic mk">'+(window.BRAND&&BRAND.mark?BRAND.mark(p,44):'')+'</span><b><i>'+p.n+'</i> — '+esc(p.en)+'</b><small>'+esc(p.desc_en)+'</small><span class="ft"><span class="fa" lang="fa">'+esc(p.fa)+'</span><span class="st'+(p.href?' live':'')+'">'+(p.href?'Live':'Planned')+'</span></span></'+tag+'></li>'}).join('');
+ document.getElementById('mods').innerHTML=P.map(function(p){var tag=p.href?'a':'div';return '<li><'+tag+' class="pc"'+(p.href?' href="'+esc(p.href)+'"':'')+' style="--c:'+p.color+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+(I[p.icon]||'')+'</svg></span><b><i>'+p.n+'</i> — '+esc(p.en)+'</b><small>'+esc(p.desc_en)+'</small><span class="ft"><span class="fa" lang="fa">'+esc(p.fa)+'</span><span class="st'+(p.href?' live':'')+'">'+(p.href?'Live':'Planned')+'</span></span></'+tag+'></li>'}).join('');
  document.getElementById('yr').textContent=new Date().getFullYear();
 })();
 </script>
