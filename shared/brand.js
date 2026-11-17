@@ -30,7 +30,7 @@
       ['IX', 'shared-cursor', 'Shared Cursor', 'موس مشترک', 'Real-time collaboration', 'همکاری هم‌زمان', '#0072bc', 'cursor', ''],
       ['X', 'designer', 'Designer Workspace', 'فضای طراح', 'Design and creativity', 'طراحی و خلاقیت', '#2e3192', 'pal', ''],
       ['XI', 'crm', 'CRM', 'مشتریان', 'Clients and relationships', 'مشتریان و ارتباطات', '#662d91', 'hand', ''],
-      ['XII', 'company-space', 'Company Space', 'فضای اختصاصی شرکت', 'Private company environment', 'محیط اختصاصی شرکت', '#c2185b', 'bld', '']
+      ['XII', 'trading', 'Trading', 'تریدینگ', 'Crypto market research and trading tools', 'ابزارهای تحلیل بازار و ترید کریپتو', '#c2185b', 'chart', 'trading/']
     ].map(function (p) { return { n: p[0], slug: p[1], en: p[2], fa: p[3], desc_en: p[4], desc_fa: p[5], color: p[6], icon: p[7], href: p[8] ? base + p[8] : '' } })
   };
   /* پلتفرم با شناسه */

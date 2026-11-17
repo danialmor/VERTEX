@@ -38,9 +38,10 @@ MODULES = (
     ('shared-cursor', 'موس مشترک', 'Shared Cursor', 'planned', '', '', '#06b6d4', 'cursor'),
     ('designer', 'صفحه طراح', 'Designer Workspace', 'planned', '', '', '#fbbf24', 'pal'),
     ('crm', 'مشتریان', 'CRM', 'planned', '', '', '#10b981', 'hand'),
-    ('company-space', 'فضای اختصاصی شرکت', 'Company Space', 'planned', '', '', '#7c3aed', 'bld'),
+    ('trading', 'تریدینگ', 'Trading', 'live', '/trading/', 'trading', '#c2185b', 'chart'),
 )
 MOD_SUMMARY = {
+    'trading': 'Crypto research (GMGN Skills) and a pump.fun/LaunchLab trading bot; source in trading/, runs on the server.',
     'project-control': 'Scheduling, WBS, delays, daily reports, dashboards (msp-bi).', 'messenger': 'Internal chat; currently inside msp-bi.',
     'users-panel': 'Accounts, roles, site grants (admin control center).', 'executive-desk': 'CEO and secretary desk: calendars, meetings, notes (aide).',
     'mail': 'Formal letters with approval routes; currently inside msp-bi.', 'file-manager': 'Project documents and MSP files; currently inside msp-bi.',

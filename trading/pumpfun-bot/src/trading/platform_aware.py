@@ -1,0 +1,1411 @@
+"""Execution: the buyer and the seller, trading through the coin's `Market`."""
+
+import asyncio
+import dataclasses
+from collections.abc import Callable
+from decimal import Decimal
+from time import monotonic
+
+from solders.pubkey import Pubkey
+from solders.signature import Signature
+
+from core.client import SolanaClient, TransactionNotSent
+from core.priority_fee.manager import PriorityFeeManager
+from core.pubkeys import (
+    TOKEN_DECIMALS,
+    WSOL_MINT,
+    SystemAddresses,
+    cached_quote_token_program,
+    normalize_quote_mint,
+    quote_symbol,
+    quote_units_per_token,
+)
+from core.trade_deltas import TradeDeltas
+from core.wallet import Wallet
+from interfaces.core import (
+    AddressProvider,
+    ConfirmationStatus,
+    Market,
+    Platform,
+    TokenInfo,
+    TradeFailureReason,
+)
+from platforms import get_platform_implementations
+from platforms.curve_market import CurveMarket
+from platforms.pumpfun.curve_manager import (
+    max_sell_within_real_reserves,
+    sell_quote_out,
+)
+from trading.base import PendingBuy, Trader, TradeResult
+from trading.pnl import format_price, lamports_to_sol
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+# How a confirmation outcome reads from the trader's side. SUCCESS has no entry:
+# a KeyError beats silently labelling a successful trade as a failure.
+_FAILURE_REASON_FOR = {
+    ConfirmationStatus.REVERTED: TradeFailureReason.REVERTED,
+    ConfirmationStatus.UNCONFIRMED: TradeFailureReason.UNCONFIRMED,
+}
+
+
+def _not_settled(
+    side: str, status: ConfirmationStatus, signature: object, revert: list[str]
+) -> str:
+    """How a buy or sell that did not succeed is reported.
+
+    Args:
+        side: "buy" or "sell"
+        revert: The error of a transaction that landed and reverted, when the
+            client read one
+    """
+    if status is ConfirmationStatus.REVERTED:
+        error = f": {revert[0]}" if revert else ""
+        return f"the {side} landed and reverted{error}; tx {signature}"
+    return f"Transaction failed to confirm: {signature}"
+
+
+async def _read_pool_state_with_retry(
+    curve_manager: object,
+    pool_address: Pubkey,
+    mint: Pubkey | None = None,
+    budget_seconds: float = 2.0,
+    delay_seconds: float = 0.15,
+) -> tuple[dict, Pubkey | None]:
+    """Read bonding curve state, retrying within a time budget on a lagging node.
+
+    A freshly created curve may not be visible at `confirmed` yet, and a node can
+    serve a slot that predates it — both surface as "account not found". Reads on
+    a load-balanced endpoint can lag a fast listener by an unpredictable amount,
+    hence a time budget rather than a fixed attempt count.
+
+    When `mint` is given and the curve manager supports it, the curve and the
+    mint are read in one slot-consistent batch, so the mint's owning token
+    program comes back for free (the logs CreateEvent path can only guess it).
+
+    Args:
+        curve_manager: Platform curve manager
+        pool_address: Bonding curve / pool address
+        mint: Optional token mint to read alongside the curve
+        budget_seconds: Total time to keep retrying before giving up
+        delay_seconds: Pause between attempts
+
+    Returns:
+        Tuple of (decoded pool state, token program id or None if unknown)
+
+    Raises:
+        Exception: The last read error if every attempt fails
+    """
+    batch_read = mint is not None and hasattr(
+        curve_manager, "get_pool_state_and_token_program"
+    )
+    deadline = monotonic() + budget_seconds
+    last_error: Exception | None = None
+    while True:
+        try:
+            if batch_read:
+                result = await curve_manager.get_pool_state_and_token_program(
+                    pool_address, mint, commitment="processed"
+                )
+            else:
+                state = await curve_manager.get_pool_state(
+                    pool_address, commitment="processed"
+                )
+                result = (state, None)
+        except Exception as error:  # noqa: BLE001
+            last_error = error
+            if monotonic() + delay_seconds > deadline:
+                break
+            await asyncio.sleep(delay_seconds)
+        else:
+            return result
+
+    raise last_error or RuntimeError("pool_state unavailable after retries")
+
+
+def _refresh_quote_mint(token_info: TokenInfo, pool_state: dict) -> Pubkey:
+    """Sync token_info's quote asset from freshly-read curve state.
+
+    Listeners do not all carry quote_mint, and the curve is authoritative.
+    `quote_token_program_id` is re-derived alongside it, because a stale non-None
+    value would win the `or` in `AddressProvider.resolve_quote` and the corrected
+    program would never be looked up. `cached_quote_token_program` is a
+    synchronous dict read, so this stays zero-RPC on the extreme_fast_mode path.
+
+    Args:
+        token_info: Token information, mutated in place
+        pool_state: Decoded bonding curve state
+
+    Returns:
+        The resolved quote mint
+    """
+    quote_mint = normalize_quote_mint(
+        pool_state.get("quote_mint", token_info.quote_mint)
+    )
+    token_info.quote_mint = quote_mint
+    token_info.quote_token_program_id = cached_quote_token_program(quote_mint)
+    return quote_mint
+
+
+def _refresh_creator(
+    token_info: TokenInfo, pool_state: dict, address_provider: AddressProvider
+) -> None:
+    """Take the coin's creator, and pump.fun's creator vault, from the curve read.
+
+    A fee-sharing setup can rewrite `BondingCurve.creator` after launch, in its
+    own transaction, so the listener's creator goes stale and a `creator_vault`
+    derived from it reverts with ConstraintSeeds (2006). A read without a
+    creator leaves token_info as it is.
+    """
+    fresh_creator = pool_state.get("creator")
+    if not fresh_creator:
+        return
+    creator = (
+        Pubkey.from_string(fresh_creator)
+        if isinstance(fresh_creator, str)
+        else fresh_creator
+    )
+    token_info.creator = creator
+    if hasattr(address_provider, "derive_creator_vault"):
+        token_info.creator_vault = address_provider.derive_creator_vault(creator)
+
+
+_CURVE_RESERVES = {
+    "virtual_token_reserves",
+    "virtual_quote_reserves",
+    "real_quote_reserves",
+}
+
+
+def _fit_sell_to_curve(
+    pool_state: dict | None,
+    amount: int,
+    amount_decimal: float,
+    price: float,
+    quote_unit: int,
+) -> tuple[int, float, float]:
+    """Shrink a pump.fun curve sell to what the curve can pay out.
+
+    A sell whose payout is more than the curve's `real_quote_reserves` reverts
+    (6024 Overflow) however often it is resent, so sell the largest part that
+    fits. The rest stays in the wallet; the position keeps it open.
+
+    Args:
+        pool_state: The pump.fun curve read the sell is built from; None when
+            the sell does not go to a pump.fun curve or the read failed, and
+            the sell is left as it is then
+        amount: Raw tokens to sell
+        amount_decimal: `amount` in whole tokens
+        price: Reference price per whole token, in whole quote units
+        quote_unit: Raw units per whole quote unit
+
+    Returns:
+        (raw tokens, whole tokens, reference price) to sell with: the inputs
+        when the curve can pay for the whole sell. Otherwise the part it can pay
+        for (0 when it holds nothing), and the price lowered to the curve's own
+        payout for that part if the caller's is higher, so the slippage floor
+        and the cap come from the same read.
+    """
+    if pool_state is None or not _CURVE_RESERVES <= pool_state.keys():
+        return amount, amount_decimal, price
+    sellable = max_sell_within_real_reserves(pool_state, amount)
+    if sellable == amount:
+        return amount, amount_decimal, price
+    if sellable == 0:
+        # The seller reports that the curve can pay nothing now.
+        return 0, 0.0, price
+    logger.warning(
+        f"The curve holds {pool_state['real_quote_reserves']} "
+        f"raw quote units, less than selling all {amount} raw tokens would pay; "
+        f"selling {sellable} raw tokens, the most it can pay for. The other "
+        f"{amount - sellable} stay in the wallet, still held by the position."
+    )
+    sellable_decimal = sellable / 10**TOKEN_DECIMALS
+    payout_price = sell_quote_out(pool_state, sellable) / quote_unit / sellable_decimal
+    return sellable, sellable_decimal, min(price, payout_price)
+
+
+#: Lamports every transaction pays per signature; the bot signs with one key.
+_BASE_FEE_LAMPORTS = 5_000
+
+
+def _network_fee_lamports(priority_fee: int | None, compute_unit_limit: int) -> int:
+    """What a one-signature transaction costs: base fee plus priority fee.
+
+    Args:
+        priority_fee: Microlamports per compute unit; None sends none
+    """
+    return _BASE_FEE_LAMPORTS + (priority_fee or 0) * compute_unit_limit // 1_000_000
+
+
+def _below_network_fee(token_info: TokenInfo, payout: int, fee: int) -> bool:
+    """Whether a sale's payout, in lamports, is less than its network fee."""
+    if payout >= fee:
+        return False
+    logger.warning(
+        f"The part of {token_info.symbol} the curve can pay for is worth {payout} "
+        f"lamports, less than its {fee} lamport network fee; nothing sent"
+    )
+    return True
+
+
+def _nothing_to_sell(
+    token_info: TokenInfo, *, curve_short: bool, below_fee: bool = False
+) -> TradeResult:
+    """The result of a sell that sent nothing.
+
+    Args:
+        curve_short: The position holds tokens, but the curve's real reserves
+            can't pay anything for them now. Reported as SUBMIT_FAILED, so the
+            exit retries it as one more bounded attempt: the curve may refill
+            or graduate.
+        below_fee: With `curve_short`, the curve can pay for part of it, but
+            less than the sale's network fee
+    """
+    if not curve_short:
+        logger.info("No tokens to sell.")
+        return TradeResult(
+            success=False,
+            platform=token_info.platform,
+            error_message="No tokens to sell",
+        )
+    return TradeResult(
+        success=False,
+        platform=token_info.platform,
+        error_message=(
+            f"The {token_info.symbol} curve's real reserves can pay "
+            f"{'less than the network fee' if below_fee else 'nothing'} for it "
+            f"now; nothing sent"
+        ),
+        failure_reason=TradeFailureReason.SUBMIT_FAILED,
+        curve_short=True,
+    )
+
+
+async def read_deltas(
+    client: SolanaClient,
+    signature: str | Signature,
+    wallet: Pubkey,
+    token_info: TokenInfo,
+    venue_account: Pubkey | str | None = None,
+) -> TradeDeltas | None:
+    """What a landed trade did to the wallet; None when it can't be read.
+
+    Never raises: the trade landed, and failing to read it back must not
+    report it failed.
+    """
+    try:
+        return await client.get_trade_deltas(
+            signature,
+            wallet,
+            token_info.mint,
+            normalize_quote_mint(token_info.quote_mint),
+            venue_account,
+        )
+    except Exception as e:
+        logger.warning(f"Could not read transaction {str(signature)[:16]}...: {e}")
+        logger.debug("Reading the transaction failed", exc_info=True)
+        return None
+
+
+def log_deltas(side: str, token_info: TokenInfo, deltas: TradeDeltas) -> None:
+    """Log what a trade did to the wallet, rent apart from what was traded."""
+    quote_mint = normalize_quote_mint(token_info.quote_mint)
+    label = quote_symbol(quote_mint)
+    try:
+        quote = (
+            f"{abs(deltas.quote_raw) / quote_units_per_token(quote_mint):.9f} {label}"
+            if deltas.quote_raw is not None
+            else f"an unread amount of {label}"
+        )
+    except ValueError:
+        quote = f"{abs(deltas.quote_raw)} raw {label}"
+    text = (
+        f"{side} of {token_info.symbol} from the chain: "
+        f"{abs(deltas.tokens_raw)} raw tokens for {quote} (protocol fees "
+        f"included); network fee {lamports_to_sol(deltas.network_fee_lamports):.9f} SOL"
+    )
+    if deltas.other_lamports:
+        text += (
+            f"; other SOL {lamports_to_sol(deltas.other_lamports):+.9f} (rent or "
+            f"transfers for accounts the wallet does not own)"
+        )
+    if deltas.rent_deposited_lamports:
+        text += (
+            f"; account rent {lamports_to_sol(deltas.rent_deposited_lamports):.9f} "
+            f"SOL put in, back when the account closes"
+        )
+    if deltas.rent_refunded_lamports:
+        text += (
+            f"; account rent {lamports_to_sol(deltas.rent_refunded_lamports):.9f} "
+            f"SOL back"
+        )
+    logger.info(text)
+
+
+def landed_sale(
+    token_info: TokenInfo,
+    signature: str | Signature,
+    amount_raw: int,
+    reference_price: float,
+    deltas: TradeDeltas | None,
+) -> TradeResult:
+    """The result of a sale that landed, priced from its transaction.
+
+    Args:
+        amount_raw: Raw tokens the sale was sent with
+        reference_price: The seller's reference price; the sale's price when
+            the transaction could not be read, which makes it an estimate
+    """
+    price = reference_price
+    quote_mint = normalize_quote_mint(token_info.quote_mint)
+    if deltas is not None and deltas.tokens_raw < 0 and deltas.quote_raw is not None:
+        log_deltas("Sale", token_info, deltas)
+        sold = -deltas.tokens_raw / 10**TOKEN_DECIMALS
+        try:
+            price = deltas.quote_raw / quote_units_per_token(quote_mint) / sold
+        except ValueError:
+            logger.warning(f"Could not price the sale of {token_info.symbol}")
+    else:
+        deltas = None
+        logger.warning(
+            f"The sale of {token_info.symbol} could not be read back; its price "
+            f"is the seller's reference price {format_price(reference_price)}, "
+            f"an estimate"
+        )
+    return TradeResult(
+        success=True,
+        platform=token_info.platform,
+        tx_signature=str(signature),
+        amount=amount_raw / 10**TOKEN_DECIMALS,
+        amount_raw=amount_raw,
+        price=price,
+        deltas=deltas,
+    )
+
+
+class _MaybeSent(Exception):  # noqa: N818 - names an outcome
+    """A buy's send failed after signing, in a way that may have delivered it."""
+
+    def __init__(self, signature: Signature) -> None:
+        super().__init__(f"send of {signature} failed; it may still land")
+        self.signature = signature
+
+
+class PlatformAwareBuyer(Trader):
+    """Platform-aware token buyer that works with any supported platform."""
+
+    #: Called once a buy's transaction may have reached the chain: when the send
+    #: returns, and when it fails or is cancelled after signing. Handed the
+    #: coin, a failed `TradeResult` (UNCONFIRMED) with the signature and the
+    #: expected amount and price, and what resolving it needs. The trader keeps
+    #: it in the positions file until the buy is resolved. Must not block or
+    #: raise. None: nothing is told.
+    on_sent: Callable[[TokenInfo, TradeResult, PendingBuy], None] | None = None
+
+    def __init__(
+        self,
+        client: SolanaClient,
+        wallet: Wallet,
+        priority_fee_manager: PriorityFeeManager,
+        amount: float,
+        slippage: float = 0.01,
+        max_retries: int = 5,
+        extreme_fast_token_amount: int = 0,
+        extreme_fast_mode: bool = False,
+        compute_units: dict | None = None,
+        quote_amounts: dict[Pubkey, float] | None = None,
+        curve_refresh_budget: float = 2.0,
+        *,
+        trust_create_event: bool = True,
+    ):
+        """Initialize platform-aware token buyer.
+
+        Args:
+            client: Solana RPC client
+            wallet: Trading wallet
+            priority_fee_manager: Priority fee strategy
+            amount: Amount of SOL to spend per buy on SOL-paired coins
+            slippage: Acceptable price deviation
+            max_retries: Transaction submission attempts
+            extreme_fast_token_amount: Tokens to buy when skipping price checks
+            extreme_fast_mode: Skip curve stabilization and price check
+            compute_units: Optional CU overrides
+            quote_amounts: Per-quote-mint spend amounts in whole quote units,
+                for coins paired against something other than SOL. A coin whose
+                quote mint is absent from this map is skipped rather than
+                traded with a SOL-denominated amount.
+            curve_refresh_budget: Seconds to keep retrying the pre-buy curve
+                read before skipping the token. A buy built without fresh curve
+                state guesses fee_recipient/creator_vault and reverts on-chain.
+            trust_create_event: Skip the pre-buy curve read for TokenInfo marked
+                state_from_event, so extreme_fast_mode makes zero RPC calls
+                between detection and submission. False forces the refresh for
+                every listener.
+        """
+        self.client = client
+        self.wallet = wallet
+        self.priority_fee_manager = priority_fee_manager
+        self.amount = amount
+        self.slippage = slippage
+        self.max_retries = max_retries
+        self.extreme_fast_mode = extreme_fast_mode
+        self.extreme_fast_token_amount = extreme_fast_token_amount
+        self.compute_units = compute_units or {}
+        self.curve_refresh_budget = curve_refresh_budget
+        self.trust_create_event = trust_create_event
+        # SOL-paired coins always use `amount`; other quotes need an explicit
+        # per-mint amount because 0.0001 USDC and 0.0001 SOL are not comparable.
+        self.quote_amounts: dict[Pubkey, float] = {
+            WSOL_MINT: amount,
+            **(quote_amounts or {}),
+        }
+
+    def _resolve_quote_amount(self, quote_mint: Pubkey) -> float | None:
+        """Get the configured spend amount for a quote mint.
+
+        Args:
+            quote_mint: Normalized quote mint
+
+        Returns:
+            Amount in whole quote units, or None if this quote is not configured
+        """
+        return self.quote_amounts.get(quote_mint)
+
+    async def execute(self, token_info: TokenInfo) -> TradeResult:
+        """Execute buy operation using platform-specific implementations.
+
+        A failure says what is known: SUBMIT_FAILED when nothing can have
+        reached the network, REVERTED, or UNCONFIRMED with the signature when
+        it may have landed (a send that failed ambiguously, say on a read
+        timeout, included). A pre-send skip (quote gate, unreadable curve) has
+        none.
+        """
+        # Set once the buy is sent: from then on a failure is not "nothing
+        # happened".
+        tx_signature: Signature | None = None
+        try:
+            implementations = get_platform_implementations(
+                token_info.platform, self.client
+            )
+            address_provider = implementations.address_provider
+            curve = implementations.curve_market
+            # The curve, or the AMM pool once the curve has graduated.
+            venue: Market = curve
+
+            # Quote asset is resolved from the curve below; start from whatever
+            # the listener gave us so extreme_fast_mode has a usable default.
+            quote_mint = normalize_quote_mint(token_info.quote_mint)
+            # Read from the curve on the regular path, back-derived from the
+            # fixed token count in extreme_fast_mode, which reads no curve.
+            token_price_sol: float | None = None
+            # Read from chain on the regular path only; extreme_fast_mode sizes
+            # without it.
+            pool_state: dict = {}
+
+            if self.extreme_fast_mode:
+                # Zero-RPC hot path: when the CreateEvent carried the canonical
+                # creator, the mayhem/cashback flags and quote_mint, nothing
+                # sits between detection and submission. Otherwise refresh or
+                # skip.
+                if not self._can_skip_refresh(token_info):
+                    skip_reason = await self._refresh_curve_state(token_info, curve)
+                    if skip_reason is not None:
+                        return TradeResult(
+                            success=False,
+                            platform=token_info.platform,
+                            error_message=skip_reason,
+                        )
+                    quote_mint = normalize_quote_mint(token_info.quote_mint)
+            else:
+                # Regular path: fetch pool state for price and flags
+                pool_state = await curve.get_market_state(token_info)
+                # Validated below, after the quote gate: an unconfigured quote
+                # asset leaves this None, and "no configured buy amount" is the
+                # accurate reason to skip, not "invalid price".
+                token_price_sol = pool_state.get("price_per_token")
+
+                # Mayhem/cashback flags decide fee_recipient and the account-list
+                # shape (cashback sells use 17 accounts, non-cashback 16).
+                token_info.is_mayhem_mode = pool_state.get("is_mayhem_mode", False)
+                token_info.is_cashback_coin = pool_state.get(
+                    "is_cashback_coin", token_info.is_cashback_coin
+                )
+                quote_mint = _refresh_quote_mint(token_info, pool_state)
+                _refresh_creator(token_info, pool_state, address_provider)
+
+            # A quote asset with no configured amount cannot be traded: spending
+            # `amount` of it would be a different order of magnitude.
+            quote_amount = self._resolve_quote_amount(quote_mint)
+            if quote_amount is None:
+                return TradeResult(
+                    success=False,
+                    platform=token_info.platform,
+                    error_message=(
+                        f"No configured buy amount for quote mint {quote_mint}; "
+                        f"set trade.quote_amounts for this mint to trade it"
+                    ),
+                )
+
+            quote_unit = quote_units_per_token(quote_mint)
+            quote_label = quote_symbol(quote_mint)
+
+            # A graduated curve takes no buys; the coin trades in the AMM pool
+            # it migrated to, priced and sized from that pool instead. Read
+            # after the quote gate: pricing a pool needs the quote's decimals.
+            if pool_state.get("graduated"):
+                venue = implementations.graduated_market
+                unavailable = None
+                # A transfer fee is the coin's, not the venue's: the pool's
+                # state does not carry it, the curve's does.
+                transfer_fee_bps = pool_state.get("transfer_fee_bps", 0)
+                if venue is None:
+                    unavailable = (
+                        f"no post-graduation market for {token_info.platform.value}"
+                    )
+                else:
+                    try:
+                        pool_state = {
+                            "transfer_fee_bps": transfer_fee_bps,
+                            **await venue.get_market_state(token_info),
+                        }
+                    except ValueError as e:
+                        unavailable = str(e)
+                if unavailable is not None:
+                    return TradeResult(
+                        success=False,
+                        platform=token_info.platform,
+                        error_message=f"{token_info.symbol} has graduated: {unavailable}",
+                    )
+                token_price_sol = pool_state["price_per_token"]
+                # The pool knows the coin's token program; a listener may have
+                # guessed it. The positions file and cleanup must name the
+                # account this buy fills.
+                self._apply_token_program(
+                    token_info, pool_state.get("token_program"), address_provider
+                )
+                logger.info(
+                    f"{token_info.symbol} has graduated; buying in {pool_state['pool']}"
+                )
+
+            # Both branches size the trade from the resolved quote amount:
+            # extreme_fast_mode fixes the token count and back-derives an implied
+            # price, the regular path fixes the spend and derives the count.
+            if self.extreme_fast_mode:
+                token_amount = self.extreme_fast_token_amount
+                token_price_sol = quote_amount / token_amount if token_amount > 0 else 0
+            else:
+                if token_price_sol is None or token_price_sol <= 0:
+                    raise ValueError(
+                        f"Invalid price_per_token: {token_price_sol} for pool "
+                        f"{curve.pool_address(token_info)} "
+                        f"(mint: {token_info.mint}) - cannot execute buy with "
+                        f"zero/invalid price"
+                    )
+                token_amount = quote_amount / token_price_sol
+                # LaunchLab and the AMM pools take their fee from the spend and,
+                # on a transfer-fee coin, Token-2022 withholds the transfer fee
+                # from the tokens delivered, on the curve and in the pool alike.
+                # Both are known, so leave them out of the expected amount
+                # rather than spending slippage tolerance on them.
+                token_amount *= 1 - pool_state.get("fee_fraction", 0.0)
+                token_amount *= 1 - pool_state.get("transfer_fee_bps", 0) / 10_000
+
+            # Slippage goes on whichever side the program leaves open. An
+            # exact-in program spends all of amount_in, so it gets the
+            # configured amount and a token floor. Otherwise the token count
+            # is exact (pump.fun buy_v2) and amount_in is the ceiling.
+            exact_in = venue.spends_exact_amount_in
+            if exact_in:
+                # The configured spend is a decimal like 0.003; scaling the float
+                # can land one raw unit short of it.
+                max_quote_amount_raw = int(Decimal(str(quote_amount)) * quote_unit)
+                token_amount_raw = int(
+                    token_amount * (1 - self.slippage) * 10**TOKEN_DECIMALS
+                )
+            else:
+                max_quote_amount_raw = int(
+                    quote_amount * quote_unit * (1 + self.slippage)
+                )
+                token_amount_raw = int(token_amount * 10**TOKEN_DECIMALS)
+
+            instructions = await venue.build_buy_instruction(
+                token_info,
+                self.wallet.pubkey,
+                max_quote_amount_raw,  # amount_in (raw quote units)
+                token_amount_raw,  # minimum_amount_out (tokens)
+            )
+
+            priority_accounts = venue.get_required_accounts_for_buy(
+                token_info, self.wallet.pubkey
+            )
+
+            logger.info(
+                f"Buying {token_amount:.6f} tokens at {format_price(token_price_sol)} "
+                f"{quote_label} per token on {token_info.platform.value} "
+                f"(venue: {venue.name})"
+            )
+            logger.info(
+                f"Total cost: {quote_amount:.6f} {quote_label} "
+                f"(max: {max_quote_amount_raw / quote_unit:.6f} {quote_label})"
+            )
+
+            # Where the spend lands, to read it back; None when unknown.
+            quote_destination = self._quote_destination(
+                token_info, venue, address_provider
+            )
+            tx_signature = await self._send(
+                token_info,
+                TradeResult(
+                    success=False,
+                    platform=token_info.platform,
+                    amount=token_amount,
+                    price=token_price_sol,
+                    failure_reason=TradeFailureReason.UNCONFIRMED,
+                ),
+                PendingBuy(
+                    # Exact-in buys get more than sized when the price fell.
+                    max_amount_raw=(
+                        int(token_amount * (1 + self.slippage) * 10**TOKEN_DECIMALS)
+                        if exact_in
+                        else token_amount_raw
+                    ),
+                    quote_destination=(
+                        None if quote_destination is None else str(quote_destination)
+                    ),
+                    spend_raw=max_quote_amount_raw if exact_in else None,
+                    venue=venue.name,
+                ),
+                instructions,
+                self.wallet.keypair,
+                skip_preflight=True,
+                max_retries=self.max_retries,
+                priority_fee=await self.priority_fee_manager.calculate_priority_fee(
+                    priority_accounts
+                ),
+                compute_unit_limit=venue.get_buy_compute_unit_limit(
+                    self._get_cu_override("buy", token_info.platform)
+                ),
+                account_data_size_limit=self._get_cu_override(
+                    "account_data_size", token_info.platform
+                ),
+            )
+
+            revert: list[str] = []
+            status = await self.client.confirm_transaction_detailed(
+                tx_signature, on_revert=revert.append, program=venue.program_id
+            )
+
+            if status is ConfirmationStatus.SUCCESS:
+                logger.info(f"Buy transaction confirmed: {tx_signature}")
+
+                deltas = await read_deltas(
+                    self.client,
+                    tx_signature,
+                    self.wallet.pubkey,
+                    token_info,
+                    venue_account=quote_destination,
+                )
+                # The fill is what the venue took in, protocol fees left out:
+                # exits measure from it. What the wallet paid is in `deltas`.
+                tokens_raw, quote_spent = None, None
+                if deltas is not None and deltas.tokens_raw > 0:
+                    tokens_raw, quote_spent = deltas.tokens_raw, deltas.venue_quote_raw
+                    log_deltas("Buy", token_info, deltas)
+                else:
+                    deltas = None
+
+                # The exact raw count, carried to the sell: converting the float
+                # back can come out a raw unit short and leave dust behind.
+                amount_raw = None
+                if tokens_raw is not None:
+                    # The token count stands on its own; a missing spend only
+                    # leaves the price at its estimate.
+                    amount_raw = tokens_raw
+                    actual_amount = tokens_raw / 10**TOKEN_DECIMALS
+                    logger.info(
+                        f"Actual tokens received: {actual_amount:.6f} "
+                        f"(expected: {token_amount:.6f})"
+                    )
+                    token_amount = actual_amount
+                    if quote_spent is None and exact_in and tokens_raw > 0:
+                        # An exact-in buy spent what it submitted; pairing the
+                        # actual count with the estimated price would set an
+                        # unreachable sell floor.
+                        quote_spent = max_quote_amount_raw
+                    if quote_spent is not None and tokens_raw > 0:
+                        actual_price = (quote_spent / quote_unit) / actual_amount
+                        logger.info(
+                            f"Fill: {quote_spent / quote_unit:.10f} {quote_label} "
+                            f"into the venue, protocol fees left out"
+                        )
+                        logger.info(
+                            f"Actual price: {format_price(actual_price)} "
+                            f"{quote_label}/token"
+                        )
+                        token_price_sol = actual_price
+                else:
+                    # confirm_transaction already read meta.err, so the buy
+                    # executed — only the amounts could not be read back.
+                    # Reporting failure would run _handle_failed_buy on a
+                    # position we hold, burning it under cleanup.mode "on_fail".
+                    # Fall back to the balance the wallet really holds.
+                    logger.warning(
+                        f"Could not parse buy amounts (tokens={tokens_raw}, "
+                        f"quote_spent={quote_spent}) from tx {tx_signature}; "
+                        f"the buy did land, falling back to the wallet balance"
+                    )
+                    balance_raw = await self._read_token_balance(token_info)
+                    if balance_raw is not None and balance_raw > 0:
+                        balance = balance_raw / 10**TOKEN_DECIMALS
+                        # The balance is cumulative, so cap it at what this buy
+                        # asked for: the rest was already held, and selling it
+                        # would liquidate an unrelated position. An exact delta
+                        # would need a pre-submit read, which breaks
+                        # extreme_fast_mode's zero-RPC contract.
+                        logger.info(
+                            f"Token balance after buy: {balance:.6f}, selling at "
+                            f"most the {token_amount:.6f} this buy asked for"
+                        )
+                        amount_raw = min(
+                            balance_raw, int(token_amount * 10**TOKEN_DECIMALS)
+                        )
+                        token_amount = amount_raw / 10**TOKEN_DECIMALS
+                    else:
+                        logger.warning(
+                            f"Token balance unreadable too; holding the expected "
+                            f"{token_amount:.6f} tokens at the implied price. "
+                            f"Verify tx {tx_signature} before relying on the PnL."
+                        )
+
+                return TradeResult(
+                    success=True,
+                    platform=token_info.platform,
+                    tx_signature=tx_signature,
+                    amount=token_amount,
+                    amount_raw=amount_raw,
+                    price=token_price_sol,
+                    deltas=deltas,
+                    venue=venue.name,
+                )
+            else:
+                return TradeResult(
+                    success=False,
+                    platform=token_info.platform,
+                    tx_signature=str(tx_signature),
+                    error_message=_not_settled("buy", status, tx_signature, revert),
+                    failure_reason=_FAILURE_REASON_FOR[status],
+                    venue=venue.name,
+                )
+
+        except Exception as e:
+            logger.exception("Buy operation failed")
+            if isinstance(e, _MaybeSent):
+                tx_signature = e.signature
+            # After the send, a throw (reading the amounts back, say) leaves a
+            # buy that may have landed: an unknown, never "nothing was sent".
+            return TradeResult(
+                success=False,
+                platform=token_info.platform,
+                tx_signature=str(tx_signature) if tx_signature else None,
+                error_message=str(e),
+                failure_reason=(
+                    TradeFailureReason.UNCONFIRMED
+                    if tx_signature
+                    else TradeFailureReason.SUBMIT_FAILED
+                ),
+            )
+
+    async def _send(
+        self,
+        token_info: TokenInfo,
+        sent: TradeResult,
+        pending: PendingBuy,
+        *args: object,
+        **kwargs: object,
+    ) -> Signature:
+        """Send the buy and tell `on_sent` it may be on chain.
+
+        `on_sent` hears of it once the send returns, or once the transaction
+        was signed when a cancellation lands mid-send or the send fails in a
+        way that may still have delivered it: a send under way may reach the
+        chain whatever happens to this task.
+
+        Args:
+            sent: What `on_sent` is handed, minus the signature
+            pending: The same, minus the block height the signer reports
+            *args, **kwargs: For `build_and_send_transaction`
+
+        Raises:
+            TransactionNotSent: Nothing can have reached the network
+            _MaybeSent: The send failed after signing and may have landed
+        """
+        signed: list[tuple[Signature, int | None]] = []
+
+        def on_signed(signature: Signature, last_valid: int | None) -> None:
+            signed.append((signature, last_valid))
+
+        def tell(signature: Signature) -> None:
+            last_valid = signed[0][1] if signed else None
+            self._tell_sent(
+                token_info,
+                dataclasses.replace(sent, tx_signature=str(signature)),
+                dataclasses.replace(pending, last_valid_block_height=last_valid),
+            )
+
+        try:
+            signature = await self.client.build_and_send_transaction(
+                *args, on_signed=on_signed, **kwargs
+            )
+        except asyncio.CancelledError:
+            if signed:
+                tell(signed[0][0])
+            raise
+        except TransactionNotSent:
+            raise
+        except Exception as e:
+            if not signed:
+                raise
+            tell(signed[0][0])
+            raise _MaybeSent(signed[0][0]) from e
+        tell(signature)
+        return signature
+
+    def _tell_sent(
+        self, token_info: TokenInfo, sent: TradeResult, pending: PendingBuy
+    ) -> None:
+        if self.on_sent is not None:
+            self.on_sent(token_info, sent, pending)
+
+    def _quote_destination(
+        self,
+        token_info: TokenInfo,
+        venue: Market,
+        address_provider: AddressProvider,
+    ) -> Pubkey | None:
+        """Where the buy's spend lands, for reading it back; None if unknown."""
+        try:
+            return venue.quote_destination(token_info) or self._get_sol_destination(
+                token_info, address_provider
+            )
+        except NotImplementedError:
+            return None
+
+    async def _read_token_balance(self, token_info: TokenInfo) -> int | None:
+        """Read how many of a coin the wallet actually holds.
+
+        Used only when a landed buy's amounts could not be parsed back out of the
+        transaction. Selling more than is held reverts, so the balance beats the
+        expected amount.
+
+        Args:
+            token_info: Token information carrying the mint and token program
+
+        Returns:
+            Balance in raw token units, or None if it cannot be read
+        """
+        token_program = (
+            token_info.token_program_id or SystemAddresses.TOKEN_2022_PROGRAM
+        )
+        try:
+            ata = self.wallet.get_associated_token_address(
+                token_info.mint, token_program
+            )
+            balance_raw = await self.client.get_token_account_balance(ata)
+        except Exception as e:  # noqa: BLE001
+            logger.warning(f"Could not read token balance for {token_info.mint}: {e}")
+            return None
+        return balance_raw
+
+    def _can_skip_refresh(self, token_info: TokenInfo) -> bool:
+        """Whether the pre-buy curve read can be skipped entirely.
+
+        True when the listener read creator, mayhem/cashback and quote_mint from
+        the on-chain CreateEvent, keeping extreme_fast_mode at zero RPC calls
+        between detection and submission.
+
+        Args:
+            token_info: Token information from the listener
+
+        Returns:
+            True if the buy can be built from token_info as-is
+        """
+        return (
+            self.trust_create_event
+            and token_info.state_from_event
+            and token_info.quote_mint is not None
+        )
+
+    async def _refresh_curve_state(
+        self, token_info: TokenInfo, curve: CurveMarket
+    ) -> str | None:
+        """Refresh mayhem/cashback/creator/quote_mint/token program from chain.
+
+        Instruction-parsed TokenInfo takes creator from user-supplied args and
+        an old-format CreateEvent carries no mayhem/cashback/quote_mint; a buy
+        built on either is rejected with NotAuthorized (0x1770) or
+        ConstraintSeeds (0x7d6). A lagging node may not serve the curve yet, so
+        the read retries within curve_refresh_budget.
+
+        Args:
+            token_info: Token information, mutated in place on success
+
+        Returns:
+            None on success; on failure a reason to skip the buy, since a buy
+            built from listener-guessed defaults reverts and still costs the fee
+        """
+        address_provider = curve.address_provider
+        try:
+            pool_address = curve.pool_address(token_info)
+            # Geyser/logs fire on processed, so the curve is usually readable in
+            # the same slot.
+            pool_state, fresh_token_program = await _read_pool_state_with_retry(
+                curve.curve_manager,
+                pool_address,
+                mint=token_info.mint,
+                budget_seconds=self.curve_refresh_budget,
+            )
+        except Exception as e:  # noqa: BLE001
+            return (
+                f"Curve state unreadable within {self.curve_refresh_budget:.1f}s "
+                f"({e}); skipping buy rather than submitting with guessed accounts"
+            )
+        if pool_state.get("graduated"):
+            # The pool is sized from its reserves, which this mode never reads.
+            return (
+                f"{token_info.symbol} has graduated; extreme_fast_mode buys only "
+                f"on the curve"
+            )
+
+        token_info.is_mayhem_mode = pool_state.get(
+            "is_mayhem_mode", token_info.is_mayhem_mode
+        )
+        token_info.is_cashback_coin = pool_state.get(
+            "is_cashback_coin", token_info.is_cashback_coin
+        )
+        # The quote asset decides which balance is spent and how amounts scale,
+        # so it must come from the curve rather than a listener guess.
+        _refresh_quote_mint(token_info, pool_state)
+        token_info.transfer_fee_bps = pool_state.get(
+            "transfer_fee_bps", token_info.transfer_fee_bps
+        )
+        _refresh_creator(token_info, pool_state, address_provider)
+        self._apply_token_program(token_info, fresh_token_program, address_provider)
+        return None
+
+    def _apply_token_program(
+        self,
+        token_info: TokenInfo,
+        token_program: Pubkey | None,
+        address_provider: AddressProvider,
+    ) -> None:
+        """Correct a listener-guessed token program from the mint's real owner.
+
+        A CreateEvent does not say which create variant ran, so the logs path
+        defaults to Token-2022; a legacy-`create` coin is SPL Token and the
+        ATA-create instruction then fails with IncorrectProgramId. The associated bonding
+        curve is an ordinary ATA, so it is re-derived under the corrected program.
+
+        Args:
+            token_info: Token information, mutated in place
+            token_program: Owner of the mint account, or None if unknown
+            address_provider: Platform address provider for ATA derivation
+        """
+        known_programs = (
+            SystemAddresses.TOKEN_PROGRAM,
+            SystemAddresses.TOKEN_2022_PROGRAM,
+        )
+        if token_program is None or token_program not in known_programs:
+            return
+        if token_info.token_program_id == token_program:
+            return
+        logger.info(
+            f"Correcting token program for {token_info.mint}: "
+            f"{token_info.token_program_id} -> {token_program}"
+        )
+        token_info.token_program_id = token_program
+        if token_info.bonding_curve and hasattr(
+            address_provider, "derive_associated_bonding_curve"
+        ):
+            token_info.associated_bonding_curve = (
+                address_provider.derive_associated_bonding_curve(
+                    token_info.mint, token_info.bonding_curve, token_program
+                )
+            )
+
+    def _get_sol_destination(
+        self, token_info: TokenInfo, address_provider: AddressProvider
+    ) -> Pubkey:
+        """Get the address where SOL is sent during a buy transaction.
+
+        pump.fun: the bonding curve. LaunchLab platforms: the pool's quote vault.
+
+        Args:
+            address_provider: Platform-specific address provider
+
+        Returns:
+            Address where SOL is transferred during buy
+
+        Raises:
+            NotImplementedError: If platform SOL destination is not implemented
+        """
+        if token_info.platform == Platform.PUMP_FUN:
+            if hasattr(token_info, "bonding_curve") and token_info.bonding_curve:
+                return token_info.bonding_curve
+            return address_provider.derive_pool_address(token_info.mint)
+        elif token_info.quote_vault:
+            return token_info.quote_vault
+
+        raise NotImplementedError(
+            f"SOL destination not implemented for platform {token_info.platform.value}. "
+            f"Add platform-specific logic to _get_sol_destination() to specify where "
+            f"SOL is transferred during buy transactions for this platform."
+        )
+
+    def _get_cu_override(self, operation: str, platform: Platform) -> int | None:
+        """Get compute unit override from configuration.
+
+        Args:
+            operation: "buy" or "sell"
+            platform: Trading platform (unused - each config is platform-specific)
+
+        Returns:
+            CU override value if configured, None otherwise
+        """
+        if not self.compute_units:
+            return None
+
+        return self.compute_units.get(operation)
+
+
+class PlatformAwareSeller(Trader):
+    """Platform-aware token seller that works with any supported platform."""
+
+    def __init__(
+        self,
+        client: SolanaClient,
+        wallet: Wallet,
+        priority_fee_manager: PriorityFeeManager,
+        slippage: float = 0.25,
+        max_retries: int = 5,
+        compute_units: dict | None = None,
+    ):
+        """Initialize platform-aware token seller."""
+        self.client = client
+        self.wallet = wallet
+        self.priority_fee_manager = priority_fee_manager
+        self.slippage = slippage
+        self.max_retries = max_retries
+        self.compute_units = compute_units or {}
+
+    async def execute(
+        self,
+        token_info: TokenInfo,
+        token_amount: float,
+        token_price: float,
+        token_amount_raw: int | None = None,
+    ) -> TradeResult:
+        """Execute sell operation using platform-specific implementations.
+
+        Args:
+            token_info: Token information for the sell operation
+            token_amount: Token amount to sell, from the buy result. Required so
+                no RPC balance query is needed.
+            token_price: Reference price in the quote asset that the slippage
+                floor is computed from. Passed in rather than read here, so pass
+                the freshest price available: a stale price above the market sets
+                a floor the pool cannot pay and the sell reverts (pump.fun 6003
+                TooLittleSolReceived).
+            token_amount_raw: `token_amount` in raw units, exact. Pass it when the
+                buy read it: rebuilt from the float, the amount can come out a raw
+                unit short and leave dust in the token account.
+
+        Returns:
+            TradeResult with operation outcome
+
+        Raises:
+            ValueError: If required parameters are not provided
+        """
+        if token_amount is None:
+            raise ValueError(
+                "token_amount is required for sell operation. "
+                "Pass the amount from buy result to avoid RPC delays."
+            )
+        if token_price is None or token_price <= 0:
+            raise ValueError(
+                "token_price is required for sell operation and must be positive. "
+                "Pass the price from buy result to avoid RPC delays."
+            )
+
+        # Declared before the try so the handler can tell a sell that was never
+        # submitted from one whose outcome is unknown. Only the first is safe to
+        # resend without checking the chain.
+        tx_signature = None
+        # The signature once the sell is signed, and the block height past which
+        # it can no longer land: a send that fails without proving nothing went
+        # out may still land, until then.
+        signed: list[tuple[Signature, int | None]] = []
+
+        try:
+            implementations = get_platform_implementations(
+                token_info.platform, self.client
+            )
+            address_provider = implementations.address_provider
+            curve = implementations.curve_market
+
+            # Fall back to the listener's quote asset if the refresh fails.
+            quote_mint = normalize_quote_mint(token_info.quote_mint)
+            # Protocol deductions on a sell, known up front: LaunchLab withholds
+            # the transfer fee on the way into the pool and takes its curve fee
+            # from the quote side. Zero where the pool state carries neither.
+            sell_deductions = (0.0, 0)
+            # Unknown when the refresh below fails; the curve is the default.
+            graduated = False
+            pool_state = None
+
+            # The sell account list is 16 (non-cashback) vs 17 (cashback) and
+            # fee_recipient differs in mayhem mode; both can change between buy
+            # and sell, so re-read from chain rather than trusting token_info.
+            try:
+                pool_address = curve.pool_address(token_info)
+                # Retry rather than reading once at `confirmed`: a node serving a
+                # slightly stale slot reports the curve as missing, and silently
+                # falling back to create-time values risks a wrong creator_vault
+                # (ConstraintSeeds 0x7d6) or wrong mayhem fee_recipient.
+                pool_state, _ = await _read_pool_state_with_retry(
+                    curve.curve_manager, pool_address
+                )
+                token_info.is_mayhem_mode = pool_state.get(
+                    "is_mayhem_mode", token_info.is_mayhem_mode
+                )
+                token_info.is_cashback_coin = pool_state.get(
+                    "is_cashback_coin", token_info.is_cashback_coin
+                )
+                quote_mint = _refresh_quote_mint(token_info, pool_state)
+                sell_deductions = (
+                    pool_state.get("fee_fraction", 0.0),
+                    pool_state.get("transfer_fee_bps", 0),
+                )
+                graduated = pool_state.get("graduated", False)
+                _refresh_creator(token_info, pool_state, address_provider)
+            except Exception as e:  # noqa: BLE001
+                logger.warning(
+                    f"Could not refresh curve flags before sell ({e}); "
+                    f"using token_info values is_mayhem_mode={token_info.is_mayhem_mode}, "
+                    f"is_cashback_coin={token_info.is_cashback_coin}"
+                )
+
+            # A graduated curve takes no sells; the coin trades in the AMM pool
+            # it migrated to, which builds the sell instead.
+            venue: Market = curve
+            if graduated:
+                market = implementations.graduated_market
+                try:
+                    if market is None:
+                        raise ValueError(  # noqa: TRY301
+                            f"no post-graduation market for {token_info.platform.value}"
+                        )
+                    market_state = await market.get_market_state(token_info)
+                except ValueError as e:
+                    return TradeResult(
+                        success=False,
+                        platform=token_info.platform,
+                        error_message=f"{token_info.symbol} has graduated: {e}",
+                        failure_reason=TradeFailureReason.SUBMIT_FAILED,
+                    )
+                logger.info(
+                    f"{token_info.symbol} has graduated; selling into "
+                    f"{market_state['pool']}"
+                )
+                venue = market
+                sell_deductions = (market_state["fee_fraction"], sell_deductions[1])
+
+            quote_unit = quote_units_per_token(quote_mint)
+            quote_label = quote_symbol(quote_mint)
+
+            # Use pre-known amount and price (no RPC delay)
+            token_balance_decimal = token_amount
+            token_balance = (
+                token_amount_raw
+                if token_amount_raw is not None
+                else int(token_amount * 10**TOKEN_DECIMALS)
+            )
+            token_price_sol = token_price
+
+            logger.info(f"Token balance: {token_balance_decimal:.6f}")
+            logger.info(
+                f"Reference price per token: {format_price(token_price_sol)} "
+                f"{quote_label}"
+            )
+
+            requested = token_balance
+            token_balance, token_balance_decimal, token_price_sol = _fit_sell_to_curve(
+                pool_state
+                if venue is curve and token_info.platform is Platform.PUMP_FUN
+                else None,
+                token_balance,
+                token_balance_decimal,
+                token_price_sol,
+                quote_unit,
+            )
+            if token_balance == 0:
+                return _nothing_to_sell(token_info, curve_short=requested > 0)
+
+            # Calculate expected quote output with slippage protection, in the
+            # quote mint's raw units.
+            fee_fraction, transfer_fee_bps = sell_deductions
+            expected_quote_output = (
+                token_balance_decimal
+                * (1 - transfer_fee_bps / 10_000)
+                * token_price_sol
+                * (1 - fee_fraction)
+            )
+            min_quote_output = max(
+                1,
+                int((expected_quote_output * (1 - self.slippage)) * quote_unit),
+            )
+            logger.info(
+                f"Selling {token_balance_decimal} tokens on "
+                f"{token_info.platform.value} (venue: {venue.name})"
+            )
+            logger.info(
+                f"Expected {quote_label} output: {expected_quote_output:.10f} {quote_label}"
+            )
+            logger.info(
+                f"Minimum {quote_label} output (with {self.slippage * 100:.1f}% slippage): "
+                f"{min_quote_output / quote_unit:.10f} {quote_label} "
+                f"({min_quote_output} raw units)"
+            )
+
+            # Get accounts for priority fee calculation
+            priority_accounts = venue.get_required_accounts_for_sell(
+                token_info, self.wallet.pubkey
+            )
+            priority_fee = await self.priority_fee_manager.calculate_priority_fee(
+                priority_accounts
+            )
+            compute_unit_limit = venue.get_sell_compute_unit_limit(
+                self._get_cu_override("sell", token_info.platform)
+            )
+            # A part the curve can pay for may be worth less than the sale
+            # costs: send nothing, and let the curve refill. Only a sale cut to
+            # the curve's reserves is cut, and it was cut from this curve read,
+            # so its payout is what the curve pays, not the caller's price.
+            # Fees are paid in SOL, so a payout in another quote asset is not
+            # compared.
+            if (
+                token_balance < requested
+                and quote_mint == WSOL_MINT
+                and pool_state is not None
+                and _below_network_fee(
+                    token_info,
+                    int(sell_quote_out(pool_state, token_balance) * (1 - fee_fraction)),
+                    _network_fee_lamports(priority_fee, compute_unit_limit),
+                )
+            ):
+                return _nothing_to_sell(token_info, curve_short=True, below_fee=True)
+
+            instructions = await venue.build_sell_instruction(
+                token_info,
+                self.wallet.pubkey,
+                token_balance,  # amount_in (tokens)
+                min_quote_output,  # minimum_amount_out (raw quote units)
+            )
+
+            tx_signature = await self.client.build_and_send_transaction(
+                instructions,
+                self.wallet.keypair,
+                skip_preflight=True,
+                max_retries=self.max_retries,
+                priority_fee=priority_fee,
+                compute_unit_limit=compute_unit_limit,
+                account_data_size_limit=self._get_cu_override(
+                    "account_data_size", token_info.platform
+                ),
+                on_signed=lambda signature, last_valid: signed.append(
+                    (signature, last_valid)
+                ),
+            )
+
+            revert: list[str] = []
+            status = await self.client.confirm_transaction_detailed(
+                tx_signature, on_revert=revert.append, program=venue.program_id
+            )
+
+            if status is ConfirmationStatus.SUCCESS:
+                logger.info(f"Sell transaction confirmed: {tx_signature}")
+                # Priced at the reference: the position manager settles the
+                # sale first, then reads it back (`landed_sale`).
+                return TradeResult(
+                    success=True,
+                    platform=token_info.platform,
+                    tx_signature=str(tx_signature),
+                    amount=token_balance_decimal,
+                    amount_raw=token_balance,
+                    price=token_price_sol,
+                    venue=venue.name,
+                )
+
+            # The signature belongs on the failure too. A caller weighing
+            # another sell has to be able to re-check this one, and digging it
+            # back out of error_message as text is not that. So does the amount
+            # sent: one that lands late may have been cut to fit the curve.
+            return TradeResult(
+                success=False,
+                platform=token_info.platform,
+                tx_signature=str(tx_signature),
+                amount_raw=token_balance,
+                error_message=_not_settled("sell", status, tx_signature, revert),
+                failure_reason=_FAILURE_REASON_FOR[status],
+                venue=venue.name,
+                last_valid_block_height=signed[0][1] if signed else None,
+            )
+
+        except Exception as e:
+            logger.exception("Sell operation failed")
+            if (
+                tx_signature is None
+                and signed
+                and not isinstance(e, TransactionNotSent)
+            ):
+                # Only TransactionNotSent proves no attempt reached the network.
+                tx_signature = signed[0][0]
+            if tx_signature is None:
+                # Nothing reached the chain, so there is nothing to resolve and
+                # resending is safe.
+                return TradeResult(
+                    success=False,
+                    platform=token_info.platform,
+                    error_message=str(e),
+                    failure_reason=TradeFailureReason.SUBMIT_FAILED,
+                )
+            # A transaction was submitted and something after it threw. The sell
+            # may have landed, so this is an unknown outcome, not a failed
+            # submission: keep the signature for the caller to re-check.
+            return TradeResult(
+                success=False,
+                platform=token_info.platform,
+                tx_signature=str(tx_signature),
+                amount_raw=token_balance,  # set before anything was sent
+                error_message=f"Sell outcome unknown for {tx_signature}: {e}",
+                failure_reason=TradeFailureReason.UNCONFIRMED,
+                venue=venue.name,  # chosen before anything was sent
+                last_valid_block_height=signed[0][1] if signed else None,
+            )
+
+    def _get_cu_override(self, operation: str, platform: Platform) -> int | None:
+        """Get compute unit override from configuration.
+
+        Args:
+            operation: "buy" or "sell"
+            platform: Trading platform (unused - each config is platform-specific)
+
+        Returns:
+            CU override value if configured, None otherwise
+        """
+        if not self.compute_units:
+            return None
+
+        # Just check for operation override (buy/sell)
+        return self.compute_units.get(operation)

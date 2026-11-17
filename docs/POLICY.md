@@ -4,7 +4,7 @@ Updated: 2026-11-17 · Owner: Danial (sole system administrator)
 
 ## brand
 - One brand root: shared/brand.js. Name, colors, platform list and marks come only from there.
-- Platform names follow the landing image: 'I — Project Control' … 'XII — Company Space'.
+- Platform names follow the landing image: 'I — Project Control' … 'XII — Trading'.
 - Each platform mark = inverted VERTEX triangle in the platform color with its Roman numeral inside (BRAND.mark(slug)).
 
 ## admin

@@ -71,7 +71,7 @@ node hub/tests/e2e_panel.js         # control panel: admin creates subscription,
 See **"Next steps"** in `docs/STATUS.md`. The top item is always the current priority.
 
 ## Standing rules from the owner (2026-11-17) — always apply
-1. Platform names follow the landing image: "I — Project Control" … "XII — Company Space".
+1. Platform names follow the landing image: "I — Project Control" … "XII — Trading".
 2. Platform mark = inverted triangle in the platform color with its Roman numeral inside: `BRAND.mark(slug, size)` / `BRAND.markURL(slug)` in `shared/brand.js`. Use it wherever a platform logo appears.
 3. Global policy lives only in `shared/policy.json`. When policy changes, edit it there; the admin panel tab "لوگو و سیاست" and `docs/POLICY.md` follow (run `node tools/platform_meta.js`).
 4. Admin panel (`admin/eco.js`): "لوگو و سیاست", "سایت کلی" (whole site), and one tab per platform (currently "I — کنترل پروژه"). Add a tab for each new platform.
@@ -84,3 +84,4 @@ See **"Next steps"** in `docs/STATUS.md`. The top item is always the current pri
 - Logout is in the header user menu (`#umB` → `[data-um=out]`); `#lo` still exists hidden. e2e: `node hub/tests/e2e_panel.js` (admin nav = 15).
 - Saved design proposals: `docs/designs/` (see its README).
 - Panel tab "Sim · گردش‌کار هوشمند" (`admin/sim.js`, admin only): connects a Sim instance (simstudioai/sim, Apache-2.0, uploaded 2026-11-17 as sim-main.zip — NOT vendored: Next.js+Postgres, needs Docker/12 GB, runs on the future VPS). Stores {url, chats, ideas} at /data/admin/sim/main. Sim /workspace forbids cross-site framing → opened in a new tab; deployed /chat/* agents are embedded in an iframe. Admin nav = 16.
+- Platform XII renamed to **Trading** (`trading/`, see `trading/PLATFORM.md`): two independent tabs — GMGN Skills and the pump.fun bot (both vendored source, browse-only, run on server). `.nojekyll` added at repo root.

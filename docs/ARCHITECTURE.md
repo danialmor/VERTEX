@@ -39,7 +39,7 @@ All page links are **relative**, so the same files work at the domain root on th
 | IX | shared-cursor | موس مشترک | planned | – | – |
 | X | designer | فضای طراح | planned | – | – |
 | XI | crm | مشتریان | planned | – | – |
-| XII | company-space | فضای اختصاصی شرکت | planned | – | – |
+| XII | trading | تریدینگ | live | trading/ | GMGN Skills + pump.fun bot (vendored, run on server) |
 
 A head-office user can use a module when they are `admin` or hold a grant for the module's `site`. A subscription user can use a module when it is in the subscription and in the user's own module list (section 6). Planned modules have no site yet.
 To add/activate a module: `POST /api/v1/admin/modules` or the "ماژول‌ها" tab of the control panel.
