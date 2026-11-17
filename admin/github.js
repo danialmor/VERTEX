@@ -17,12 +17,17 @@
   async function putFile(path, obj) {
     var sha, r = await gh('/repos/' + OWN + '/' + REP + '/contents/' + path + '?ref=main'); if (r.ok) sha = (await r.json()).sha;
     var w = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/contents/' + path, { method: 'PUT', headers: { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'panel: ' + path, content: btoa(unescape(encodeURIComponent(JSON.stringify(obj, null, 1)))), sha: sha, branch: 'main' }) });
-    if (!w.ok) throw new Error('GitHub ' + w.status);
+    if (!w.ok) throw new Error(w.status === 403 ? 'کلید اجازه‌ی نوشتن ندارد (Contents → Read and write)' : 'GitHub ' + w.status);
   }
   async function vault() { try { var r = await gh('/repos/' + OWN + '/' + REP + '/contents/shared/vault.json?ref=main', { t: '' }); if (r.ok) { var j = await r.json(); return JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\n/g, ''))))) } } catch (e) { } return null }
   async function check() {
     if (!tok()) return { ok: false, why: 'none' };
-    try { var r = await gh('/repos/' + OWN + '/' + REP); if (r.status === 401) return { ok: false, why: 'bad' }; var j = await r.json(); return j.permissions && j.permissions.push ? { ok: true } : { ok: false, why: 'ro' } } catch (e) { return { ok: false, why: 'net' } }
+    try {
+      var r = await gh('/repos/' + OWN + '/' + REP); if (r.status === 401) return { ok: false, why: 'bad' }; if (r.status === 404) return { ok: false, why: 'repo' };
+      // For fine-grained keys, permissions.push describes the ACCOUNT, not the key. Real test: create a tiny unreferenced blob (needs Contents: write; changes nothing visible).
+      var w = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/git/blobs', { method: 'POST', headers: { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify({ content: 'vertex-key-check', encoding: 'utf-8' }) });
+      if (w.status === 201) return { ok: true }; if (w.status === 401) return { ok: false, why: 'bad' }; return { ok: false, why: 'ro' }
+    } catch (e) { return { ok: false, why: 'net' } }
   }
   var STEPS = [
     ['صفحه‌ی ساخت کلید را باز کنید', 'دکمه‌ی «ساخت کلید در GitHub» را بزنید (با حساب danialmor وارد باشید).'],
@@ -36,7 +41,7 @@
     return Promise.all([check(), vault()]).then(function (r) {
       var st = r[0], vj = r[1], t = tok();
       var badge = st.ok ? '<span class="pill" style="background:rgba(53,194,122,.18);color:#1f9d6b;border-radius:99px;padding:3px 12px">✓ وصل · ذخیره روی مخزن فعال</span>'
-        : '<span class="pill" style="background:rgba(240,165,58,.2);color:#b8741a;border-radius:99px;padding:3px 12px">' + ({ none: 'هنوز وصل نیست', bad: 'کلید نامعتبر یا منقضی', ro: 'کلید اجازه‌ی نوشتن ندارد', net: 'اتصال به GitHub برقرار نشد' }[st.why]) + '</span>';
+        : '<span class="pill" style="background:rgba(240,165,58,.2);color:#b8741a;border-radius:99px;padding:3px 12px">' + ({ none: 'هنوز وصل نیست', bad: 'کلید نامعتبر یا منقضی', ro: 'کلید فقط اجازه‌ی خواندن دارد — Contents باید Read and write باشد', repo: 'کلید به مخزن VERTEX دسترسی ندارد', net: 'اتصال به GitHub برقرار نشد' }[st.why]) + '</span>';
       var h = head('ذخیره در GitHub', 'یک کلید برای کل اکوسیستم: داده‌ی پنل، بارگذاری‌های داشبورد و کلید دستیار، همه روی مخزن ' + OWN + '/' + REP + ' ذخیره می‌شوند.', '<a class="btn pri" href="' + NEW + '" target="_blank" rel="noopener">ساخت کلید در GitHub</a>');
       h += '<div class="card mb" style="display:grid;gap:12px"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><h2 style="margin:0;font-size:16px">وضعیت</h2>' + badge + (t ? '<small style="color:var(--muted)" dir="ltr">' + esc(t.slice(0, 11)) + '…' + esc(t.slice(-4)) + '</small>' : '') + '</div>'
         + '<div style="display:flex;gap:8px;flex-wrap:wrap"><input id="ghIn" type="password" class="ltr" placeholder="github_pat_…" autocomplete="off" style="flex:1;min-width:220px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:inherit;font:inherit"><button class="btn pri" id="ghGo">اتصال</button>' + (t ? '<button class="btn" id="ghOff">قطع از این مرورگر</button>' : '') + '</div>'
@@ -54,7 +59,7 @@
       $('#ghGo').onclick = async function () {
         var v = ($('#ghIn').value || '').trim(); if (!v) { toast('کلید را بچسبانید.'); return }
         var b = this; b.disabled = true; var old = tok(); try { localStorage.setItem('ghTok', v) } catch (e) { }
-        var c = await check(); if (!c.ok) { try { old ? localStorage.setItem('ghTok', old) : localStorage.removeItem('ghTok') } catch (e) { } toast({ bad: 'کلید نامعتبر است.', ro: 'این کلید اجازه‌ی نوشتن در VERTEX ندارد (قدم ۳ و ۴).', net: 'اتصال به GitHub برقرار نشد.' }[c.why] || 'وصل نشد.'); b.disabled = false; return }
+        var c = await check(); if (!c.ok) { try { old ? localStorage.setItem('ghTok', old) : localStorage.removeItem('ghTok') } catch (e) { } toast({ bad: 'کلید نامعتبر است.', ro: 'این کلید اجازه‌ی نوشتن در VERTEX ندارد (قدم ۴: Contents → Read and write).', repo: 'این کلید به مخزن VERTEX دسترسی ندارد (قدم ۳).', net: 'اتصال به GitHub برقرار نشد.' }[c.why] || 'وصل نشد.'); b.disabled = false; return }
         try { localStorage.removeItem('ghHash') } catch (e) { }
         toast('✓ وصل شد؛ از این به بعد ذخیره‌ها روی مخزن می‌رود.'); page();
       };
