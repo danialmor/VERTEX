@@ -1,0 +1,215 @@
+<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>تقویم کنترل پروژه</title></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap">
+<script>if(self!==top)document.documentElement.classList.add("emb")</script><style>.emb .top,.emb .rail{display:none!important}.emb .wrap{padding-block:4px}html,body{margin:0}body{background:transparent!important;background-image:none!important}
+/* Layout: floating dark rail + glass header (title, 4 stats, tabs) + month calendar beside a mini-calendar & attention column */
+:root{
+ --ground1:#e3f1ec;--ground2:#f6f2e6;--ground3:#e9eef6;
+ --glass:rgba(255,255,255,.62);--glass2:rgba(255,255,255,.85);--cell:#f3f5f2;--cell2:#e9ece8;
+ --ink:#141a17;--mut:#6b7570;--line:rgba(20,26,23,.08);
+ --dark:#151816;--onDark:#f4f6f4;--sun:#f4c430;
+ --go:#0f7a5c;--goS:#dff1ea;--warn:#e0a21a;--warnS:#fbf0d4;--bad:#d64545;--badS:#fbe1e1;--info:#3466c2;
+ --f:"Vazirmatn",Tahoma,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ground1:#0f1714;--ground2:#17150f;--ground3:#10141b;--glass:rgba(28,32,30,.7);--glass2:rgba(34,38,36,.92);--cell:#1d2220;--cell2:#262c29;--ink:#eef2ef;--mut:#99a39e;--line:rgba(255,255,255,.08);--dark:#eef2ef;--onDark:#121513;--goS:#16392e;--warnS:#3a2f12;--badS:#3d1b1b;color-scheme:dark}}
+:root[data-theme="dark"]{--ground1:#0f1714;--ground2:#17150f;--ground3:#10141b;--glass:rgba(28,32,30,.7);--glass2:rgba(34,38,36,.92);--cell:#1d2220;--cell2:#262c29;--ink:#eef2ef;--mut:#99a39e;--line:rgba(255,255,255,.08);--dark:#eef2ef;--onDark:#121513;--goS:#16392e;--warnS:#3a2f12;--badS:#3d1b1b;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--f);color:var(--ink);background:var(--ground2);background-image:radial-gradient(1200px 600px at 85% -10%,var(--ground1),transparent 60%),radial-gradient(900px 600px at 0% 100%,var(--ground3),transparent 60%);min-height:100%;font-feature-settings:"ss01"}
+.wrap{display:flex;gap:20px;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1500px;margin:0 auto}
+.rail{position:sticky;top:calc(20px + env(safe-area-inset-top,0px));align-self:flex-start;margin-top:150px;display:flex;flex-direction:column;gap:10px;padding:10px;border-radius:999px;background:var(--dark);color:var(--onDark)}
+.rail button{width:44px;height:44px;border-radius:50%;border:0;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.75}
+.rail button:hover,.rail button:focus-visible{opacity:1;background:rgba(127,127,127,.18);outline:none}
+.rail .add{background:var(--sun);color:#151816;opacity:1}
+.rail svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+main{flex:1;min-width:0;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.01em}
+.logo i{width:38px;height:38px;border-radius:11px;background:var(--dark);display:grid;place-items:center}
+.logo i svg{width:22px;height:22px}
+.nav{display:flex;gap:4px;flex-wrap:wrap;margin-inline:auto}
+.nav a{padding:8px 15px;border-radius:999px;color:var(--ink);text-decoration:none;font-size:14px;font-weight:500;display:flex;gap:6px;align-items:center}
+.nav a.on{background:var(--dark);color:var(--onDark)}
+.nav a:hover:not(.on){background:var(--glass)}
+.nav b{font-size:11px;background:var(--sun);color:#151816;border-radius:999px;padding:0 7px;line-height:18px}
+.who{display:flex;gap:10px;align-items:center}
+.pill{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;background:var(--glass2);border:1px solid var(--line);font-size:13px;font-weight:600}
+.pill i{width:28px;height:28px;border-radius:50%;background:var(--dark);color:var(--onDark);display:grid;place-items:center;font-style:normal;font-size:12px}
+.av{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0f7a5c,#f4c430);display:grid;place-items:center;color:#fff;font-weight:700}
+.hero{display:flex;gap:28px;align-items:center;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(28px,3.4vw,40px);line-height:1.15;font-weight:800;letter-spacing:-.02em;text-wrap:balance;min-width:210px}
+.stats{display:flex;gap:26px;flex-wrap:wrap;flex:1}
+.st{display:flex;gap:12px;align-items:center}
+.st i{width:44px;height:44px;border-radius:50%;background:var(--glass2);display:grid;place-items:center;border:1px solid var(--line)}
+.st svg{width:18px;height:18px;fill:none;stroke:var(--ink);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.st b{display:block;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.st small{color:var(--mut);font-size:12px}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:var(--glass);border-radius:999px;padding:4px;border:1px solid var(--line)}
+.seg button{border:0;background:transparent;padding:7px 16px;border-radius:999px;font:inherit;font-size:13px;color:var(--mut);cursor:pointer}
+.seg button.on{background:var(--glass2);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.rb{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--glass2);color:var(--ink);cursor:pointer;font:inherit;font-size:16px}
+.tb{padding:9px 18px;border-radius:999px;border:1px solid var(--line);background:var(--glass2);font:inherit;font-weight:600;font-size:13px;color:var(--ink);cursor:pointer}
+.cta{padding:11px 20px;border-radius:999px;border:0;background:var(--dark);color:var(--onDark);font:inherit;font-weight:700;font-size:14px;cursor:pointer;margin-inline-start:auto}
+button:focus-visible{outline:2px solid var(--info);outline-offset:2px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{padding:6px 13px;border-radius:999px;background:var(--glass2);border:1px solid var(--line);font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer;display:flex;gap:6px;align-items:center}
+.chip.on{background:var(--dark);color:var(--onDark);border-color:transparent}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.sep{width:1px;height:22px;background:var(--line);margin-inline:4px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+.panel{background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:26px;padding:20px}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.ph h2{margin:0;font-size:18px;font-weight:700}
+.ph small{color:var(--mut);font-size:12px}
+.leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut)}
+.leg span{display:flex;gap:6px;align-items:center}
+.camp{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.camp span{background:var(--glass2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;display:flex;gap:6px;align-items:center}
+.camp em{font-style:normal;color:var(--mut)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.dow{font-size:11.5px;color:var(--mut);font-weight:600;padding:0 6px 4px}
+.day{background:var(--glass2);border-radius:14px;min-height:118px;padding:8px;display:flex;flex-direction:column;gap:4px;border:1px solid transparent;min-width:0}
+.day.out{background:transparent;border-color:var(--line);opacity:.55}
+.day.fri{background:var(--cell)}
+.day.today{border-color:var(--ink)}
+.dn{display:flex;justify-content:space-between;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.dn small{color:var(--mut);font-weight:500}
+.ev{font-size:11.5px;line-height:1.35;padding:4px 7px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;border:0;font-family:inherit;text-align:start;width:100%}
+.ev.ms{background:var(--go);color:#fff}
+.ev.stop{background:var(--badS);color:var(--bad)}
+.ev.slow{background:var(--warnS);color:#8a6200}
+:root[data-theme="dark"] .ev.slow{color:var(--warn)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ev.slow{color:var(--warn)}}
+.more{font-size:11px;color:var(--mut);padding-inline:4px}
+.side{display:flex;flex-direction:column;gap:16px}
+.mini .cal{gap:3px}
+.mini .md{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:12px;position:relative;font-variant-numeric:tabular-nums;background:var(--cell2);border:0;color:var(--ink);font-family:inherit;cursor:pointer}
+.mini .md.out{background:transparent;color:var(--mut)}
+.mini .md.has::after{content:"";position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:var(--bad)}
+.mini .md.today{background:var(--dark);color:var(--onDark)}
+.mini .dow{text-align:center;padding:0}
+.att{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.att li{display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:14px;background:var(--glass2)}
+.att .ic{width:32px;height:32px;border-radius:10px;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700}
+.att b{display:block;font-size:13px}
+.att small{color:var(--mut);font-size:11.5px}
+.tag{margin-inline-start:auto;flex:none;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600}
+.prg{display:flex;flex-direction:column;gap:10px}
+.prg div{display:grid;grid-template-columns:90px 1fr 38px;gap:8px;align-items:center;font-size:12.5px}
+.prg span{height:8px;border-radius:99px;background:var(--cell2);overflow:hidden}
+.prg span i{display:block;height:100%;background:var(--go);border-radius:99px}
+.prg em{font-style:normal;color:var(--mut);font-variant-numeric:tabular-nums;text-align:end}
+#pop{position:fixed;inset:auto auto calc(16px + env(safe-area-inset-bottom,0px)) auto;max-width:340px;background:var(--glass2);backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 20px 50px rgba(0,0,0,.18);font-size:13px;line-height:1.8}
+#pop h3{margin:0 0 4px;font-size:15px}
+#pop{left:16px}#pop button{float:left;margin-inline-start:8px}
+.note{font-size:12px;color:var(--mut);text-align:center}
+@media (max-width:1050px){.grid{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}
+@media (max-width:720px){.rail{display:none}.nav{order:3;width:100%;overflow-x:auto;flex-wrap:nowrap}.day{min-height:64px;padding:5px}.ev{font-size:0;height:6px;padding:0}.dn small{display:none}.cal{gap:4px}}
+@media (prefers-reduced-motion:no-preference){.ev,.chip,.nav a{transition:background .2s,transform .2s}.ev:hover{transform:translateY(-1px)}}
+</style>
+<div class="wrap" dir="rtl" lang="fa">
+ <nav class="rail" aria-label="ابزارها">
+  <button title="جست‌وجو" aria-label="جست‌وجو"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+  <button class="add" title="ثبت تأخیر" aria-label="ثبت تأخیر"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button title="زمان‌بندی" aria-label="زمان‌بندی"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></button>
+  <button title="تصاویر کارگاه" aria-label="تصاویر کارگاه"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="m4 16 5-5 4 4 3-3 4 4"/></svg></button>
+  <button title="اتصال پلتفرم‌ها" aria-label="اتصال پلتفرم‌ها"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></button>
+  <button title="دسترسی‌ها" aria-label="دسترسی‌ها"><svg viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z"/></svg></button>
+  <button id="thm" title="تم روشن/تیره" aria-label="تم روشن/تیره"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+ </nav>
+ <main>
+  <header class="top">
+   <div class="logo"><i><svg viewBox="0 0 100 100"><path d="M8 14 Q4 8 11 8 H89 Q96 8 92 14 L54 86 Q50 93 46 86 Z" fill="#e0262f"/><text x="50" y="46" text-anchor="middle" dominant-baseline="middle" font-family="Georgia,serif" font-weight="700" font-size="34" fill="#fff">I</text></svg></i>کنترل پروژه</div>
+   <nav class="nav" aria-label="بخش‌ها">
+    <a href="#">نمای کلی</a><a href="#">پروژه‌ها</a><a href="#" class="on">تقویم</a><a href="#">تأخیرات <b id="nOpen">0</b></a><a href="#">تأییدها <b>5</b></a><a href="#">راندمان و SPI</a><a href="#">زمان‌بندی</a>
+   </nav>
+   <div class="who"><div class="pill"><i>15</i>همه‌ی پروژه‌ها</div><div class="av" aria-label="دانیال">د</div></div>
+  </header>
+
+  <section class="hero">
+   <h1>تقویم<br>پروژه‌ها</h1>
+   <div class="stats" id="stats"></div>
+  </section>
+
+  <div class="bar">
+   <div class="seg" role="tablist"><button>هفته</button><button class="on">ماه</button><button>فهرست</button></div>
+   <span style="flex:1"></span>
+   <button class="rb" id="prev" aria-label="ماه قبل">›</button><button class="tb" id="tod">امروز</button><button class="rb" id="next" aria-label="ماه بعد">‹</button>
+   <button class="cta">+ ثبت گزارش روزانه</button>
+  </div>
+
+  <div class="chips" id="chips"></div>
+
+  <div class="grid">
+   <section class="panel">
+    <div class="ph"><div><h2 id="mt"></h2><small id="ms"></small></div>
+     <div class="leg"><span><i class="dot" style="background:var(--go)"></i>شروع / پایان پروژه</span><span><i class="dot" style="background:var(--bad)"></i>توقف کامل</span><span><i class="dot" style="background:var(--warn)"></i>کاهش سرعت / تأخیر</span></div></div>
+    <div class="camp" id="camp"></div>
+    <div class="cal" id="cal"></div>
+   </section>
+   <aside class="side">
+    <section class="panel mini"><div class="ph"><h2 id="mt2" style="font-size:15px"></h2></div><div class="cal" id="mini"></div></section>
+    <section class="panel"><div class="ph"><div><h2 style="font-size:15px">نیاز به رسیدگی</h2><small>بیشترین روز تأخیر، اول</small></div></div><ul class="att" id="att"></ul></section>
+    <section class="panel"><div class="ph"><h2 style="font-size:15px">پیشرفت فیزیکی</h2></div><div class="prg" id="prg"></div></section>
+   </aside>
+  </div>
+  <p class="note">داده‌ها زنده از مخزن (msp-bi/data/store) خوانده می‌شوند.</p>
+ </main>
+</div>
+<div id="pop" dir="rtl" hidden></div>
+<script>
+let DATA={P:[],D:[]};
+async function boot(){const g=u=>fetch(u+'?t='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null);
+ const [pi,dl]=await Promise.all([g('../msp-bi/data/store/pinfo.json'),g('../msp-bi/data/store/delays.json')]);
+ DATA.P=Object.values((pi&&pi.rows)||{}).map(r=>({no:r.no,n:r.name,st:r.stage||'',pct:Math.round(r.pct||0),pm:r.pm||'',s:r.start,f:r.finish,u:r.units}));
+ DATA.D=(Array.isArray(dl)?dl:[]).map(x=>({p:x.pn||'',a:x.act,c:x.cause,ds:x.desc,i:x.impact,dt:x.date||'',dy:x.days,s:x.ds}));
+ start()}
+function start(){
+const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const MN=['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const PAL=['#0f7a5c','#3466c2','#c2185b','#e0a21a','#662d91','#00a99d','#f25a22','#2e3192','#8dc63f','#d64545','#0072bc','#a0522d','#5c6bc0','#00897b','#7b5e57'];
+const F=new Intl.DateTimeFormat('en-u-ca-persian',{year:'numeric',month:'numeric',day:'numeric',timeZone:'Asia/Tehran'});
+const J=t=>{const p={};F.formatToParts(new Date(t)).forEach(x=>p[x.type]=+x.value||p[x.type]);return[p.year,p.month,p.day]};
+const key=(y,m,d)=>y+'/'+String(m).padStart(2,'0')+'/'+String(d).padStart(2,'0');
+// build jalali index for range
+const IDX={};for(let t=Date.UTC(2023,0,1,9);t<Date.UTC(2032,0,1);t+=864e5){const[y,m,d]=J(t);IDX[key(y,m,d)]=new Date(t)}
+const [TY,TM,TD]=J(Date.now());let cy=TY,cm=TM,flt=null;
+const col={};DATA.P.forEach((p,i)=>col[p.n.trim()]=PAL[i%PAL.length]);
+const EV={};const add=(k,e)=>(EV[k]=EV[k]||[]).push(e);
+DATA.P.forEach(p=>{const n=p.n.trim();if(p.s){const[y,m,d]=J(p.s);add(key(y,m,d),{t:'ms',p:n,l:'شروع '+n,x:'شروع پروژه · '+p.pm})}if(p.f){const[y,m,d]=J(p.f);add(key(y,m,d),{t:'ms',p:n,l:'پایان '+n,x:'پایان قراردادی · '+p.pm})}});
+DATA.D.forEach(d=>add(d.dt,{t:d.i==='توقف کامل'?'stop':'slow',p:d.p.trim(),l:d.p.trim()+' · '+fa(d.dy)+' روز',x:(d.a||'')+' — علت: '+(d.c||'')+(d.ds?' ('+d.ds+')':'')+' · '+(d.i||'بدون اثر ثبت‌شده')+' · '+fa(d.dy)+' روز'}));
+const vis=e=>!flt||e.p===flt;
+const dow=k=>(IDX[k].getUTCDay()+1)%7; // شنبه=0
+function mlen(y,m){let n=0;while(IDX[key(y,m,n+1)])n++;return n}
+function draw(){
+ const n=mlen(cy,cm),f=dow(key(cy,cm,1));const pm=cm===1?[cy-1,12]:[cy,cm-1],nm=cm===12?[cy+1,1]:[cy,cm+1],pl=mlen(...pm);
+ const cells=[];for(let i=f-1;i>=0;i--)cells.push([...pm,pl-i,1]);for(let d=1;d<=n;d++)cells.push([cy,cm,d,0]);let k=1;while(cells.length%7)cells.push([...nm,k++,1]);
+ let tot=0,prj=new Set;for(let d=1;d<=n;d++)(EV[key(cy,cm,d)]||[]).filter(vis).forEach(e=>{tot++;prj.add(e.p)});
+ mt.textContent=MN[cm-1]+' '+fa(cy);mt2.textContent=MN[cm-1]+' '+fa(cy);ms.textContent=fa(tot)+' رویداد · '+fa(prj.size)+' پروژه';
+ const W=['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+ cal.innerHTML=W.map(w=>'<div class="dow">'+w+'</div>').join('')+cells.map(([y,m,d,o],i)=>{const kk=key(y,m,d),ev=(EV[kk]||[]).filter(vis),today=y===TY&&m===TM&&d===TD;
+  return '<div class="day'+(o?' out':'')+(i%7===6?' fri':'')+(today?' today':'')+'"><div class="dn">'+fa(d)+(ev.length?'<small>'+fa(ev.length)+'</small>':'')+'</div>'+ev.slice(0,3).map(e=>'<button class="ev '+e.t+'" data-k="'+kk+'" data-i="'+ev.indexOf(e)+'">'+e.l+'</button>').join('')+(ev.length>3?'<span class="more">+'+fa(ev.length-3)+' مورد دیگر</span>':'')+'</div>'}).join('');
+ mini.innerHTML=['ش','ی','د','س','چ','پ','ج'].map(w=>'<div class="dow">'+w+'</div>').join('')+cells.map(([y,m,d,o])=>{const kk=key(y,m,d);return '<button class="md'+(o?' out':'')+((EV[kk]||[]).some(e=>e.t!=='ms'&&vis(e))?' has':'')+(y===TY&&m===TM&&d===TD?' today':'')+'" aria-label="'+fa(d)+'">'+fa(d)+'</button>'}).join('');
+ // campaigns = projects active this month
+ const ms0=IDX[key(cy,cm,1)].getTime(),ms1=IDX[key(cy,cm,n)].getTime();
+ camp.innerHTML=DATA.P.filter(p=>p.s<=ms1&&p.f>=ms0&&(!flt||p.n.trim()===flt)).slice(0,6).map(p=>{const a=J(p.s),b=J(p.f);return '<span><i class="dot" style="background:'+col[p.n.trim()]+'"></i>'+p.n.trim()+' <em>'+fa(a[2])+' '+MN[a[1]-1]+' '+fa(a[0])+' تا '+fa(b[2])+' '+MN[b[1]-1]+' '+fa(b[0])+'</em></span>'}).join('');
+}
+function side(){
+ const open=DATA.D.length;nOpen.textContent=fa(open);
+ const stop=DATA.D.filter(d=>d.i==='توقف کامل').length,days=DATA.D.reduce((a,d)=>a+(+d.dy||0),0),act=DATA.P.filter(p=>p.pct>0&&p.pct<100).length;
+ const S=[['M3 7h18M3 12h18M3 17h10','پروژه‌ی در حال اجرا',act],['M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z','گزارش تأخیر در انتظار تأیید',open],['M6 6l12 12M18 6 6 18','توقف کامل کار',stop],['M12 7v5l3 2M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18z','روز تأخیر ثبت‌شده',days]];
+ stats.innerHTML=S.map(s=>'<div class="st"><i><svg viewBox="0 0 24 24"><path d="'+s[0]+'"/></svg></i><div><b>'+fa(s[2].toLocaleString('en'))+'</b><small>'+s[1]+'</small></div></div>').join('');
+ const byP={};DATA.D.forEach(d=>{const p=d.p.trim();byP[p]=byP[p]||{n:0,dy:0,stop:0};byP[p].n++;byP[p].dy+=+d.dy||0;if(d.i==='توقف کامل')byP[p].stop++});
+ att.innerHTML=Object.entries(byP).sort((a,b)=>b[1].dy-a[1].dy).slice(0,5).map(([p,v])=>{const bad=v.stop>0;return '<li><span class="ic" style="background:'+col[p]+'22;color:'+col[p]+'">'+p.slice(0,1)+'</span><div><b>'+p+'</b><small>'+fa(v.n)+' گزارش · '+fa(v.dy)+' روز تأخیر</small></div><span class="tag" style="background:var('+(bad?'--badS':'--warnS')+');color:var('+(bad?'--bad':'--warn')+')">'+(bad?'توقف':'کندی')+'</span></li>'}).join('');
+ prg.innerHTML=DATA.P.filter(p=>p.pct>0).sort((a,b)=>b.pct-a.pct).slice(0,7).map(p=>'<div><b style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.n.trim()+'</b><span><i style="width:'+p.pct+'%;background:'+col[p.n.trim()]+'"></i></span><em>'+fa(p.pct)+'٪</em></div>').join('');
+ chips.innerHTML='<button class="chip on" data-p="">همه‌ی پروژه‌ها</button>'+DATA.P.filter(p=>p.pct<100).slice(0,9).map(p=>'<button class="chip" data-p="'+p.n.trim()+'"><i class="dot" style="background:'+col[p.n.trim()]+'"></i>'+p.n.trim()+'</button>').join('')+'<span class="sep"></span><span class="chip"><i class="dot" style="background:var(--go)"></i>نقطه‌ی عطف</span><span class="chip"><i class="dot" style="background:var(--bad)"></i>توقف</span><span class="chip"><i class="dot" style="background:var(--warn)"></i>کندی</span>';
+}
+chips.onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;flt=b.dataset.p||null;chips.querySelectorAll('[data-p]').forEach(x=>x.classList.toggle('on',x===b));draw()};
+cal.onclick=e=>{const b=e.target.closest('.ev');if(!b)return;const ev=(EV[b.dataset.k]||[]).filter(vis)[+b.dataset.i],[y,m,d]=b.dataset.k.split('/').map(Number);pop.innerHTML='<button class="rb" id="pc" aria-label="بستن">×</button><h3>'+ev.p+'</h3><div style="color:var(--mut)">'+fa(d)+' '+MN[m-1]+' '+fa(y)+'</div><div>'+ev.x+'</div>';pop.hidden=false;pc.onclick=()=>pop.hidden=true};
+prev.onclick=()=>{cm--;if(cm<1){cm=12;cy--}draw()};next.onclick=()=>{cm++;if(cm>12){cm=1;cy++}draw()};tod.onclick=()=>{cy=TY;cm=TM;draw()};
+thm.onclick=()=>{const r=document.documentElement,d=r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme: dark)').matches);r.dataset.theme=d?'light':'dark'};
+document.querySelector('.seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))};
+side();draw();
+}
+boot();
+</script></body></html>
