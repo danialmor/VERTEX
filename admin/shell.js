@@ -11,10 +11,11 @@
     ecopolicy: 'M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z M9 12l2 2 4-4',
     ecosite: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M3 12h18 M12 3c2.5 3 2.5 15 0 18 M12 3c-2.5 3-2.5 15 0 18',
     'eco-pc': 'M4 4h16L12 20z',
-    filemap: 'M3 7h6l2 2h10v10H3z'
+    filemap: 'M3 7h6l2 2h10v10H3z',
+    sim: 'M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2 M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z'
   };
   var GROUP = [['overview', 'منو'], ['ecopolicy', 'اکوسیستم'], ['sitemap', 'ابزارها'], ['tenants', 'مشتریان و کاربران'], ['users', 'کاربران و دسترسی'], ['system', 'سیستم و حساب'], ['activity', 'سیستم و حساب'], ['profile', 'حساب من']];
-  var SUB = { ecopolicy: 'اکوسیستم', ecosite: 'اکوسیستم', 'eco-pc': 'پلتفرم I', sitemap: 'ابزارها', filemap: 'ابزارها' };
+  var SUB = { ecopolicy: 'اکوسیستم', ecosite: 'اکوسیستم', 'eco-pc': 'پلتفرم I', sitemap: 'ابزارها', filemap: 'ابزارها', sim: 'ابزارها · هوش مصنوعی' };
   function decorate() {
     var nav = $('#nav'); if (!nav) return;
     $$('#nav button[data-go]').forEach(function (b) {
