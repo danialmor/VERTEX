@@ -20,6 +20,11 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 - `dashReal` flag: real data vs. sample ("ghost") mode; ghost mode is admin-only in Settings.
 - Key functions: `syncPX`, `syncS`, `pinfoParse`, `dlImportXlsx`, `dlRealRows`, `realPref/realSet`, `isAdm`.
 
+## Real-data mode (3.65)
+- Store now holds DimProject/DimSnapshot (dim.json), schedules p-1001 (16 snapshots) and p-1002 (baseline), pinfo, delays — imported through the app itself (scratch script mkstore2.js drives the upload tab with a mocked GitHub API).
+- English names: `enOf(fa)` matches DimProject.ProjectName by the PERSIAN name, not the code (DimProject swaps 1008/1009 vs Project_information; Project_information wins). `ENX` holds names DimProject lacks (Dowran, Hezar Jarib, Hasht Behesht). `NM(fa,en)` renders English line + Persian line (project list, project header, info cards, dashboard chips).
+- `metaList()` merges Project_information rows missing from DimProject.
+- Home / Planning / Score: `rlHome/rlPlan/rlScore` replace sample content when PXREAL (observer on .view class + 20 s refresh while data loads). Planning comes from Project_information des/desN/desT (no designer names or sheet due dates exist in the data). Score shows real people with 0 points until activity is recorded.
 ## Layout rules (see docs/THEME-RULES.md §0 and §6)
 - One standard box. Page locked at ≥900px (`--vh`), only `#stage` scrolls.
 - `fitPanes`/`fitBoxes`/`fillBody` size boxes; wrap resizes with `scSave/scRest` to avoid scroll jumps.
