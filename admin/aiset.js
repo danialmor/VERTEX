@@ -12,13 +12,15 @@
   var enc = function (k) { return btoa(k.split('').reverse().join('')) };
   var PAGES = [['/', 'صفحه‌ی اصلی'], ['admin/', 'کنترل پنل'], ['msp-bi/', 'I — کنترل پروژه (با داده‌ی پروژه‌ها)'], ['mail/', 'نامه‌نگاری'], ['files/', 'فایل منیجر'], ['trading/', 'تریدینگ'], ['aide/', 'میز منشی']];
   async function load() {
-    var sha = '', j = null;
+    var sha = '', j = null, CL = window.VX_CLOUD;
+    if (CL && CL.on) { try { j = await CL.getDoc('ai-config') } catch (e) { } if (j) return { sha: '', c: Object.assign({ enabled: true, name: 'دستیار VERTEX', mode: 'coarena', model: 'claude-sonnet-5-5', k: '', prompt: '' }, j) } }
     try { var r = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/contents/' + PATH + '?ref=main&t=' + Date.now(), { headers: Object.assign({ Accept: 'application/vnd.github+json' }, tok() ? { Authorization: 'Bearer ' + tok() } : {}), cache: 'no-store' }); if (r.ok) { var x = await r.json(); sha = x.sha; j = JSON.parse(decodeURIComponent(escape(atob(x.content.replace(/\n/g, ''))))) } } catch (e) { }
     if (!j) { try { var r2 = await fetch('../shared/ai/config.json?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
     return { sha: sha, c: Object.assign({ enabled: true, name: 'دستیار VERTEX', mode: 'coarena', model: 'claude-sonnet-5-5', k: '', prompt: '' }, j || {}) };
   }
   async function save(c) {
-    if (!tok()) throw new Error('ابتدا در «ذخیره در GitHub» کلید GitHub را وصل کنید');
+    var CL = window.VX_CLOUD; if (CL && CL.on) { await CL.putDoc('ai-config', c); return }
+    if (!tok()) throw new Error('فضای آنلاین (Cloudflare) تنظیم نشده');
     var sha, r = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/contents/' + PATH + '?ref=main', { headers: { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json' }, cache: 'no-store' }); if (r.ok) sha = (await r.json()).sha;
     var w = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/contents/' + PATH, { method: 'PUT', headers: { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'panel: AI settings', content: btoa(unescape(encodeURIComponent(JSON.stringify(c, null, 1)))), sha: sha, branch: 'main' }) });
     if (!w.ok) throw new Error('GitHub ' + w.status);
@@ -28,8 +30,8 @@
   function page() {
     return load().then(function (L) {
       var c = L.c, has = !!dec(c.k);
-      var h = head('هوش مصنوعی', 'دستیار در همه‌ی صفحه‌های اکوسیستم؛ موتور، مدل، کلید و دستور پایه همین‌جا تنظیم می‌شود و برای همه‌ی کاربران اعمال می‌شود.', '<button class="btn pri" id="aiSave">ذخیره روی مخزن</button>');
-      if (!tok() && STATIC) h += '<div class="card mb" style="border:1px solid rgba(240,165,58,.5)">برای ذخیره‌ی تنظیمات، اول در تب <b>«ذخیره در GitHub»</b> کلید GitHub را وصل کنید.</div>';
+      var h = head('هوش مصنوعی', 'دستیار در همه‌ی صفحه‌های اکوسیستم؛ موتور، مدل، کلید و دستور پایه همین‌جا تنظیم می‌شود و برای همه‌ی کاربران اعمال می‌شود.', '<button class="btn pri" id="aiSave">ذخیره‌ی آنلاین</button>');
+      if (!(window.VX_CLOUD && VX_CLOUD.on) && !tok() && STATIC) h += '<div class="card mb" style="border:1px solid rgba(240,165,58,.5)">فضای آنلاین (Cloudflare) هنوز تنظیم نشده است.</div>';
       if (!STATIC) h += '<div class="card mb">روی سرور خودمان، کلید Coarena در تنظیمات سرور (<code dir="ltr">ai_key</code>) نگه داشته می‌شود و به مرورگر نمی‌رسد؛ موتور و مدل از همین صفحه اعمال می‌شود.</div>';
       h += '<div class="grid g2 mb"><div class="card" style="display:grid;gap:14px"><h2 style="margin:0;font-size:16px">تنظیمات</h2>'
         + '<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="aiOn"' + (c.enabled !== false ? ' checked' : '') + '> <b>دستیار در کل اکوسیستم فعال باشد</b></label>'
@@ -45,7 +47,7 @@
       function cur() { var k = ($('#aiKey').value || '').trim(); return { enabled: $('#aiOn').checked, name: ($('#aiName').value || '').trim() || 'دستیار VERTEX', mode: $('#aiMode').value, model: $('#aiModel').value, k: k ? enc(k) : c.k, prompt: ($('#aiPrompt').value || '').trim(), t: Date.now() } }
       $('#aiSave').onclick = async function () {
         var b = this, n = cur(); var k = ($('#aiKey').value || '').trim(); if (k && !/^coa_/.test(k)) { toast('کلید Coarena با coa_ شروع می‌شود.'); return }
-        b.disabled = true; try { await save(n); toast('✓ تنظیمات هوش مصنوعی روی مخزن ذخیره شد؛ همه‌ی صفحه‌ها از آن استفاده می‌کنند.'); page() } catch (e) { toast('ذخیره نشد: ' + (e.message || e)); b.disabled = false }
+        b.disabled = true; try { await save(n); toast('✓ تنظیمات هوش مصنوعی آنلاین ذخیره شد؛ همه‌ی صفحه‌ها و دستگاه‌ها از آن استفاده می‌کنند.'); page() } catch (e) { toast('ذخیره نشد: ' + (e.message || e)); b.disabled = false }
       };
       $('#aiTest').onclick = async function () {
         var o = $('#aiOut'), n = cur(), key = dec(n.k); o.textContent = '…';

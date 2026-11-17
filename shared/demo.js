@@ -28,34 +28,28 @@
   function save() { try { localStorage.setItem(KEY, JSON.stringify(D)) } catch (e) { } }
   /* Shared storage: the whole panel database is one file in the public repo (data/vertex.json).
      Every browser loads it on start; changes are written back with the admin's GitHub key (already saved on this browser), so all systems see the same data. */
-  var REPO = 'danialmor/VERTEX', FILE = 'data/vertex.json', ROOT = (B && B.base) || '/VERTEX/';
-  function tok() { try { return localStorage.getItem('ghTok') || '' } catch (e) { return '' } }
+  /* Shared storage: the whole panel database is one online document on VERTEX Cloud (Cloudflare, doc "vertex").
+     Every browser loads it on start and every change is saved back — no key needed. Fallback: the old repo file data/vertex.json (read only). */
+  var CL = window.VX_CLOUD, ROOT = (B && B.base) || '/VERTEX/';
+  var REMOTE = { loaded: false, t: 0, busy: false, err: '', timer: 0 };
   var ready = (async function () {
     var j = null;
-    try { var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE + '?ref=main&t=' + Date.now(), { headers: { Accept: 'application/vnd.github.raw+json' }, cache: 'no-store' }); if (r.ok) j = await r.json() } catch (e) { }
-    if (!j) { try { var r2 = await fetch(ROOT + FILE + '?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
+    if (CL && CL.on) { try { j = await CL.getDoc('vertex'); REMOTE.cloud = true } catch (e) { REMOTE.err = 'cloud' } }
+    if (!j) { try { var r2 = await fetch(ROOT + 'data/vertex.json?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
     if (j && j.hub && (j.t || 0) > (D._t || 0)) { D = j.hub; D._t = j.t; save(); }
     REMOTE.loaded = !!j; REMOTE.t = j ? j.t : 0; paint();
   })();
-  var REMOTE = { loaded: false, t: 0, busy: false, err: '', timer: 0 };
-  function b64u(x) { return btoa(unescape(encodeURIComponent(x))) }
   function push() {
-    if (!tok()) { REMOTE.err = 'no-key'; paint(); return }
+    if (!(CL && CL.on)) { REMOTE.err = 'no-cloud'; paint(); return }
     clearTimeout(REMOTE.timer); REMOTE.timer = setTimeout(async function () {
       REMOTE.busy = true; paint();
-      try {
-        var H = { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json' }, sha, u = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE;
-        var r = await fetch(u + '?ref=main', { headers: H, cache: 'no-store' }); if (r.ok) sha = (await r.json()).sha;
-        var t = Date.now(); D._t = t; save();
-        var w = await fetch(u, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify({ message: 'data: vertex.json — panel', content: b64u(JSON.stringify({ v: 1, t: t, hub: D })), sha: sha, branch: 'main' }) });
-        if (!w.ok) throw new Error('GitHub ' + w.status);
-        REMOTE.t = t; REMOTE.err = '';
-      } catch (e) { REMOTE.err = String(e.message || e) }
+      try { var t = Date.now(); D._t = t; save(); await CL.putDoc('vertex', { v: 1, t: t, hub: D }); REMOTE.t = t; REMOTE.err = '' }
+      catch (e) { REMOTE.err = String(e.message || e) }
       REMOTE.busy = false; paint();
-    }, 1200);
+    }, 800);
   }
   function paint() { var d = document.getElementById('demoBar'); if (!d) return; var sp = d.querySelector('span'); if (!sp) return;
-    sp.textContent = REMOTE.busy ? 'در حال ذخیره روی مخزن…' : (REMOTE.err === 'no-key' ? 'تغییرها فقط در این مرورگر — کلید GitHub مدیر روی این مرورگر نیست' : REMOTE.err ? 'ذخیره روی مخزن نشد: ' + REMOTE.err : (REMOTE.t ? '✓ داده‌ها روی مخزن ذخیره است (data/vertex.json)' : 'داده‌ها از مخزن خوانده می‌شود')) }
+    sp.textContent = REMOTE.busy ? 'در حال ذخیره‌ی آنلاین…' : (REMOTE.err === 'no-cloud' ? 'فضای آنلاین تنظیم نشده — تغییرها فقط در این مرورگر' : REMOTE.err ? 'ذخیره‌ی آنلاین نشد: ' + REMOTE.err : '✓ داده‌ها آنلاین ذخیره می‌شود (Cloudflare)') }
   function log(u, a, t) { D.audit.unshift({ ts: now(), user: u ? u.code : '-', action: a, target: t || '' }); D.audit = D.audit.slice(0, 200) }
   function E(st, err) { var e = { status: st, body: { error: err } }; throw e }
   var tn = function (id) { return D.tenants.filter(function (x) { return x.id === id })[0] };

@@ -1,0 +1,24 @@
+/* VERTEX Cloud client — the ecosystem's online store on Cloudflare (Worker + KV, see cloud/worker.js).
+   No key in the browser: the Worker holds the storage. Every page and every device reads/writes the same data.
+   URL: set CLOUD below after deploying the Worker (or localStorage.vxCloud for tests). */
+(function () {
+  var CLOUD = ''; // set to the Worker URL after deploy, e.g. https://vertex-cloud.<account>.workers.dev
+  try { CLOUD = localStorage.getItem('vxCloud') || CLOUD } catch (e) { }
+  CLOUD = String(CLOUD || '').replace(/\/+$/, '');
+  var who = function () { try { var s = JSON.parse(localStorage.getItem('vxSess') || sessionStorage.getItem('vxSess') || 'null'); return (s && s.u) || '' } catch (e) { return '' } };
+  var _f = window.fetch.bind(window);
+  function req(path, o) { o = o || {}; o.headers = Object.assign({ 'X-By': who() }, o.headers || {}); o.cache = 'no-store'; return _f(CLOUD + path, o) }
+  var C = {
+    url: CLOUD, on: !!CLOUD,
+    ready: null,
+    async getDoc(name) { var r = await req('/doc/' + encodeURIComponent(name)); if (r.status === 404) return null; if (!r.ok) throw new Error('cloud ' + r.status); return r.json() },
+    async putDoc(name, obj) { var r = await req('/doc/' + encodeURIComponent(name), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) }); if (!r.ok) throw new Error('cloud ' + r.status); return r.json() },
+    async listFiles(site) { var r = await req('/files/' + site); if (!r.ok) throw new Error('cloud ' + r.status); return (await r.json()).files || [] },
+    async putFile(site, file) { var r = await req('/files/' + site + '/' + encodeURIComponent(file.name), { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: file }); var j = {}; try { j = await r.json() } catch (e) { } if (!r.ok) throw new Error(j.error || ('cloud ' + r.status)); return j },
+    fileUrl(site, name) { return CLOUD + '/files/' + site + '/' + encodeURIComponent(name) },
+    async getFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name)); if (!r.ok) throw new Error('cloud ' + r.status); return r.blob() },
+    async delFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name), { method: 'DELETE' }); if (!r.ok) throw new Error('cloud ' + r.status); return true }
+  };
+  C.ready = C.on ? _f(CLOUD + '/health', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null }).then(function (j) { C.up = !!(j && j.ok && j.kv); return C.up }).catch(function () { C.up = false; return false }) : Promise.resolve(false);
+  window.VX_CLOUD = C;
+})();

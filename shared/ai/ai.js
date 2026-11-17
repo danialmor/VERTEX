@@ -120,12 +120,18 @@
   let SRV = { k: '', model: '' , t: 0 };
   const dec = (k) => { try { return k ? atob(k).split('').reverse().join('') : ''; } catch (e) { return ''; } };
   const enc = (k) => btoa(k.split('').reverse().join(''));
+  function needCloud() { if (window.VX_CLOUD) return Promise.resolve(window.VX_CLOUD); return new Promise(function (res) { var sc = document.createElement('script'); sc.src = new URL('../cloud.js', BASE).href; sc.onload = function () { res(window.VX_CLOUD || null) }; sc.onerror = function () { res(null) }; document.head.appendChild(sc) }) }
   async function loadSrv() {
+    // 1) VERTEX Cloud (Cloudflare) doc "ai-config" — set in control panel → هوش مصنوعی
+    try { const CL = await needCloud(); if (CL && CL.on) { const j = await CL.getDoc('ai-config'); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000) }; return applySrv(); } } } catch (e) {}
     // Settings live in the control panel (هوش مصنوعی) → shared/ai/config.json. GitHub API first (fresh), Pages copy as fallback.
     const tries = ['https://api.github.com/repos/danialmor/VERTEX/contents/shared/ai/config.json?ref=main&t=' + Date.now(), BASE + 'config.json?t=' + Date.now()];
     for (const u of tries) {
       try { const r = await fetch(u, { cache: 'no-store', headers: u.includes('api.github') ? { Accept: 'application/vnd.github.raw+json' } : {} }); if (r.ok) { const j = await r.json(); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000) }; break; } } } catch (e) {}
     }
+    applySrv();
+  }
+  function applySrv() {
     if (SRV.model) cfg.model = SRV.model;
     if (SRV.mode) { cfg.mode = SRV.mode; try { fld('mode').value = cfg.mode; } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); }
     if (SRV.enabled === false) { fab.hidden = true; document.querySelectorAll('.rail .vxai').forEach(b => b.hidden = true); box.classList.remove('open'); }
