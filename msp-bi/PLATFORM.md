@@ -51,3 +51,6 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 - `gsOn()` = `GS!=='all' && cur==='sched'`; `gIn`, `leaves`/`filt`, `drawTl`, `treeHtml`, `rlHome`, `rlPlan` scope only when it is true. Home, dashboard, projects, planning and efficiency always show all projects; `gsSet` no longer touches `DS_`/`ef`.
 - The full-width `#gsBan` row was removed. The selected project shows as the inline `#gsSeg` chip before `#segS` (click opens the picker, ✕ clears). Header pill shows "all" outside Project Control.
 - Timeline: bar runs to the planned end (`e-dl`), the red `.ex` hatch runs to the end with delays (`e`, `endD`), with the date in `.exl`; the row caption shows both dates.
+
+## 3.73.0 — local AI assistant
+- See `shared/ai/README.md`. Floating icon (bottom-left) and a rail button open the chat; `window.VX_DATA()` / `window.VX_CTX()` expose project facts (actual, planned-to-date, delay, planned/forecast end).

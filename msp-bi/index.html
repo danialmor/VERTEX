@@ -2000,8 +2000,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='3.72.2';
+var VERSION='3.73.0';
 var CHANGELOG=[
+{v:'3.73.0',d:'27 آبان 1405',t:'دستیار هوش مصنوعی محلی',b:['مدل Qwen 0.5B داخل خود مخزن؛ کاملاً در مرورگر اجرا می‌شود و به هیچ سرور بیرونی وابسته نیست','آیکن شناور پایین صفحه و دکمه‌ی جدید در نوار شناور سمت راست','اطلاعات پروژه‌ها (پیشرفت، برنامه، تأخیر، پایان) خودکار به دستیار داده می‌شود','بار اول حدود ۴۸۰ مگابایت دانلود و در مرورگر ذخیره می‌شود']},
 {v:'3.72.2',d:'27 آبان 1405',t:'ماه‌های گانت به عدد',b:['سرستون ماه‌ها در نمودار گانت به‌صورت عدد (۱ تا ۱۲)؛ نام کامل ماه در راهنمای اشاره']},
 {v:'3.72.1',d:'27 آبان 1405',t:'حذف کامل نوار سبز بالای صفحه',b:['نوار «پروژه‌ی انتخاب‌شده» در هیچ صفحه‌ای نمایش داده نمی‌شود']},
 {v:'3.72.0',d:'27 آبان 1405',t:'انتخاب پروژه فقط در کنترل پروژه؛ پایان با تأخیر در خط زمان',b:['انتخاب یک پروژه فقط تب‌های کنترل پروژه را عوض می‌کند؛ خانه، داشبورد، پروژه‌ها و برنامه‌ریزی همیشه همه‌ی پروژه‌ها را نشان می‌دهند','نوار بزرگ «پروژه‌ی انتخاب‌شده» حذف شد؛ پروژه‌ی جاری در برچسب سبز کنار تب‌های کنترل پروژه، در همان ردیف، بدون گرفتن ارتفاع','خط زمان: نوار تا پایان برنامه و ادامه‌ی هاشور قرمز تا «پایان با تأخیر» با تاریخش؛ زیر نام پروژه هر دو تاریخ']},
@@ -3635,7 +3636,11 @@ var _gsPill71=gsPill;gsPill=function(){_gsPill71();try{gsBan()}catch(e){}};
 document.addEventListener('click',function(e){var b=e.target.closest('[data-gsx]');if(b){e.stopPropagation();gsSet('all');return}
 },true);
 setTimeout(function(){try{gsBan()}catch(e){}},1500);
+/* 3.73: project summary for the local AI assistant (shared/ai) */
+window.VX_DATA=function(){try{return PX.filter(function(x){return x.real!==false&&!x.ns}).map(function(x){return {n:x.n,en:x.en||'',pr:Math.round(x.pr||0),pl:Math.round(x.pl||0),dl:Math.round(x.dl||0),end:String(x.end||''),endD:String(x.endD||''),est:!!x.est}})}catch(e){return []}};
+window.VX_CTX=function(){try{var f=function(v){return v==null||v===''?'-':(typeof v==='number'?Math.round(v):String(v))};var L=PX.filter(function(x){return x.real!==false&&!x.ns}).map(function(x){return x.n+' ('+(x.en||'')+'): '+f(x.pr)+'% done, plan '+f(x.pl)+'%, late '+f(x.dl)+'d, end '+f(x.end)+'→'+f(x.endD)});var A=PX.filter(function(x){return x.real!==false&&!x.ns});var mx=A.slice().sort(function(a,b){return (b.dl||0)-(a.dl||0)})[0],lo=A.slice().sort(function(a,b){return ((a.pr||0)-(a.pl||0))-((b.pr||0)-(b.pl||0))})[0];return 'Today '+jd(0)+'\nMost delayed project: '+(mx?mx.n+' ('+f(mx.dl)+' days)':'-')+'. Furthest behind plan: '+(lo?lo.n+' ('+f(lo.pr)+'% vs '+f(lo.pl)+'%)':'-')+'. Projects: '+A.length+'.\n'+L.join('\n')}catch(e){return ''}};
 })();
 </script>
+<script src="../shared/ai/ai.js" defer></script>
 </body>
 </html>
