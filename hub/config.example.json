@@ -5,7 +5,7 @@
   "allowed_origins": [],
   "token_ttl_days": 30,
   "ai_url": "https://coarena.ai/api/v1",
-  "ai_model": "claude-sonnet-5-5",
+  "ai_model": "gpt-6-luna",
   "ai_rate_per_min": 20,
   "ai_key": "",
   "_ai_note": "ai_key: Coarena key (coa_...). Put it here on the server only, or set env HUB_AI_KEY. Never commit it."

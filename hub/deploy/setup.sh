@@ -18,7 +18,7 @@ echo "$DEPLOY_PUB" > /home/deploy/.ssh/authorized_keys; chown -R deploy:deploy /
 echo 'deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart danimor-hub' > /etc/sudoers.d/danimor-deploy; chmod 440 /etc/sudoers.d/danimor-deploy
 # test_mode=true: ورود آزمایشی با Admin / Admin123 بدون اجبار به تغییر رمز. قبل از کار واقعی آن را false کنید.
 [ -f /etc/danimor/config.json ] || cat > /etc/danimor/config.json <<CFG
-{"host":"127.0.0.1","port":8787,"data_dir":"/var/lib/danimor","allowed_origins":["https://$DOMAIN"],"ai_url":"https://coarena.ai/api/v1","ai_model":"claude-sonnet-5-5","ai_key":"${HUB_AI_KEY:-}","ai_rate_per_min":20,"test_mode":true}
+{"host":"127.0.0.1","port":8787,"data_dir":"/var/lib/danimor","allowed_origins":["https://$DOMAIN"],"ai_url":"https://coarena.ai/api/v1","ai_model":"gpt-6-luna","ai_key":"${HUB_AI_KEY:-}","ai_rate_per_min":20,"test_mode":true}
 CFG
 chown root:danimor /etc/danimor/config.json; chmod 640 /etc/danimor/config.json
 echo "حالا یک‌بار deploy را از گیت‌هاب اجرا کنید (فایل‌ها به سرور می‌آیند) و سپس این اسکریپت را دوباره با --finish اجرا کنید." >&2

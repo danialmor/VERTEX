@@ -44,7 +44,7 @@
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
 <div class="on1 kst" id="vxaiKst">کلید API: …</div>
 <label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
-<label class="on1">مدل <select data-k="model"><option value="claude-sonnet-5-5">claude-sonnet-5-5</option></select></label>
+<label class="on1">مدل <select data-k="model"><option value="gpt-6-luna">gpt-6-luna</option></select></label>
 <small class="on1">کلید را فقط مدیر اکوسیستم (با کلید GitHub واردشده در «بارگذاری») وارد می‌کند و روی سرور، در مخزن، برای همه‌ی کاربران ذخیره می‌شود.</small></div>
 <div class="log" id="vxaiLog"><div class="sys">سؤال خود را بپرسید. تنظیمات دستیار (موتور، مدل و کلید) در کنترل پنل ← «هوش مصنوعی» است.<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
 <div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button><button type="button">Summarize delays in English</button></div>
@@ -144,7 +144,7 @@
     const adm = box.querySelector('.adm'); if (adm) adm.hidden = !(window.VX_ADMIN && window.VX_ADMIN.can());
   }
   const CFG_K = 'vxaiCfg';
-  let cfg = { mode: 'coarena', model: 'claude-sonnet-5-5' };
+  let cfg = { mode: 'coarena', model: 'gpt-6-luna' };
   try { const o = JSON.parse(localStorage.getItem(CFG_K) || '{}'); delete o.key; Object.assign(cfg, o); } catch (e) {}
   const setEl = box.querySelector('#vxaiSet');
   const fld = k => setEl.querySelector('[data-k=' + k + ']');
