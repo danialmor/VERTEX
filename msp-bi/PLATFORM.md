@@ -61,3 +61,7 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 ## 3.75.0 — server verification badges; admin-set assistant key
 - Data center: `srvVerify()` compares every `stPayload()` file with the repo copy (GitHub contents API, falling back to Pages) and `dcBadges()` shows `✓ روی سرور` / `⚠ فقط این مرورگر` / `⚠ با سرور فرق دارد` per project, for pinfo and for delays, plus a summary with "ذخیره روی سرور" (admin, re-pushes all).
 - `window.VX_ADMIN.put(path,obj)` writes any repo file with the admin GitHub key. The assistant key is saved by the admin to `shared/ai/config.json` (`k` = reversed+base64, NOT secret; the repo is public), and every user's assistant reads it.
+
+## 3.76.0 — encrypted admin vault
+- `shared/vault.json` = `{v,alg,salt,iv,ct,t}`; payload `{gh, coarena}` encrypted with PBKDF2-SHA256 (250k) → AES-256-GCM from the admin password (WebCrypto). Saved from the Data center "🔐" box (needs the GitHub key on that browser). On a new browser, the password unlocks it → `ghTok` stored locally → `storePush` then auto-saves every upload to the repo.
+- Plain GitHub tokens must never be committed: GitHub revokes tokens pushed to public repos.
