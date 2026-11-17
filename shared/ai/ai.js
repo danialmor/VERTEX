@@ -187,7 +187,10 @@
     try {
       r = await fetch(API + '/chat/completions', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: cfg.model, messages: msgs, stream: true, max_tokens: 1500 }) });
-      if (!r.ok) { let t = ''; try { const j = await r.json(); t = (j.error && j.error.message) || ''; } catch (e) {} throw new Error(r.status + ' ' + t); }
+      if (!r.ok) { let t = ''; try { const j = await r.json(); t = (j.error && j.error.message) || ''; } catch (e) {}
+        // Free Coarena accounts only allow some models: switch to a free one and retry once.
+        if ((r.status === 402 || /free tier/i.test(t)) && cfg.model !== 'gpt-6-luna' && !msgs.__retry) { cfg.model = 'gpt-6-luna'; label(); msgs.__retry = 1; ctl = null; return online(msgs); }
+        throw new Error(r.status + ' ' + t); }
       const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', id = '';
       for (;;) {
         const { value, done } = await rd.read(); if (done) break;
