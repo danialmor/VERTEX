@@ -15,6 +15,9 @@
     async putDoc(name, obj) { var r = await req('/doc/' + encodeURIComponent(name), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) }); if (!r.ok) throw new Error('cloud ' + r.status); return r.json() },
     async listFiles(site) { var r = await req('/files/' + site); if (!r.ok) throw new Error('cloud ' + r.status); return (await r.json()).files || [] },
     async putFile(site, file) { var r = await req('/files/' + site + '/' + encodeURIComponent(file.name), { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: file }); var j = {}; try { j = await r.json() } catch (e) { } if (!r.ok) throw new Error(j.error || ('cloud ' + r.status)); return j },
+    // Upload with progress (XMLHttpRequest gives upload progress; fetch does not). onp(loaded,total)
+    putFileP(site, file, onp) { return new Promise(function (res, rej) { var x = new XMLHttpRequest(); x.open('PUT', CLOUD + '/files/' + site + '/' + encodeURIComponent(file.name)); x.setRequestHeader('Content-Type', 'application/octet-stream'); x.setRequestHeader('X-By', who());
+      x.upload.onprogress = function (e) { if (onp && e.lengthComputable) onp(e.loaded, e.total) }; x.onload = function () { var j = {}; try { j = JSON.parse(x.responseText) } catch (e) { } x.status >= 200 && x.status < 300 ? res(j) : rej(new Error(j.error || ('cloud ' + x.status))) }; x.onerror = function () { rej(new Error('network')) }; file.arrayBuffer().then(function (b) { x.send(b) }, rej) }) },
     fileUrl(site, name) { return CLOUD + '/files/' + site + '/' + encodeURIComponent(name) },
     async getFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name)); if (!r.ok) throw new Error('cloud ' + r.status); return r.blob() },
     async delFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name), { method: 'DELETE' }); if (!r.ok) throw new Error('cloud ' + r.status); return true }
