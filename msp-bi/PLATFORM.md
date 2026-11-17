@@ -54,3 +54,6 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 
 ## 3.73.0 — local AI assistant
 - See `shared/ai/README.md`. Floating icon (bottom-left) and a rail button open the chat; `window.VX_DATA()` / `window.VX_CTX()` expose project facts (actual, planned-to-date, delay, planned/forecast end).
+
+## 3.74.0 — assistant online engine (Coarena)
+- Default engine is Coarena's free OpenAI-compatible API; key and model are set by the user in the panel ⚙ (stored in localStorage only). Local Qwen remains selectable. See `shared/ai/README.md`.

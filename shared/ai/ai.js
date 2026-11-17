@@ -27,6 +27,8 @@
 #vxai form{display:flex;gap:6px;padding:10px;border-top:1px solid rgba(127,127,127,.15)}
 #vxai textarea{flex:1;resize:none;height:40px;border-radius:12px;border:1px solid rgba(127,127,127,.25);padding:8px 10px;font:inherit;font-size:13px;background:transparent;color:inherit}
 #vxai form button{border:0;border-radius:12px;padding:0 14px;background:#1b6f52;color:#fff;cursor:pointer;font:inherit;font-size:13px}
+#vxai .set{display:grid;gap:6px;padding:10px 12px;border-bottom:1px solid rgba(127,127,127,.15);font-size:12px}#vxai .set[hidden]{display:none}#vxai .set label{display:flex;gap:8px;align-items:center}#vxai .set input,#vxai .set select{flex:1;font:inherit;font-size:12px;padding:5px 8px;border-radius:9px;border:1px solid rgba(127,127,127,.3);background:transparent;color:inherit}#vxai .set small{color:var(--muted,#6b7572)}#vxai .set.loc .on1{display:none}
+#vxai .rate{display:flex;gap:4px;align-self:flex-end;margin-top:-4px}#vxai .rate button{border:0;background:none;cursor:pointer;opacity:.55;font-size:14px}#vxai .rate button.on{opacity:1}
 #vxai .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}#vxai .chips button{border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;border-radius:99px;padding:3px 10px;font:inherit;font-size:11.5px;cursor:pointer}
 `;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -36,8 +38,12 @@
   document.body.appendChild(fab);
 
   const box = document.createElement('div'); box.id = 'vxai';
-  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:22px;height:22px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt">روی دستگاه شما اجرا می‌شود · بدون سرور</small></div><button type="button" data-x="clear">پاک کردن</button><button type="button" data-x="close">✕</button></header>
-<div class="log" id="vxaiLog"><div class="sys">این دستیار (Qwen 0.5B) کاملاً داخل مرورگر شما اجرا می‌شود. بار اول حدود ۴۸۰ مگابایت از همین سایت دانلود و ذخیره می‌شود؛ دفعه‌های بعد فوری است.<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
+  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:22px;height:22px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt">روی دستگاه شما اجرا می‌شود · بدون سرور</small></div><button type="button" data-x="set" title="تنظیمات">⚙</button><button type="button" data-x="clear">پاک کردن</button><button type="button" data-x="close">✕</button></header>
+<div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
+<label class="on1">کلید API <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"></label>
+<label class="on1">مدل <select data-k="model"><option value="claude-sonnet-5-5">claude-sonnet-5-5</option></select></label>
+<small class="on1">کلید فقط در همین مرورگر ذخیره می‌شود و در مخزن قرار نمی‌گیرد. کلید از coarena.ai/account/api/keys</small></div>
+<div class="log" id="vxaiLog"><div class="sys">دو موتور دارد (⚙): «آنلاین · Coarena» قوی و رایگان با کلید API شما، و «محلی · Qwen 0.5B» که بدون اینترنت داخل مرورگر اجرا می‌شود (بار اول ۴۸۰ مگابایت).<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
 <div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button><button type="button">Summarize delays in English</button></div>
 <form><textarea placeholder="سؤال خود را بنویسید…"></textarea><button type="submit">ارسال</button></form>`;
   document.body.appendChild(box);
@@ -79,7 +85,7 @@
   function context() {
     let c = '';
     try { if (typeof window.VX_CTX === 'function') c = window.VX_CTX() || ''; } catch (e) {}
-    return 'You are VERTEX, a construction project assistant. Answer briefly. Reply in Persian if the user writes Persian. ' +
+    return 'You are VERTEX, a construction project assistant. Answer briefly and clearly. Reply in Persian if the user writes Persian. ' +
       'Facts only from this data (done=actual progress, plan=planned to date, late=delay days, end=planned→forecast end):\n' + (c || 'no data');
   }
 
@@ -104,24 +110,81 @@
     return '';
   }
 
+  const CFG_K = 'vxaiCfg';
+  let cfg = { mode: 'coarena', key: '', model: 'claude-sonnet-5-5' };
+  try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_K) || '{}')); } catch (e) {}
+  const setEl = box.querySelector('#vxaiSet');
+  const fld = k => setEl.querySelector('[data-k=' + k + ']');
+  function saveCfg() { try { localStorage.setItem(CFG_K, JSON.stringify(cfg)); } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); label(); }
+  function label() { if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (cfg.key ? '' : ' · کلید وارد نشده'); }
+  fld('mode').value = cfg.mode; fld('key').value = cfg.key;
+  ['mode', 'key', 'model'].forEach(k => fld(k).addEventListener('change', () => { cfg[k] = fld(k).value.trim(); saveCfg(); if (k === 'mode' && cfg.mode === 'local') ensureWorker(); }));
+  let modelsLoaded = false;
+  function loadModels() {
+    if (modelsLoaded) return; modelsLoaded = true;
+    fetch(API + '/models').then(r => r.json()).then(j => {
+      const ids = (j.data || []).map(m => m.id); if (!ids.length) return;
+      if (!ids.includes(cfg.model)) ids.unshift(cfg.model);
+      fld('model').innerHTML = ids.map(i => '<option>' + i.replace(/</g, '') + '</option>').join(''); fld('model').value = cfg.model;
+    }).catch(() => { modelsLoaded = false; });
+  }
+  box.querySelector('[data-x=set]').addEventListener('click', () => { setEl.hidden = !setEl.hidden; loadModels(); });
+  saveCfg();
+
+  const API = 'https://coarena.ai/api/v1';
+  let ctl = null;
+  async function online(msgs) {
+    ctl = new AbortController();
+    let r;
+    try {
+      r = await fetch(API + '/chat/completions', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + cfg.key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: cfg.model, messages: msgs, stream: true, max_tokens: 1500 }) });
+      if (!r.ok) { let t = ''; try { const j = await r.json(); t = (j.error && j.error.message) || ''; } catch (e) {} throw new Error(r.status + ' ' + t); }
+      const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', id = '';
+      for (;;) {
+        const { value, done } = await rd.read(); if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i; while ((i = buf.indexOf('\n')) >= 0) {
+          const ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+          if (!ln.startsWith('data:')) continue; const d = ln.slice(5).trim(); if (d === '[DONE]') continue;
+          try { const j = JSON.parse(d); id = id || j.id || ''; const x = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content; if (x && cur) { cur.textContent += x; log.scrollTop = log.scrollHeight; } } catch (e) {}
+        }
+      }
+      const el = cur; finish(); if (id && el) rateBar(el, id);
+    } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
+  }
+  function finish() { if (cur && cur.textContent) hist.push({ role: 'assistant', content: cur.textContent }); cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = 'ارسال'; }
+  function rateBar(el, id) {
+    const d = document.createElement('div'); d.className = 'rate';
+    d.innerHTML = '<button type="button" data-r="up" title="خوب">👍</button><button type="button" data-r="down" title="بد">👎</button>';
+    d.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-r]'); if (!b) return;
+      const on = b.classList.contains('on'); d.querySelectorAll('button').forEach(x => x.classList.remove('on')); if (!on) b.classList.add('on');
+      fetch(API + '/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + cfg.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {});
+    });
+    el.after(d);
+  }
+
   const btn = box.querySelector('form button');
   function send(q) {
     q = (q || '').trim(); if (!q) return;
     if (gen) return;
-    const quick = facts(q); if (quick) { msg('u', q); msg('a', quick); return; }
-    ensureWorker();
+    const isOn = cfg.mode !== 'local';
+    if (isOn && !cfg.key) { setEl.hidden = false; loadModels(); sys('برای حالت آنلاین، کلید API ‏Coarena را در تنظیمات وارد کنید (یا موتور را «محلی» بگذارید).'); fld('key').focus(); return; }
+    const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); return; }
+    if (!isOn) ensureWorker();
     msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);
     cur = msg('a', ''); gen = true; fab.classList.add('busy'); btn.textContent = 'توقف';
     const msgs = [{ role: 'system', content: context() }].concat(hist); window.VXAI.last = msgs;
-    worker.postMessage({ t: 'chat', messages: msgs });
+    if (isOn) online(msgs); else worker.postMessage({ t: 'chat', messages: msgs });
   }
-  box.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); if (gen) { worker.postMessage({ t: 'stop' }); return; } send(ta.value); ta.value = ''; });
+  box.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); if (gen) { if (ctl) ctl.abort(); else if (worker) worker.postMessage({ t: 'stop' }); return; } send(ta.value); ta.value = ''; });
   ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); box.querySelector('form').requestSubmit(); } });
   box.querySelectorAll('.chips button').forEach(b => b.addEventListener('click', () => send(b.textContent)));
   box.querySelector('[data-x=close]').addEventListener('click', toggle);
   box.querySelector('[data-x=clear]').addEventListener('click', () => { hist = []; log.querySelectorAll('.m').forEach(x => x.remove()); });
 
-  function toggle() { box.classList.toggle('open'); if (box.classList.contains('open')) { ensureWorker(); ta.focus(); } }
+  function toggle() { box.classList.toggle('open'); if (box.classList.contains('open')) { if (cfg.mode === 'local') ensureWorker(); else loadModels(); ta.focus(); } }
   fab.addEventListener('click', toggle);
   window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, send };
 })();
