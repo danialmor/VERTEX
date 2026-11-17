@@ -278,28 +278,34 @@
   if (!SR) { mic.title = 'گفتن با صدا در این مرورگر پشتیبانی نمی‌شود'; mic.style.opacity = '.35'; }
   mic.addEventListener('click', () => {
     if (!SR) { sys('این مرورگر تبدیل صدا به متن را پشتیبانی نمی‌کند. روی صفحه‌کلید iPad دکمه‌ی 🎤 را بزنید و بگویید.'); ta.focus(); return; }
-    if (recOn && rec) { rec.stop(); return; }
+    if (recOn && rec) { try { rec.stop(); } catch (e) {} setTimeout(() => { if (recOn) resetRec('ضبط متوقف شد.'); }, 1500); return; }
     startRec(ta.value && !isFa(ta.value) ? 'en-US' : 'fa-IR');
   });
   const ERR = { 'not-allowed': 'اجازه‌ی میکروفون داده نشده. در Safari: آیکن «aA» کنار نشانی ← Website Settings ← Microphone ← Allow.',
     'service-not-allowed': 'تبدیل صدا به متن در این دستگاه خاموش است. در iPad: Settings ← General ← Keyboard ← Enable Dictation را روشن کنید (و Siri).',
     'audio-capture': 'میکروفونی پیدا نشد یا برنامه‌ی دیگری از آن استفاده می‌کند.', 'network': 'برای تبدیل صدا به اینترنت نیاز است.',
     'no-speech': 'صدایی شنیده نشد؛ دوباره 🎙 را بزنید و صحبت کنید.', 'language-not-supported': 'زبان فارسی برای تبدیل صدا پشتیبانی نشد؛ به انگلیسی امتحان شد.' };
-  let hint = null;
+  let hint = null, dog = 0;
+  function resetRec(m) { recOn = false; clearTimeout(dog); mic.classList.remove('rec'); if (hint) { hint.remove(); hint = null; } try { rec && rec.abort(); } catch (e) {} if (m) sys(m); }
   function startRec(lang, retried) {
     rec = new SR(); rec.lang = lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
     const base = ta.value ? ta.value + ' ' : ''; let finalT = '', any = false, err = '';
-    rec.onstart = () => { if (hint) hint.remove(); hint = sys('🎙 در حال شنیدن… صحبت کنید'); };
-    rec.onresult = (e) => { any = true; let it = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) finalT += r[0].transcript; else it += r[0].transcript; } ta.value = base + finalT + it; };
+    let started = false;
+    rec.onstart = () => { started = true; };
+    rec.onaudiostart = () => { started = true; };
+    rec.onresult = (e) => { any = true; started = true; clearTimeout(dog); dog = setTimeout(() => { try { rec.stop(); } catch (x) {} }, 2500); let it = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) finalT += r[0].transcript; else it += r[0].transcript; } ta.value = base + finalT + it; };
     rec.onerror = (e) => { err = e.error || 'error'; };
     rec.onend = () => {
-      recOn = false; mic.classList.remove('rec'); if (hint) { hint.remove(); hint = null; }
+      clearTimeout(dog); recOn = false; mic.classList.remove('rec'); if (hint) { hint.remove(); hint = null; }
       if (err === 'language-not-supported' && !retried) { sys(ERR[err]); return startRec('en-US', true); }
       if (err && err !== 'aborted') { sys(ERR[err] || ('تبدیل صدا انجام نشد (' + err + ')')); return; }
       const q = (base + finalT).trim() || (any ? ta.value.trim() : '');
       if (q) { ta.value = ''; send(q); } else if (!err) sys(ERR['no-speech']);
     };
-    try { rec.start(); recOn = true; mic.classList.add('rec'); } catch (e) { recOn = false; sys('شروع ضبط صدا ممکن نشد: ' + String(e.message || e).replace(/</g, '&lt;')); }
+    if (hint) hint.remove(); hint = sys('🎙 در حال شنیدن… صحبت کنید (برای توقف دوباره بزنید)');
+    try { rec.start(); recOn = true; mic.classList.add('rec'); } catch (e) { resetRec('شروع ضبط صدا ممکن نشد: ' + String(e.message || e).replace(/</g, '&lt;')); return; }
+    // Safari on iPad sometimes starts but never answers: stop after a while and explain.
+    dog = setTimeout(() => { if (recOn && !any) resetRec(started ? 'صدایی دریافت نشد؛ دوباره 🎙 را بزنید و بلافاصله صحبت کنید.' : 'مرورگر به میکروفون پاسخ نداد. اگر در iPad هستید: Settings ← General ← Keyboard ← Enable Dictation را روشن کنید؛ یا داخل کادر پیام دکمه‌ی 🎤 صفحه‌کلید را بزنید.'); }, 8000);
   }
   ta.addEventListener('input', () => { ta.style.height = '32px'; ta.style.height = Math.min(90, ta.scrollHeight) + 'px'; });
   function toggle() { box.classList.toggle('open'); if (box.classList.contains('open')) { if (cfg.mode === 'local') ensureWorker(); else loadModels(); ta.focus(); } }
