@@ -13,3 +13,6 @@ Runs **Qwen2.5-0.5B-Instruct** (ONNX, q4f16) fully inside the browser. Nothing i
 - Chat: `POST https://coarena.ai/api/v1/chat/completions` (OpenAI-compatible, `stream:true`), default model `claude-sonnet-5-5`; the model list comes from `GET /api/v1/models` (CORS allowed).
 - Rating: 👍/👎 → `POST /api/v1/feedback {request_id, rating:"up"|"down"|null}`, where `request_id` is the `id` from the stream.
 - The quick data answers (`facts()`) apply only to the local engine.
+
+## Key management (msp-bi 3.75+)
+- Only the ecosystem admin (GitHub key entered in msp-bi → بارگذاری) sees the "کلید جدید (مدیر)" field in ⚙ and saves it to `shared/ai/config.json` in the repo; all users read it from there. Encoding is only obfuscation: the repo is public.

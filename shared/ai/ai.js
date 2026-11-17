@@ -27,7 +27,7 @@
 #vxai form{display:flex;gap:6px;padding:10px;border-top:1px solid rgba(127,127,127,.15)}
 #vxai textarea{flex:1;resize:none;height:40px;border-radius:12px;border:1px solid rgba(127,127,127,.25);padding:8px 10px;font:inherit;font-size:13px;background:transparent;color:inherit}
 #vxai form button{border:0;border-radius:12px;padding:0 14px;background:#1b6f52;color:#fff;cursor:pointer;font:inherit;font-size:13px}
-#vxai .set{display:grid;gap:6px;padding:10px 12px;border-bottom:1px solid rgba(127,127,127,.15);font-size:12px}#vxai .set[hidden]{display:none}#vxai .set label{display:flex;gap:8px;align-items:center}#vxai .set input,#vxai .set select{flex:1;font:inherit;font-size:12px;padding:5px 8px;border-radius:9px;border:1px solid rgba(127,127,127,.3);background:transparent;color:inherit}#vxai .set small{color:var(--muted,#6b7572)}#vxai .set.loc .on1{display:none}
+#vxai .set{display:grid;gap:6px;padding:10px 12px;border-bottom:1px solid rgba(127,127,127,.15);font-size:12px}#vxai .set[hidden]{display:none}#vxai .set label{display:flex;gap:8px;align-items:center}#vxai .set input,#vxai .set select{flex:1;font:inherit;font-size:12px;padding:5px 8px;border-radius:9px;border:1px solid rgba(127,127,127,.3);background:transparent;color:inherit}#vxai .set .kst{font-size:12px}#vxai .set .kst b{color:#16704a}#vxai .set button[data-x=savekey]{border:0;border-radius:9px;background:#1b6f52;color:#fff;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer}#vxai .set small{color:var(--muted,#6b7572)}#vxai .set.loc .on1{display:none}
 #vxai .rate{display:flex;gap:4px;align-self:flex-end;margin-top:-4px}#vxai .rate button{border:0;background:none;cursor:pointer;opacity:.55;font-size:14px}#vxai .rate button.on{opacity:1}
 #vxai .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}#vxai .chips button{border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;border-radius:99px;padding:3px 10px;font:inherit;font-size:11.5px;cursor:pointer}
 `;
@@ -40,10 +40,11 @@
   const box = document.createElement('div'); box.id = 'vxai';
   box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:22px;height:22px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt">روی دستگاه شما اجرا می‌شود · بدون سرور</small></div><button type="button" data-x="set" title="تنظیمات">⚙</button><button type="button" data-x="clear">پاک کردن</button><button type="button" data-x="close">✕</button></header>
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
-<label class="on1">کلید API <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"></label>
+<div class="on1 kst" id="vxaiKst">کلید API: …</div>
+<label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
 <label class="on1">مدل <select data-k="model"><option value="claude-sonnet-5-5">claude-sonnet-5-5</option></select></label>
-<small class="on1">کلید فقط در همین مرورگر ذخیره می‌شود و در مخزن قرار نمی‌گیرد. کلید از coarena.ai/account/api/keys</small></div>
-<div class="log" id="vxaiLog"><div class="sys">دو موتور دارد (⚙): «آنلاین · Coarena» قوی و رایگان با کلید API شما، و «محلی · Qwen 0.5B» که بدون اینترنت داخل مرورگر اجرا می‌شود (بار اول ۴۸۰ مگابایت).<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
+<small class="on1">کلید را فقط مدیر اکوسیستم (با کلید GitHub واردشده در «بارگذاری») وارد می‌کند و روی سرور، در مخزن، برای همه‌ی کاربران ذخیره می‌شود.</small></div>
+<div class="log" id="vxaiLog"><div class="sys">دو موتور دارد (⚙): «آنلاین · Coarena» قوی و رایگان (کلید را مدیر روی سرور ثبت می‌کند)، و «محلی · Qwen 0.5B» که بدون اینترنت داخل مرورگر اجرا می‌شود (بار اول ۴۸۰ مگابایت).<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
 <div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button><button type="button">Summarize delays in English</button></div>
 <form><textarea placeholder="سؤال خود را بنویسید…"></textarea><button type="submit">ارسال</button></form>`;
   document.body.appendChild(box);
@@ -110,15 +111,33 @@
     return '';
   }
 
+  // Shared assistant config saved by the ecosystem admin in the repo: shared/ai/config.json
+  // Key is stored lightly encoded (not secret: the repo is public).
+  let SRV = { k: '', model: '' , t: 0 };
+  const dec = (k) => { try { return k ? atob(k).split('').reverse().join('') : ''; } catch (e) { return ''; } };
+  const enc = (k) => btoa(k.split('').reverse().join(''));
+  async function loadSrv() {
+    const tries = [BASE + 'config.json?t=' + Date.now(), 'https://api.github.com/repos/danialmor/VERTEX/contents/shared/ai/config.json?ref=main'];
+    for (const u of tries) {
+      try { const r = await fetch(u, { cache: 'no-store', headers: u.includes('api.github') ? { Accept: 'application/vnd.github.raw+json' } : {} }); if (r.ok) { const j = await r.json(); if (j && (j.k || j.model)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0 }; break; } } } catch (e) {}
+    }
+    if (SRV.model && !cfg.modelSet) cfg.model = SRV.model;
+    kst(); label();
+  }
+  function kst() {
+    const el = box.querySelector('#vxaiKst'); if (!el) return;
+    el.innerHTML = SRV.k ? 'کلید API: <b>✓ تنظیم‌شده توسط مدیر · روی سرور</b>' : 'کلید API: <span style="color:#a3520f">هنوز توسط مدیر وارد نشده</span>';
+    const adm = box.querySelector('.adm'); if (adm) adm.hidden = !(window.VX_ADMIN && window.VX_ADMIN.can());
+  }
   const CFG_K = 'vxaiCfg';
-  let cfg = { mode: 'coarena', key: '', model: 'claude-sonnet-5-5' };
-  try { Object.assign(cfg, JSON.parse(localStorage.getItem(CFG_K) || '{}')); } catch (e) {}
+  let cfg = { mode: 'coarena', model: 'claude-sonnet-5-5' };
+  try { const o = JSON.parse(localStorage.getItem(CFG_K) || '{}'); delete o.key; Object.assign(cfg, o); } catch (e) {}
   const setEl = box.querySelector('#vxaiSet');
   const fld = k => setEl.querySelector('[data-k=' + k + ']');
   function saveCfg() { try { localStorage.setItem(CFG_K, JSON.stringify(cfg)); } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); label(); }
-  function label() { if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (cfg.key ? '' : ' · کلید وارد نشده'); }
-  fld('mode').value = cfg.mode; fld('key').value = cfg.key;
-  ['mode', 'key', 'model'].forEach(k => fld(k).addEventListener('change', () => { cfg[k] = fld(k).value.trim(); saveCfg(); if (k === 'mode' && cfg.mode === 'local') ensureWorker(); }));
+  function label() { if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (SRV.k ? '' : ' · کلید توسط مدیر وارد نشده'); }
+  fld('mode').value = cfg.mode;
+  ['mode', 'model'].forEach(k => fld(k).addEventListener('change', () => { cfg[k] = fld(k).value.trim(); if (k === 'model') cfg.modelSet = 1; saveCfg(); if (k === 'mode' && cfg.mode === 'local') ensureWorker(); }));
   let modelsLoaded = false;
   function loadModels() {
     if (modelsLoaded) return; modelsLoaded = true;
@@ -128,8 +147,20 @@
       fld('model').innerHTML = ids.map(i => '<option>' + i.replace(/</g, '') + '</option>').join(''); fld('model').value = cfg.model;
     }).catch(() => { modelsLoaded = false; });
   }
-  box.querySelector('[data-x=set]').addEventListener('click', () => { setEl.hidden = !setEl.hidden; loadModels(); });
-  saveCfg();
+  box.querySelector('[data-x=set]').addEventListener('click', () => { setEl.hidden = !setEl.hidden; loadModels(); kst(); });
+  box.querySelector('[data-x=savekey]').addEventListener('click', async (e) => {
+    const b = e.target, k = fld('key').value.trim();
+    if (!/^coa_/.test(k)) { sys('کلید Coarena باید با coa_ شروع شود.'); return; }
+    b.disabled = true; b.textContent = 'در حال ذخیره…';
+    try {
+      const t = Date.now();
+      await window.VX_ADMIN.put('shared/ai/config.json', { k: enc(k), model: cfg.model, t, note: 'Coarena key set by the ecosystem admin from msp-bi' });
+      SRV = { k, model: cfg.model, t }; fld('key').value = ''; kst(); label();
+      sys('✓ کلید روی سرور (مخزن GitHub) ذخیره شد و برای همه‌ی کاربران فعال است.');
+    } catch (err) { sys('ذخیره انجام نشد: ' + String(err.message || err).replace(/</g, '&lt;')); }
+    b.disabled = false; b.textContent = 'ذخیره روی سرور';
+  });
+  saveCfg(); loadSrv();
 
   const API = 'https://coarena.ai/api/v1';
   let ctl = null;
@@ -137,7 +168,7 @@
     ctl = new AbortController();
     let r;
     try {
-      r = await fetch(API + '/chat/completions', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + cfg.key, 'Content-Type': 'application/json' },
+      r = await fetch(API + '/chat/completions', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: cfg.model, messages: msgs, stream: true, max_tokens: 1500 }) });
       if (!r.ok) { let t = ''; try { const j = await r.json(); t = (j.error && j.error.message) || ''; } catch (e) {} throw new Error(r.status + ' ' + t); }
       const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', id = '';
@@ -160,7 +191,7 @@
     d.addEventListener('click', (e) => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const on = b.classList.contains('on'); d.querySelectorAll('button').forEach(x => x.classList.remove('on')); if (!on) b.classList.add('on');
-      fetch(API + '/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + cfg.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {});
+      fetch(API + '/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {});
     });
     el.after(d);
   }
@@ -170,7 +201,7 @@
     q = (q || '').trim(); if (!q) return;
     if (gen) return;
     const isOn = cfg.mode !== 'local';
-    if (isOn && !cfg.key) { setEl.hidden = false; loadModels(); sys('برای حالت آنلاین، کلید API ‏Coarena را در تنظیمات وارد کنید (یا موتور را «محلی» بگذارید).'); fld('key').focus(); return; }
+    if (isOn && !SRV.k) { setEl.hidden = false; loadModels(); kst(); sys('کلید Coarena هنوز توسط مدیر اکوسیستم روی سرور ثبت نشده. تا آن موقع می‌توانید موتور «محلی» را انتخاب کنید.'); return; }
     const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); return; }
     if (!isOn) ensureWorker();
     msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);
