@@ -26,6 +26,36 @@
   }
   var D; try { D = JSON.parse(localStorage.getItem(KEY)) } catch (e) { } if (!D) D = seed();
   function save() { try { localStorage.setItem(KEY, JSON.stringify(D)) } catch (e) { } }
+  /* Shared storage: the whole panel database is one file in the public repo (data/vertex.json).
+     Every browser loads it on start; changes are written back with the admin's GitHub key (already saved on this browser), so all systems see the same data. */
+  var REPO = 'danialmor/VERTEX', FILE = 'data/vertex.json', ROOT = (B && B.base) || '/VERTEX/';
+  function tok() { try { return localStorage.getItem('ghTok') || '' } catch (e) { return '' } }
+  var ready = (async function () {
+    var j = null;
+    try { var r = await fetch('https://api.github.com/repos/' + REPO + '/contents/' + FILE + '?ref=main&t=' + Date.now(), { headers: { Accept: 'application/vnd.github.raw+json' }, cache: 'no-store' }); if (r.ok) j = await r.json() } catch (e) { }
+    if (!j) { try { var r2 = await fetch(ROOT + FILE + '?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
+    if (j && j.hub && (j.t || 0) > (D._t || 0)) { D = j.hub; D._t = j.t; save(); }
+    REMOTE.loaded = !!j; REMOTE.t = j ? j.t : 0; paint();
+  })();
+  var REMOTE = { loaded: false, t: 0, busy: false, err: '', timer: 0 };
+  function b64u(x) { return btoa(unescape(encodeURIComponent(x))) }
+  function push() {
+    if (!tok()) { REMOTE.err = 'no-key'; paint(); return }
+    clearTimeout(REMOTE.timer); REMOTE.timer = setTimeout(async function () {
+      REMOTE.busy = true; paint();
+      try {
+        var H = { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json' }, sha, u = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE;
+        var r = await fetch(u + '?ref=main', { headers: H, cache: 'no-store' }); if (r.ok) sha = (await r.json()).sha;
+        var t = Date.now(); D._t = t; save();
+        var w = await fetch(u, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify({ message: 'data: vertex.json — panel', content: b64u(JSON.stringify({ v: 1, t: t, hub: D })), sha: sha, branch: 'main' }) });
+        if (!w.ok) throw new Error('GitHub ' + w.status);
+        REMOTE.t = t; REMOTE.err = '';
+      } catch (e) { REMOTE.err = String(e.message || e) }
+      REMOTE.busy = false; paint();
+    }, 1200);
+  }
+  function paint() { var d = document.getElementById('demoBar'); if (!d) return; var sp = d.querySelector('span'); if (!sp) return;
+    sp.textContent = REMOTE.busy ? 'در حال ذخیره روی مخزن…' : (REMOTE.err === 'no-key' ? 'تغییرها فقط در این مرورگر — کلید GitHub مدیر روی این مرورگر نیست' : REMOTE.err ? 'ذخیره روی مخزن نشد: ' + REMOTE.err : (REMOTE.t ? '✓ داده‌ها روی مخزن ذخیره است (data/vertex.json)' : 'داده‌ها از مخزن خوانده می‌شود')) }
   function log(u, a, t) { D.audit.unshift({ ts: now(), user: u ? u.code : '-', action: a, target: t || '' }); D.audit = D.audit.slice(0, 200) }
   function E(st, err) { var e = { status: st, body: { error: err } }; throw e }
   var tn = function (id) { return D.tenants.filter(function (x) { return x.id === id })[0] };
@@ -133,17 +163,19 @@
     o = o || {}; var m = (o.method || 'GET').toUpperCase(), path = s.slice(i + 7).split('?')[0], body = {}, h = (o.headers && (o.headers.Authorization || o.headers.authorization)) || '';
     try { if (o.body) body = JSON.parse(o.body) } catch (e) { }
     var st = 200, out;
-    try { out = route(m, path, body, h); save() } catch (e) { st = e.status || 500; out = e.body || { error: String(e && e.message || e) } }
-    return new Promise(function (res) { setTimeout(function () { res(new Response(JSON.stringify(out), { status: st, headers: { 'Content-Type': 'application/json' } })) }, 120) });
+    return ready.then(function () {
+      try { out = route(m, path, body, h); save(); if (m !== 'GET' && path !== '/auth/login') push() } catch (e) { st = e.status || 500; out = e.body || { error: String(e && e.message || e) } }
+      return new Response(JSON.stringify(out), { status: st, headers: { 'Content-Type': 'application/json' } });
+    });
   };
   /* نوار «حالت نمایشی» با دکمه‌ی پاک کردن داده‌ها */
   function bar() {
     if (document.getElementById('demoBar')) return; var d = document.createElement('div'); d.id = 'demoBar'; d.setAttribute('role', 'note');
-    d.style.cssText = 'position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:100000;background:#f2b640;color:#1a1408;font:600 12px Vazirmatn,Tahoma,sans-serif;direction:rtl;border-radius:99px;padding:5px 8px 5px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.35)';
+    d.style.cssText = 'position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:100000;background:#f2b640;color:#1a1408;font:600 12px Vazirmatn,Tahoma,sans-serif;direction:rtl;border-radius:99px;padding:5px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.35)';
     try{document.documentElement.classList.add('tsuba-demo')}catch(e){}
-    d.innerHTML = '<span>حالت نمایشی گیت‌هاب: داده‌ها فقط در همین مرورگر</span><button type="button" style="border:0;border-radius:99px;background:#1a1408;color:#fff;font:inherit;padding:3px 10px;cursor:pointer">شروع دوباره</button>';
-    d.querySelector('button').onclick = function () { if (!confirm('داده‌های نمایشی پاک و از نو ساخته شوند؟')) return; try { localStorage.removeItem(KEY); localStorage.removeItem('hub.token') } catch (e) { } location.reload() };
-    document.body.appendChild(d);
+    d.innerHTML = '<span>داده‌ها از مخزن خوانده می‌شود</span>';
+    // reset button removed: the data is shared by every system (data/vertex.json)
+    document.body.appendChild(d); paint();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bar); else bar();
 })();
