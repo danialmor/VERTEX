@@ -18,12 +18,10 @@
     if (!j) { try { var r2 = await fetch('../shared/ai/config.json?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
     return { sha: sha, c: Object.assign({ enabled: true, name: 'دستیار VERTEX', mode: 'coarena', model: 'claude-sonnet-5-5', k: '', prompt: '' }, j || {}) };
   }
+  function cloud() { if (window.VX_CLOUD) return Promise.resolve(window.VX_CLOUD); return new Promise(function (res) { var sc = document.createElement('script'); sc.src = '../shared/cloud.js?v=' + Date.now(); sc.onload = function () { res(window.VX_CLOUD || null) }; sc.onerror = function () { res(null) }; document.head.appendChild(sc) }) }
   async function save(c) {
-    var CL = window.VX_CLOUD; if (CL && CL.on) { await CL.putDoc('ai-config', c); return }
-    if (!tok()) throw new Error('فضای آنلاین (Cloudflare) تنظیم نشده');
-    var sha, r = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/contents/' + PATH + '?ref=main', { headers: { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json' }, cache: 'no-store' }); if (r.ok) sha = (await r.json()).sha;
-    var w = await fetch('https://api.github.com/repos/' + OWN + '/' + REP + '/contents/' + PATH, { method: 'PUT', headers: { Authorization: 'Bearer ' + tok(), Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'panel: AI settings', content: btoa(unescape(encodeURIComponent(JSON.stringify(c, null, 1)))), sha: sha, branch: 'main' }) });
-    if (!w.ok) throw new Error('GitHub ' + w.status);
+    var CL = await cloud(); if (CL && CL.on) { await CL.putDoc('ai-config', c); return }
+    throw new Error('اتصال به فضای آنلاین برقرار نشد؛ صفحه را تازه کنید');
   }
   var row = function (label, html, note) { return '<label style="display:grid;gap:6px"><b style="font-size:13px">' + label + '</b>' + html + (note ? '<small style="color:var(--muted)">' + note + '</small>' : '') + '</label>' };
   var inp = 'padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;width:100%;box-sizing:border-box';
