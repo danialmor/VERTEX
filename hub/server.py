@@ -8,7 +8,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 VERSION = '1.0.0'
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEF = dict(host='127.0.0.1', port=8787, data_dir=os.path.join(HERE, 'data'), static_dir='', allowed_origins=[],
-           token_ttl_days=30, ai_url='', ai_model='qwen2.5:7b', ai_rate_per_min=6, max_body=2 * 1024 * 1024, test_mode=False)
+           token_ttl_days=30, ai_url='', ai_model='qwen2.5:7b', ai_rate_per_min=6, max_body=2 * 1024 * 1024, max_file=25 * 1024 * 1024, test_mode=False)
 
 def load_config():
     c = dict(DEF); p = os.environ.get('HUB_CONFIG', os.path.join(HERE, 'config.json'))
@@ -505,6 +505,7 @@ class H(BaseHTTPRequestHandler):
         if seg == ['relations'] and m == 'GET':
             qs = parse_qs(urlparse(self.path).query); g = lambda k: (qs.get(k) or [''])[0]
             return self.send(200, {'items': hub.relations(u, g('module'), g('type'), g('id'))})
+        if seg[0] == 'files' and len(seg) in (2, 3): return self.files(m, seg[1], seg[2] if len(seg) == 3 else None, u)
         if seg == ['stream'] and m == 'GET': return self.stream(u)
         if seg == ['ai'] and m == 'POST': return self.ai(u)
         if seg == ['ai', 'stream'] and m == 'POST': return self.ai(u, stream=True)
@@ -512,6 +513,48 @@ class H(BaseHTTPRequestHandler):
             if u['role'] != 'admin' or u.get('tenant_id'): return self.send(403, {'error': 'forbidden'})
             return self.admin(m, seg[1:], u)
         self.send(404, {'error': 'not-found'})
+    # ── uploaded files (e.g. msp-bi schedules, project information, delay reports) ──
+    # Stored on disk: <data_dir>/files/<site storage key>/<name> plus <name>.meta.json; every signed-in browser lists and downloads them.
+    FNAME = re.compile(r'^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp)$', re.I)
+    def fdir(self, u, site):
+        d = os.path.join(self.hub.cfg['data_dir'], 'files', self.hub.ss(u, site)); os.makedirs(d, exist_ok=True); return d
+    def files(self, m, site, name, u):
+        hub = self.hub
+        if not SLUG.match(site): return self.send(400, {'error': 'bad-path'})
+        if not hub.can(u, site, m != 'GET'): return self.send(403, {'error': 'forbidden'})
+        d = self.fdir(u, site)
+        if name is None and m == 'GET':
+            out = []
+            for f in sorted(os.listdir(d)):
+                if f.endswith('.meta.json') or not os.path.isfile(os.path.join(d, f)): continue
+                try:
+                    with open(os.path.join(d, f + '.meta.json'), encoding='utf-8') as fh: meta = json.load(fh)
+                except Exception: meta = {}
+                st = os.stat(os.path.join(d, f)); out.append({'name': f, 'size': st.st_size, 'ts': meta.get('ts', int(st.st_mtime)), 'by': meta.get('by', ''), 'sha': meta.get('sha', '')})
+            return self.send(200, {'files': out})
+        if name is None or not self.FNAME.match(name) or name.startswith('.'): return self.send(400, {'error': 'bad-name'})
+        f = os.path.join(d, name)
+        if os.path.realpath(f) != os.path.join(os.path.realpath(d), name): return self.send(400, {'error': 'bad-name'})
+        if m == 'GET':
+            if not os.path.isfile(f): return self.send(404, {'error': 'not-found'})
+            with open(f, 'rb') as fh: data = fh.read()
+            return self.send(200, raw=data, ctype='application/octet-stream')
+        if m == 'PUT':
+            n = int(self.headers.get('Content-Length') or 0); self._read = True
+            if n <= 0: return self.send(400, {'error': 'empty'})
+            if n > hub.cfg.get('max_file', 25 * 1024 * 1024): self.close_connection = True; return self.send(413, {'error': 'too-large'})
+            raw = self.rfile.read(n); sha = hashlib.sha256(raw).hexdigest(); tmp = f + '.tmp'
+            with open(tmp, 'wb') as w: w.write(raw)
+            os.replace(tmp, f)
+            with open(f + '.meta.json', 'w', encoding='utf-8') as fh: json.dump({'ts': now(), 'by': u['code'], 'sha': sha, 'size': n}, fh)
+            hub.log(u['code'], 'file-put', '%s/%s' % (site, name), '', self.ip())
+            return self.send(200, {'ok': True, 'name': name, 'sha': sha, 'size': n})
+        if m == 'DELETE':
+            if hub.grants(u).get(site) not in ('admin', 'manager'): return self.send(403, {'error': 'forbidden'})
+            for x in (f, f + '.meta.json'):
+                if os.path.isfile(x): os.remove(x)
+            hub.log(u['code'], 'file-del', '%s/%s' % (site, name), '', self.ip()); return self.send(200, {'ok': True})
+        return self.send(405, {'error': 'method'})
     # ── subscriptions (ecosystem admin) ──
     def sub_create(self, tid, b):
         hub = self.hub; mods = [x for x in (b.get('modules') or []) if hub.module(x)]

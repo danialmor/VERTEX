@@ -2002,8 +2002,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='3.78.0';
+var VERSION='3.79.0';
 var CHANGELOG=[
+{v:'3.79.0',d:'27 آبان 1405',t:'بارگذاری برای سرور خودمان',b:['روی سرور خودمان، هر فایلی که در بارگذاری انداخته شود مستقیم روی سرور ذخیره می‌شود (بدون GitHub و بدون کلید)','همه‌ی مرورگرها فهرست فایل‌های سرور را می‌گیرند و خودکار بارگذاری می‌کنند؛ نام فرستنده و زمان کنار هر فایل','هاب: مسیرهای /api/v1/files برای ذخیره، فهرست، دریافت و حذف فایل با کنترل دسترسی']},
 {v:'3.78.0',d:'27 آبان 1405',t:'بارگذاری روی سرور بدون کلید',b:['کادر «📤 بارگذاری روی سرور»: فایل‌ها با صفحه‌ی بارگذاری خود GitHub در پوشه‌ی msp-bi/data/inbox ذخیره می‌شوند','داشبورد در هر مرورگر فایل‌های این پوشه را خودکار می‌خواند و بارگذاری می‌کند','فهرست فایل‌های سرور با نشان ✓ روی سرور']},
 {v:'3.77.1',d:'27 آبان 1405',t:'بازگشت صفحه‌ی ورود قبلی',b:['ورود با همان نام کاربری و رمزهای قبلی کنترل پنل، بدون کلید GitHub یا API','بعد از ورود: صفحه‌ی اصلی با بخش‌های مجاز (یا همان بخشی که کاربر از آن آمده بود)']},
 {v:'3.77.0',d:'27 آبان 1405',t:'ورود با نام کاربری و رمز',b:['ورود یکپارچه: بدون ورود، داشبورد به صفحه‌ی ورود (admin) می‌رود؛ بعد از ورود صفحه‌ی اصلی با بخش‌های مجاز هر کاربر','ورود مدیر کلیدهای رمزدار سرور را خودکار باز می‌کند','مدیریت کاربران و بخش‌های مجاز هر کاربر در مرکز داده، ذخیره در مخزن','دکمه‌ی خروج در نوار سمت راست']},
@@ -3689,17 +3690,26 @@ async function uBox(){var B=$('#fiBody');if(!B||!isAdm())return;var g=B.querySel
 /* 3.78: upload without any key — files go into the repo folder msp-bi/data/inbox through GitHub's own upload page;
    every browser reads that folder (public, no key) and loads the files automatically. */
 var INB={files:null,names:{},busy:false,t:0};
+/* 3.79: on our own server (hub), uploads go straight to the server: PUT /api/v1/files/msp-bi/<name>; every browser lists and loads them. */
+function hubTok(){try{return localStorage.getItem('hub.token')||''}catch(e){return ''}}
+var HUBF=!/github\.io$/i.test(location.hostname)&&location.protocol!=='file:';
+async function hubUp(f){var r=await fetch('/api/v1/files/msp-bi/'+encodeURIComponent(f.name),{method:'PUT',headers:{Authorization:'Bearer '+hubTok(),'Content-Type':'application/octet-stream'},body:f});if(!r.ok){var j={};try{j=await r.json()}catch(e){}throw new Error(j.error||('HTTP '+r.status))}return r.json()}
+var _ing78=ingest;ingest=async function(list,fromSrv){if(HUBF&&!fromSrv&&hubTok()){var up=0,er=[];for(var i=0;i<list.length;i++){try{await hubUp(list[i]);up++;INB.names[list[i].name]=1}catch(e){er.push(list[i].name+': '+(e.message||e))}}
+  if(up)toast('✓ '+fa(up)+' فایل روی سرور ذخیره شد');if(er.length)toast('ذخیره روی سرور نشد: '+er[0]);try{var dn=JSON.parse(localStorage.getItem('inboxDone')||'{}');list.forEach(function(f){dn[f.name]='up'});localStorage.setItem('inboxDone',JSON.stringify(dn))}catch(e){}INB.t=0}
+ var r=await _ing78(list);if(HUBF&&!fromSrv)setTimeout(function(){inboxPull(true)},300);return r};
 var INB_URL='https://github.com/danialmor/VERTEX/upload/main/msp-bi/data/inbox';
-async function inboxPull(force){if(INB.busy)return;if(!force&&INB.files&&Date.now()-INB.t<60000)return;INB.busy=true;
- try{var L=null;try{var r=await fetch('https://api.github.com/repos/'+GHS.own+'/'+GHS.rep+'/contents/msp-bi/data/inbox?ref=main&t='+Date.now(),{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});if(r.ok)L=await r.json()}catch(e){}
-  if(!L){try{var r2=await fetch('data/inbox/list.json?t='+Date.now(),{cache:'no-store'});if(r2.ok)L=(await r2.json()).map(function(n){return {name:n,sha:n,download_url:'data/inbox/'+encodeURIComponent(n),type:'file'}})}catch(e){}}
+async function inboxPull(force){if(INB.busy)return;INB.busy=true;INB.busy=false;if(inboxPull.p)return inboxPull.p;return (inboxPull.p=inboxPull2(force).finally(function(){inboxPull.p=null}))}
+async function inboxPull2(force){if(INB.busy)return;if(!force&&INB.files&&Date.now()-INB.t<60000)return;INB.busy=true;
+ try{var L=null;if(HUBF){if(hubTok()){try{var rh=await fetch('/api/v1/files/msp-bi',{headers:{Authorization:'Bearer '+hubTok()},cache:'no-store'});if(rh.ok)L=(await rh.json()).files.map(function(x){return {name:x.name,sha:x.sha||String(x.ts),type:'file',download_url:'/api/v1/files/msp-bi/'+encodeURIComponent(x.name),by:x.by,ts:x.ts}})}catch(e){}}L=L||[]}else{try{var r=await fetch('https://api.github.com/repos/'+GHS.own+'/'+GHS.rep+'/contents/msp-bi/data/inbox?ref=main&t='+Date.now(),{headers:{Accept:'application/vnd.github+json'},cache:'no-store'});if(r.ok)L=await r.json()}catch(e){}
+  if(!L){try{var r2=await fetch('data/inbox/list.json?t='+Date.now(),{cache:'no-store'});if(r2.ok)L=(await r2.json()).map(function(n){return {name:n,sha:n,download_url:'data/inbox/'+encodeURIComponent(n),type:'file'}})}catch(e){}}}
   L=(L||[]).filter(function(x){return x.type==='file'&&/\.(xlsx|csv|tsv|txt|xml)$/i.test(x.name)});INB.files=L;INB.t=Date.now();INB.names={};L.forEach(function(x){INB.names[x.name]=1});
   var done={};try{done=JSON.parse(localStorage.getItem('inboxDone')||'{}')}catch(e){}
-  var todo=L.filter(function(x){return done[x.name]!==x.sha});
-  if(todo.length){var F=[];for(var i=0;i<todo.length;i++){try{var b=await (await fetch(todo[i].download_url,{cache:'no-store'})).blob();F.push(new File([b],todo[i].name))}catch(e){}}
-   if(F.length){await ingest(F);todo.forEach(function(x){done[x.name]=x.sha});try{localStorage.setItem('inboxDone',JSON.stringify(done))}catch(e){}toast('✓ '+fa(F.length)+' فایل از سرور بارگذاری شد')}}
+  var todo=L.filter(function(x){return done[x.name]!==x.sha&&done[x.name]!=='up'});if(HUBF)L.forEach(function(x){if(done[x.name]==='up')done[x.name]=x.sha});
+  if(todo.length){var F=[];for(var i=0;i<todo.length;i++){try{var b=await (await fetch(todo[i].download_url,{cache:'no-store',headers:HUBF?{Authorization:'Bearer '+hubTok()}:{}})).blob();F.push(new File([b],todo[i].name))}catch(e){}}
+   if(F.length){todo.forEach(function(x){done[x.name]=x.sha});try{localStorage.setItem('inboxDone',JSON.stringify(done))}catch(e){}await ingest(F,true);toast('✓ '+fa(F.length)+' فایل از سرور بارگذاری شد')}}
  }finally{INB.busy=false}if(cur==='files'&&FT_.tab==='dc')inBox()}
 function inBox(){var B=$('#fiBody');if(!B)return;var g=B.querySelector('.dcl .fdz');if(!g||!g.isConnected)return;var old=B.querySelector('.inbx');if(old)old.remove();var L=INB.files;
+ if(HUBF){var hh='<div class="dcinfo inbx" style="display:block;border:2px solid #1b6f52"><div><b>📤 بارگذاری روی سرور</b> <span class="svb2 svb ok">سرور خودمان</span><small>'+(hubTok()?'هر فایلی که پایین‌تر بیندازید یا انتخاب کنید، مستقیم روی سرور ذخیره می‌شود و همه‌ی کاربران و دستگاه‌ها آن را می‌بینند.':'برای ذخیره روی سرور ابتدا از صفحه‌ی ورود وارد شوید.')+'</small></div><div style="display:flex;gap:8px;margin:8px 0"><button type="button" class="btn light" id="inRe">⟳ خواندن دوباره از سرور</button></div><div style="display:grid;gap:3px;font-size:12px">'+(L===null?'<small>در حال خواندن فهرست سرور…</small>':L.length?L.map(function(x){return '<div><span class="svb2 svb ok">✓ روی سرور</span> '+esc(x.name)+(x.by?' <small>· '+esc(x.by)+(x.ts?' · '+jdt(x.ts*1000):'')+'</small>':'')+'</div>'}).join(''):'<small>هنوز فایلی روی سرور نیست.</small>')+'</div></div>';g.insertAdjacentHTML('beforebegin',hh);var re0=$('#inRe');if(re0)re0.onclick=function(){re0.disabled=true;inboxPull(true)};return}
  var h='<div class="dcinfo inbx" style="display:block;border:2px solid #1b6f52"><div><b>📤 بارگذاری روی سرور</b> <span class="svb2 svb ok">بدون کلید</span><small>۱) دکمه‌ی زیر را بزنید؛ صفحه‌ی بارگذاری خودِ GitHub باز می‌شود (با حساب GitHub خودتان). ۲) فایل‌ها را انتخاب کنید و پایین صفحه «Commit changes» را بزنید. ۳) به این صفحه برگردید؛ فایل‌ها خودکار خوانده می‌شوند و در همه‌ی مرورگرها دیده می‌شوند.</small></div>'
   +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0"><a class="btn dark" href="'+INB_URL+'" target="_blank" rel="noopener">بارگذاری فایل در سرور (GitHub)</a><button type="button" class="btn light" id="inRe">⟳ خواندن دوباره از سرور</button></div>'
   +'<div style="display:grid;gap:3px;font-size:12px">'+(L===null?'<small>در حال خواندن فهرست سرور…</small>':L.length?L.map(function(x){return '<div><span class="svb2 svb ok">✓ روی سرور</span> '+esc(x.name)+'</div>'}).join(''):'<small>هنوز فایلی در سرور نیست.</small>')+'</div></div>';
