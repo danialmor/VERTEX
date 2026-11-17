@@ -41,7 +41,7 @@ sync_dir "$SRC" "$WEB" .git hub .github docs "*.zip" README.md AGENTS.md CLAUDE.
 if [ ! -f "$ETC/config.json" ]; then
   if [[ "$SITE" =~ ^[0-9.]+$ ]]; then ORIG="http://$SITE"; else ORIG="https://$SITE"; fi
   cat > "$ETC/config.json" <<CFG
-{"host":"127.0.0.1","port":8787,"data_dir":"/var/lib/danimor","allowed_origins":["$ORIG"],"ai_url":"","test_mode":true}
+{"host":"127.0.0.1","port":8787,"data_dir":"/var/lib/danimor","allowed_origins":["$ORIG"],"ai_url":"https://coarena.ai/api/v1","ai_model":"claude-sonnet-5-5","ai_key":"${HUB_AI_KEY:-}","ai_rate_per_min":20,"test_mode":true}
 CFG
 fi
 say "پیکربندی وب‌سرور"
