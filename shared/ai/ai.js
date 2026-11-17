@@ -8,30 +8,38 @@
   const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z"/><path d="M5 15l.6 1.4L7 17l-1.4.6L5 19l-.6-1.4L3 17l1.4-.6z"/></svg>';
 
   const css = `
-#vxaiFab{position:fixed;left:18px;bottom:18px;z-index:9998;width:52px;height:52px;border-radius:50%;border:0;cursor:pointer;color:#fff;
- background:linear-gradient(135deg,#1b6f52,#2f78c4);box-shadow:0 8px 24px rgba(20,40,40,.28);display:grid;place-items:center;transition:transform .2s}
-#vxaiFab:hover{transform:scale(1.07)}#vxaiFab svg{width:26px;height:26px}
-#vxaiFab.busy::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;border-top-color:#f2b230;animation:vxspin 1s linear infinite}
-@keyframes vxspin{to{transform:rotate(360deg)}}
+#vxaiFab{position:fixed;left:16px;bottom:16px;z-index:9998;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;color:#fff;
+ background:linear-gradient(135deg,#1b6f52,#2f78c4);box-shadow:0 6px 18px rgba(20,40,40,.22);display:grid;place-items:center;transition:transform .2s}
+#vxaiFab:hover{transform:scale(1.06)}#vxaiFab svg{width:21px;height:21px}
+#vxaiFab.busy::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent;border-top-color:#f2b230;animation:vxspin 1s linear infinite}
+@keyframes vxspin{to{transform:rotate(360deg)}}@keyframes vxpulse{50%{box-shadow:0 0 0 6px rgba(214,71,59,.18)}}
 .rail .vxai svg{width:20px;height:20px}
-#vxai{position:fixed;left:18px;bottom:82px;z-index:9999;width:min(400px,calc(100vw - 36px));height:min(560px,calc(100vh - 120px));display:none;flex-direction:column;
- background:var(--card,#fff);color:var(--ink,#14181a);border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,.25);overflow:hidden;font:inherit;direction:rtl;border:1px solid rgba(0,0,0,.06)}
+#vxai{position:fixed;left:16px;bottom:70px;z-index:9999;width:min(340px,calc(100vw - 32px));height:min(480px,calc(100vh - 100px));display:none;flex-direction:column;
+ background:var(--card,#fff);color:var(--ink,#14181a);border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,.16);overflow:hidden;font:inherit;font-size:12px;direction:rtl;border:1px solid rgba(127,127,127,.14)}
 #vxai.open{display:flex}
-#vxai header{display:flex;align-items:center;gap:8px;padding:12px 14px;background:linear-gradient(135deg,#1b6f52,#2f78c4);color:#fff}
-#vxai header b{font-size:14px}#vxai header small{opacity:.85;font-size:11px;display:block}
-#vxai header button{margin-inline-start:auto;background:rgba(255,255,255,.18);border:0;color:#fff;border-radius:10px;padding:4px 9px;cursor:pointer;font:inherit;font-size:12px}
-#vxai .log{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.75}
-#vxai .m{max-width:88%;padding:8px 11px;border-radius:14px;white-space:pre-wrap;word-break:break-word}
-#vxai .u{align-self:flex-start;background:#e7f2ec;color:#14181a}
-#vxai .a{align-self:flex-end;background:rgba(127,127,127,.1)}
-#vxai .sys{align-self:center;font-size:11.5px;color:var(--muted,#6b7572);text-align:center}
-#vxai .bar{height:6px;border-radius:9px;background:rgba(127,127,127,.15);overflow:hidden;margin:6px 0}#vxai .bar i{display:block;height:100%;width:0;background:#1b6f52;transition:width .3s}
-#vxai form{display:flex;gap:6px;padding:10px;border-top:1px solid rgba(127,127,127,.15)}
-#vxai textarea{flex:1;resize:none;height:40px;border-radius:12px;border:1px solid rgba(127,127,127,.25);padding:8px 10px;font:inherit;font-size:13px;background:transparent;color:inherit}
-#vxai form button{border:0;border-radius:12px;padding:0 14px;background:#1b6f52;color:#fff;cursor:pointer;font:inherit;font-size:13px}
-#vxai .set{display:grid;gap:6px;padding:10px 12px;border-bottom:1px solid rgba(127,127,127,.15);font-size:12px}#vxai .set[hidden]{display:none}#vxai .set label{display:flex;gap:8px;align-items:center}#vxai .set input,#vxai .set select{flex:1;font:inherit;font-size:12px;padding:5px 8px;border-radius:9px;border:1px solid rgba(127,127,127,.3);background:transparent;color:inherit}#vxai .set .kst{font-size:12px}#vxai .set .kst b{color:#16704a}#vxai .set button[data-x=savekey]{border:0;border-radius:9px;background:#1b6f52;color:#fff;padding:5px 10px;font:inherit;font-size:12px;cursor:pointer}#vxai .set small{color:var(--muted,#6b7572)}#vxai .set.loc .on1{display:none}
-#vxai .rate{display:flex;gap:4px;align-self:flex-end;margin-top:-4px}#vxai .rate button{border:0;background:none;cursor:pointer;opacity:.55;font-size:14px}#vxai .rate button.on{opacity:1}
-#vxai .chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}#vxai .chips button{border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;border-radius:99px;padding:3px 10px;font:inherit;font-size:11.5px;cursor:pointer}
+#vxai header{display:flex;align-items:center;gap:7px;padding:9px 11px;border-bottom:1px solid rgba(127,127,127,.12)}
+#vxai header>svg{color:#1b6f52;flex:none}
+#vxai header b{font-size:12.5px;font-weight:700}#vxai header small{color:var(--muted,#7a8380);font-size:10px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+#vxai header .hb{margin-inline-start:auto;display:flex;gap:2px}
+#vxai header button{background:none;border:0;color:var(--muted,#7a8380);border-radius:8px;width:26px;height:26px;padding:0;cursor:pointer;font:inherit;font-size:13px;display:grid;place-items:center}
+#vxai header button:hover{background:rgba(127,127,127,.12);color:inherit}#vxai header button.on{color:#1b6f52}
+#vxai header button[hidden]{display:none}
+#vxai .log{flex:1;overflow:auto;padding:10px;display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.7}
+#vxai .m{max-width:86%;padding:6px 9px;border-radius:12px;white-space:pre-wrap;word-break:break-word}
+#vxai .u{align-self:flex-start;background:#e9f3ee;color:#14181a;border-bottom-right-radius:4px}
+#vxai .a{align-self:flex-end;background:rgba(127,127,127,.08);border-bottom-left-radius:4px}
+#vxai .sys{align-self:center;font-size:10.5px;color:var(--muted,#7a8380);text-align:center;max-width:90%}
+#vxai .bar{height:4px;border-radius:9px;background:rgba(127,127,127,.15);overflow:hidden;margin:5px 0}#vxai .bar i{display:block;height:100%;width:0;background:#1b6f52;transition:width .3s}
+#vxai form{display:flex;gap:5px;align-items:flex-end;padding:8px;border-top:1px solid rgba(127,127,127,.12)}
+#vxai textarea{flex:1;resize:none;height:32px;max-height:90px;border-radius:10px;border:1px solid rgba(127,127,127,.22);padding:6px 9px;font:inherit;font-size:12px;line-height:1.6;background:transparent;color:inherit}
+#vxai form button{flex:none;border:0;border-radius:10px;width:32px;height:32px;padding:0;cursor:pointer;font:inherit;font-size:13px;display:grid;place-items:center}
+#vxai form button[type=submit]{background:#1b6f52;color:#fff}
+#vxai form .mic{background:rgba(127,127,127,.1);color:inherit}#vxai form .mic svg{width:15px;height:15px}
+#vxai form .mic.rec{background:#d6473b;color:#fff;animation:vxpulse 1.2s infinite}#vxai form .mic[hidden]{display:none}
+#vxai .set{display:none}
+#vxai .rate{display:flex;gap:2px;align-self:flex-end;margin-top:-3px}#vxai .rate button{border:0;background:none;cursor:pointer;opacity:.4;font-size:11px;padding:0 2px}#vxai .rate button.on{opacity:1}
+#vxai .chips{display:flex;flex-wrap:wrap;gap:4px;padding:0 10px 6px}#vxai .chips button{border:1px solid rgba(127,127,127,.2);background:transparent;color:var(--muted,#6b7572);border-radius:99px;padding:2px 9px;font:inherit;font-size:10.5px;cursor:pointer}
+#vxai .chips button:hover{color:inherit;border-color:rgba(127,127,127,.4)}
 `;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
@@ -40,15 +48,15 @@
   document.body.appendChild(fab);
 
   const box = document.createElement('div'); box.id = 'vxai';
-  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:22px;height:22px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt">روی دستگاه شما اجرا می‌شود · بدون سرور</small></div><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="clear">پاک کردن</button><button type="button" data-x="close">✕</button></header>
+  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
 <div class="on1 kst" id="vxaiKst">کلید API: …</div>
 <label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
 <label class="on1">مدل <select data-k="model"><option value="gpt-6-luna">gpt-6-luna</option></select></label>
 <small class="on1">کلید را فقط مدیر اکوسیستم (با کلید GitHub واردشده در «بارگذاری») وارد می‌کند و روی سرور، در مخزن، برای همه‌ی کاربران ذخیره می‌شود.</small></div>
-<div class="log" id="vxaiLog"><div class="sys">سؤال خود را بپرسید. تنظیمات دستیار (موتور، مدل و کلید) در کنترل پنل ← «هوش مصنوعی» است.<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
-<div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button><button type="button">Summarize delays in English</button></div>
-<form><textarea placeholder="سؤال خود را بنویسید…"></textarea><button type="submit">ارسال</button></form>`;
+<div class="log" id="vxaiLog"><div class="sys">بنویسید یا 🎙 را بزنید و بگویید.</div></div>
+<div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button></div>
+<form><textarea placeholder="پیام…" rows="1"></textarea><button type="button" class="mic" title="گفتن با صدا" aria-label="گفتن با صدا"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button type="submit" title="ارسال" aria-label="ارسال">↑</button></form>`;
   document.body.appendChild(box);
 
   function addRail() {
@@ -62,7 +70,7 @@
   const log = box.querySelector('#vxaiLog'), stEl = box.querySelector('#vxaiSt'), ta = box.querySelector('textarea');
   let worker, ready = false, cur = null, hist = [], gen = false;
 
-  function msg(cls, t) { const d = document.createElement('div'); d.className = 'm ' + cls; d.textContent = t; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
+  function msg(cls, t) { if (cls === 'u') { const ch = box.querySelector('.chips'); if (ch) ch.style.display = 'none'; } const d = document.createElement('div'); d.className = 'm ' + cls; d.textContent = t; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
   function sys(h) { const d = document.createElement('div'); d.className = 'sys'; d.innerHTML = h; log.appendChild(d); log.scrollTop = log.scrollHeight; return d; }
 
   let progEl;
@@ -79,8 +87,8 @@
         else stEl.textContent = 'در حال بارگذاری · ' + m.device;
       }
       if (m.t === 'tok' && cur) { cur.textContent += m.x; log.scrollTop = log.scrollHeight; }
-      if (m.t === 'done') { if (cur) hist.push({ role: 'assistant', content: cur.textContent }); cur = null; gen = false; fab.classList.remove('busy'); btn.textContent = 'ارسال'; }
-      if (m.t === 'err') { gen = false; fab.classList.remove('busy'); btn.textContent = 'ارسال'; sys('خطا: ' + m.e.replace(/</g, '&lt;')); cur = null; }
+      if (m.t === 'done') { if (cur) { hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; fab.classList.remove('busy'); btn.textContent = '↑'; }
+      if (m.t === 'err') { gen = false; fab.classList.remove('busy'); btn.textContent = '↑'; sys('خطا: ' + m.e.replace(/</g, '&lt;')); cur = null; }
     };
     worker.postMessage({ t: 'load' });
   }
@@ -219,7 +227,7 @@
       const el = cur; finish(); if (id && el) rateBar(el, id);
     } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
   }
-  function finish() { if (cur && cur.textContent) hist.push({ role: 'assistant', content: cur.textContent }); cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = 'ارسال'; }
+  function finish() { if (cur && cur.textContent) { hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = '↑'; }
   function rateBar(el, id) {
     const d = document.createElement('div'); d.className = 'rate';
     d.innerHTML = '<button type="button" data-r="up" title="خوب">👍</button><button type="button" data-r="down" title="بد">👎</button>';
@@ -232,16 +240,16 @@
     el.after(d);
   }
 
-  const btn = box.querySelector('form button');
+  const btn = box.querySelector('form button[type=submit]');
   function send(q) {
     q = (q || '').trim(); if (!q) return;
     if (gen) return;
     const isOn = cfg.mode !== 'local';
     if (isOn && !SRV.k && !VIAHUB) { setEl.hidden = false; loadModels(); kst(); sys('دستیار هنوز راه‌اندازی نشده: مدیر باید در کنترل پنل ← «هوش مصنوعی» کلید Coarena را وارد کند.'); return; }
-    const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); return; }
+    const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); if (window.__vxSay) window.__vxSay(quick); return; }
     if (!isOn) ensureWorker();
     msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);
-    cur = msg('a', ''); gen = true; fab.classList.add('busy'); btn.textContent = 'توقف';
+    cur = msg('a', ''); gen = true; fab.classList.add('busy'); btn.textContent = '■';
     const msgs = [{ role: 'system', content: context() }].concat(hist); window.VXAI.last = msgs;
     if (isOn) online(msgs); else worker.postMessage({ t: 'chat', messages: msgs });
   }
@@ -249,8 +257,36 @@
   ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); box.querySelector('form').requestSubmit(); } });
   box.querySelectorAll('.chips button').forEach(b => b.addEventListener('click', () => send(b.textContent)));
   box.querySelector('[data-x=close]').addEventListener('click', toggle);
-  box.querySelector('[data-x=clear]').addEventListener('click', () => { hist = []; log.querySelectorAll('.m').forEach(x => x.remove()); });
+  box.querySelector('[data-x=clear]').addEventListener('click', () => { hist = []; log.querySelectorAll('.m,.rate').forEach(x => x.remove()); const ch = box.querySelector('.chips'); if (ch) ch.style.display = ''; });
 
+  // ── voice: speak the question (Web Speech recognition) and optionally hear the answer (speech synthesis)
+  const mic = box.querySelector('.mic'), ttsB = box.querySelector('[data-x=tts]');
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, recOn = false, tts = false;
+  try { tts = localStorage.getItem('vxaiTts') === '1'; } catch (e) {}
+  if (!('speechSynthesis' in window)) ttsB.hidden = true;
+  const ttsPaint = () => { ttsB.classList.toggle('on', tts); ttsB.textContent = tts ? '🔊' : '🔈'; ttsB.title = tts ? 'خواندن پاسخ: روشن' : 'خواندن پاسخ: خاموش'; };
+  ttsPaint();
+  ttsB.addEventListener('click', () => { tts = !tts; try { localStorage.setItem('vxaiTts', tts ? '1' : '0'); } catch (e) {} if (!tts) try { speechSynthesis.cancel(); } catch (e) {} ttsPaint(); });
+  const isFa = (t) => /[؀-ۿ]/.test(t);
+  function say(t) {
+    if (!tts || !t || !('speechSynthesis' in window)) return;
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t.replace(/[*#`_>|]/g, ' ').slice(0, 1200)); u.lang = isFa(t) ? 'fa-IR' : 'en-US';
+      const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith(u.lang.slice(0, 2))); if (v) u.voice = v; u.rate = 1.02; speechSynthesis.speak(u); } catch (e) {}
+  }
+  window.__vxSay = say;
+  if (!SR) { mic.title = 'گفتن با صدا در این مرورگر پشتیبانی نمی‌شود'; mic.style.opacity = '.35'; }
+  mic.addEventListener('click', () => {
+    if (!SR) { sys('این مرورگر تبدیل صدا به متن را پشتیبانی نمی‌کند. در iPad از دکمه‌ی میکروفون صفحه‌کلید هم می‌توانید استفاده کنید.'); ta.focus(); return; }
+    if (recOn && rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = (ta.value && !isFa(ta.value)) ? 'en-US' : 'fa-IR'; rec.interimResults = true; rec.continuous = false;
+    const base = ta.value ? ta.value + ' ' : ''; let finalT = '';
+    rec.onresult = (e) => { let it = ''; for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) finalT += r[0].transcript; else it += r[0].transcript; } ta.value = base + finalT + it; };
+    rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') sys('اجازه‌ی میکروفون داده نشده است.'); };
+    rec.onend = () => { recOn = false; mic.classList.remove('rec'); if (finalT.trim()) { const q = (base + finalT).trim(); ta.value = ''; send(q); } };
+    try { rec.start(); recOn = true; mic.classList.add('rec'); } catch (e) { recOn = false; }
+  });
+  ta.addEventListener('input', () => { ta.style.height = '32px'; ta.style.height = Math.min(90, ta.scrollHeight) + 'px'; });
   function toggle() { box.classList.toggle('open'); if (box.classList.contains('open')) { if (cfg.mode === 'local') ensureWorker(); else loadModels(); ta.focus(); } }
   fab.addEventListener('click', toggle);
   window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, send };
