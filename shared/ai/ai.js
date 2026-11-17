@@ -2,6 +2,8 @@
 // The model runs in a Web Worker on the user's device. Nothing is sent to any server.
 (function () {
   if (window.__vxAI) return; window.__vxAI = 1;
+  const htok = () => { try { return localStorage.getItem('hub.token') || ''; } catch (e) { return ''; } };
+  const VIAHUB = !/github\.io$/i.test(location.hostname) && location.protocol !== 'file:';
   const BASE = new URL('./', document.currentScript ? document.currentScript.src : location.href).href;
   const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><path d="M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z"/><path d="M5 15l.6 1.4L7 17l-1.4.6L5 19l-.6-1.4L3 17l1.4-.6z"/></svg>';
 
@@ -135,7 +137,7 @@
   const setEl = box.querySelector('#vxaiSet');
   const fld = k => setEl.querySelector('[data-k=' + k + ']');
   function saveCfg() { try { localStorage.setItem(CFG_K, JSON.stringify(cfg)); } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); label(); }
-  function label() { if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (SRV.k ? '' : ' · کلید توسط مدیر وارد نشده'); }
+  function label() { if (VIAHUB && cfg.mode !== 'local') { stEl.textContent = 'آنلاین · Coarena از طریق سرور خودمان · ' + cfg.model; return; } if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (SRV.k ? '' : ' · کلید توسط مدیر وارد نشده'); }
   fld('mode').value = cfg.mode;
   ['mode', 'model'].forEach(k => fld(k).addEventListener('change', () => { cfg[k] = fld(k).value.trim(); if (k === 'model') cfg.modelSet = 1; saveCfg(); if (k === 'mode' && cfg.mode === 'local') ensureWorker(); }));
   let modelsLoaded = false;
@@ -163,10 +165,13 @@
   saveCfg(); loadSrv();
 
   const API = 'https://coarena.ai/api/v1';
+  // On our own server the hub holds the Coarena key (config ai_key) and proxies: /api/v1/ai/stream, /api/v1/ai/feedback.
+
   let ctl = null;
   async function online(msgs) {
     ctl = new AbortController();
     let r;
+    if (VIAHUB) return viaHub(msgs);
     try {
       r = await fetch(API + '/chat/completions', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: cfg.model, messages: msgs, stream: true, max_tokens: 1500 }) });
@@ -184,6 +189,21 @@
       const el = cur; finish(); if (id && el) rateBar(el, id);
     } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
   }
+  async function viaHub(msgs) {
+    try {
+      const sysm = msgs[0] && msgs[0].role === 'system' ? msgs[0].content : '';
+      const r = await fetch('/api/v1/ai/stream', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ system: sysm, messages: msgs.filter(m => m.role !== 'system'), model: cfg.model }) });
+      if (!r.ok) { let t = ''; try { t = (await r.json()).error || ''; } catch (e) {} throw new Error(r.status === 401 ? 'ابتدا وارد شوید' : r.status === 501 ? 'کلید هوش مصنوعی روی سرور تنظیم نشده' : r.status + ' ' + t); }
+      const rd = r.body.getReader(), dec = new TextDecoder(); let buf = '', id = '';
+      for (;;) {
+        const { value, done } = await rd.read(); if (done) break;
+        buf += dec.decode(value, { stream: true }); let i;
+        while ((i = buf.indexOf('\n')) >= 0) { const ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!ln.startsWith('data:')) continue;
+          try { const j = JSON.parse(ln.slice(5)); if (j.t && cur) { cur.textContent += j.t; log.scrollTop = log.scrollHeight; } if (j.id) id = j.id; } catch (e) {} }
+      }
+      const el = cur; finish(); if (id && el) rateBar(el, id);
+    } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
+  }
   function finish() { if (cur && cur.textContent) hist.push({ role: 'assistant', content: cur.textContent }); cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = 'ارسال'; }
   function rateBar(el, id) {
     const d = document.createElement('div'); d.className = 'rate';
@@ -191,6 +211,7 @@
     d.addEventListener('click', (e) => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const on = b.classList.contains('on'); d.querySelectorAll('button').forEach(x => x.classList.remove('on')); if (!on) b.classList.add('on');
+      if (VIAHUB) { fetch('/api/v1/ai/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {}); return; }
       fetch(API + '/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {});
     });
     el.after(d);
@@ -201,7 +222,7 @@
     q = (q || '').trim(); if (!q) return;
     if (gen) return;
     const isOn = cfg.mode !== 'local';
-    if (isOn && !SRV.k) { setEl.hidden = false; loadModels(); kst(); sys('کلید Coarena هنوز توسط مدیر اکوسیستم روی سرور ثبت نشده. تا آن موقع می‌توانید موتور «محلی» را انتخاب کنید.'); return; }
+    if (isOn && !SRV.k && !VIAHUB) { setEl.hidden = false; loadModels(); kst(); sys('کلید Coarena هنوز توسط مدیر اکوسیستم روی سرور ثبت نشده. تا آن موقع می‌توانید موتور «محلی» را انتخاب کنید.'); return; }
     const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); return; }
     if (!isOn) ensureWorker();
     msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);

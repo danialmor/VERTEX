@@ -16,3 +16,7 @@ Runs **Qwen2.5-0.5B-Instruct** (ONNX, q4f16) fully inside the browser. Nothing i
 
 ## Key management (msp-bi 3.75+)
 - Only the ecosystem admin (GitHub key entered in msp-bi → بارگذاری) sees the "کلید جدید (مدیر)" field in ⚙ and saves it to `shared/ai/config.json` in the repo; all users read it from there. Encoding is only obfuscation: the repo is public.
+
+## On our own server (hub)
+- The hub's AI gateway speaks OpenAI-compatible APIs: `config.json` → `"ai_url": "https://coarena.ai/api/v1", "ai_model": "claude-sonnet-5-5", "ai_key": "coa_…"` (or env `HUB_AI_KEY`). The key stays on the server.
+- `ai.js` detects it is not on github.io and calls `/api/v1/ai/stream` (SSE `{t}` … `{done,id}`) and `/api/v1/ai/feedback` with the user's `hub.token`. Model choice from ⚙ is passed through.

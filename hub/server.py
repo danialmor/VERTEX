@@ -8,13 +8,13 @@ from urllib.parse import urlparse, parse_qs, unquote
 VERSION = '1.0.0'
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEF = dict(host='127.0.0.1', port=8787, data_dir=os.path.join(HERE, 'data'), static_dir='', allowed_origins=[],
-           token_ttl_days=30, ai_url='', ai_model='qwen2.5:7b', ai_rate_per_min=6, max_body=2 * 1024 * 1024, max_file=25 * 1024 * 1024, test_mode=False)
+           token_ttl_days=30, ai_url='', ai_model='qwen2.5:7b', ai_key='', ai_rate_per_min=6, max_body=2 * 1024 * 1024, max_file=25 * 1024 * 1024, test_mode=False)
 
 def load_config():
     c = dict(DEF); p = os.environ.get('HUB_CONFIG', os.path.join(HERE, 'config.json'))
     if os.path.exists(p):
         c.update(json.load(open(p, encoding='utf-8')))
-    for k in ('host', 'port', 'data_dir', 'static_dir', 'ai_url', 'ai_model'):
+    for k in ('host', 'port', 'data_dir', 'static_dir', 'ai_url', 'ai_model', 'ai_key'):
         v = os.environ.get('HUB_' + k.upper())
         if v: c[k] = int(v) if k == 'port' else v
     tm = os.environ.get('HUB_TEST_MODE')
@@ -509,6 +509,7 @@ class H(BaseHTTPRequestHandler):
         if seg == ['stream'] and m == 'GET': return self.stream(u)
         if seg == ['ai'] and m == 'POST': return self.ai(u)
         if seg == ['ai', 'stream'] and m == 'POST': return self.ai(u, stream=True)
+        if seg == ['ai', 'feedback'] and m == 'POST': return self.ai_feedback(u)
         if seg[0] == 'admin':
             if u['role'] != 'admin' or u.get('tenant_id'): return self.send(403, {'error': 'forbidden'})
             return self.admin(m, seg[1:], u)
@@ -665,35 +666,62 @@ class H(BaseHTTPRequestHandler):
                 time.sleep(1.5)
         except Exception: pass
     def ai(self, u, stream=False):
+        """AI gateway. Two backends: Ollama (ai_url = http://host:11434) or any OpenAI-compatible API
+        such as Coarena (ai_url = https://coarena.ai/api/v1, ai_key in config.json or HUB_AI_KEY — the key never reaches the browser)."""
         hub = self.hub; b = self.body(); url = hub.cfg['ai_url']
         if not url: return self.send(501, {'error': 'ai-not-configured'})
         h = [t for t in hub.ai_hits.get(u['code'], []) if now() - t < 60]
         if len(h) >= hub.cfg['ai_rate_per_min']: return self.send(429, {'error': 'rate-limited'})
         h.append(now()); hub.ai_hits[u['code']] = h
         msgs = []
-        if b.get('system'): msgs.append({'role': 'system', 'content': str(b['system'])[:4000]})
-        msgs.append({'role': 'user', 'content': str(b.get('prompt', ''))[:12000]})
-        if stream:  # کلمه‌به‌کلمه: کاربر منتظر پایان کل پاسخ نمی‌ماند
-            try:
-                req = urllib.request.Request(url.rstrip('/') + '/api/chat', json.dumps({'model': hub.cfg['ai_model'], 'messages': msgs, 'stream': True}).encode(), {'Content-Type': 'application/json'})
-                resp = urllib.request.urlopen(req, timeout=120)
-            except Exception: return self.send(502, {'error': 'ai-unreachable'})
+        if b.get('system'): msgs.append({'role': 'system', 'content': str(b['system'])[:8000]})
+        for m in (b.get('messages') or [])[-8:]:
+            if m.get('role') in ('user', 'assistant'): msgs.append({'role': m['role'], 'content': str(m.get('content', ''))[:12000]})
+        if b.get('prompt'): msgs.append({'role': 'user', 'content': str(b['prompt'])[:12000]})
+        oa = bool(hub.cfg.get('ai_key')) or '/v1' in url
+        model = str(b.get('model') or hub.cfg['ai_model'])[:80] if oa else hub.cfg['ai_model']
+        if oa:
+            hd = {'Content-Type': 'application/json'}
+            if hub.cfg.get('ai_key'): hd['Authorization'] = 'Bearer ' + hub.cfg['ai_key']
+            req = urllib.request.Request(url.rstrip('/') + '/chat/completions', json.dumps({'model': model, 'messages': msgs, 'stream': stream, 'max_tokens': 1500}).encode(), hd)
+        else:
+            req = urllib.request.Request(url.rstrip('/') + '/api/chat', json.dumps({'model': model, 'messages': msgs, 'stream': stream}).encode(), {'Content-Type': 'application/json'})
+        try: resp = urllib.request.urlopen(req, timeout=120)
+        except urllib.error.HTTPError as e: return self.send(502, {'error': 'ai-error', 'status': e.code})
+        except Exception: return self.send(502, {'error': 'ai-unreachable'})
+        if stream:  # word by word
             self.send_response(200); self.send_header('Content-Type', 'text/event-stream'); self.send_header('Cache-Control', 'no-store'); self.send_header('X-Accel-Buffering', 'no'); self.send_header('Connection', 'close'); self.end_headers(); self.close_connection = True
+            rid = ''
             try:
                 for line in resp:
                     line = line.strip()
                     if not line: continue
-                    j = json.loads(line); t = (j.get('message') or {}).get('content', '')
+                    if oa:
+                        if not line.startswith(b'data:'): continue
+                        d = line[5:].strip()
+                        if d == b'[DONE]': break
+                        j = json.loads(d); rid = rid or j.get('id', ''); t = ((j.get('choices') or [{}])[0].get('delta') or {}).get('content') or ''
+                    else:
+                        j = json.loads(line); t = (j.get('message') or {}).get('content', '')
+                        if j.get('done'): break
                     if t: self.wfile.write(('data: ' + json.dumps({'t': t}, ensure_ascii=False) + '\n\n').encode()); self.wfile.flush()
-                    if j.get('done'): break
-                self.wfile.write(b'data: {"done":true}\n\n'); self.wfile.flush(); hub.log(u['code'], 'ai-stream', '', len(str(b.get('prompt', ''))), self.ip())
+                self.wfile.write(('data: ' + json.dumps({'done': True, 'id': rid}) + '\n\n').encode()); self.wfile.flush(); hub.log(u['code'], 'ai-stream', model, len(json.dumps(msgs)), self.ip())
             except Exception: pass
             return
         try:
-            req = urllib.request.Request(url.rstrip('/') + '/api/chat', json.dumps({'model': hub.cfg['ai_model'], 'messages': msgs, 'stream': False}).encode(), {'Content-Type': 'application/json'})
-            r = json.loads(urllib.request.urlopen(req, timeout=120).read()); hub.log(u['code'], 'ai', '', len(str(b.get('prompt', ''))), self.ip())
-            return self.send(200, {'text': (r.get('message') or {}).get('content', ''), 'model': hub.cfg['ai_model']})
+            r = json.loads(resp.read())
+            text = ((r.get('choices') or [{}])[0].get('message') or {}).get('content', '') if oa else (r.get('message') or {}).get('content', '')
+        except Exception: return self.send(502, {'error': 'ai-bad-reply'})
+        hub.log(u['code'], 'ai', model, len(json.dumps(msgs)), self.ip())
+        return self.send(200, {'text': text, 'id': r.get('id', '') if oa else ''})
+    def ai_feedback(self, u):
+        hub = self.hub; b = self.body()
+        if not hub.cfg.get('ai_key'): return self.send(501, {'error': 'ai-not-configured'})
+        try:
+            req = urllib.request.Request(hub.cfg['ai_url'].rstrip('/') + '/feedback', json.dumps({'request_id': str(b.get('request_id', ''))[:120], 'rating': b.get('rating') if b.get('rating') in ('up', 'down') else None}).encode(), {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + hub.cfg['ai_key']})
+            urllib.request.urlopen(req, timeout=20).read()
         except Exception: return self.send(502, {'error': 'ai-unreachable'})
+        return self.send(200, {'ok': True})
     def admin(self, m, seg, adm):
         hub = self.hub
         if seg == ['stats']: return self.send(200, hub.stats())
