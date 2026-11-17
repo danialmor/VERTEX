@@ -46,3 +46,8 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 - Revit 3D model + drawings linked to schedule (completion timing) — not started.
 - Real visit statistics need the private server (currently per-browser counters only).
 - Real iPad Safari verification.
+
+## 3.72.0 — project scope only inside Project Control
+- `gsOn()` = `GS!=='all' && cur==='sched'`; `gIn`, `leaves`/`filt`, `drawTl`, `treeHtml`, `rlHome`, `rlPlan` scope only when it is true. Home, dashboard, projects, planning and efficiency always show all projects; `gsSet` no longer touches `DS_`/`ef`.
+- The full-width `#gsBan` row was removed. The selected project shows as the inline `#gsSeg` chip before `#segS` (click opens the picker, ✕ clears). Header pill shows "all" outside Project Control.
+- Timeline: bar runs to the planned end (`e-dl`), the red `.ex` hatch runs to the end with delays (`e`, `endD`), with the date in `.exl`; the row caption shows both dates.
