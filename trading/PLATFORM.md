@@ -12,6 +12,7 @@ Both vendored verbatim (no .git); `files.json` in each = file index for the brow
 - `orderflow-src/` + `orderflow/` — Order Flow Tracker (Apache-2.0) source (demo GIFs removed) and a STATIC EXPORT built with next.config output:'export', basePath '/VERTEX/trading/orderflow' (metadata routes marked force-static). jest 150/150 passed; live Bybit WebSocket connected in test. Rebuild: copy orderflow-src, npm ci, npx next build, copy out/ → trading/orderflow/.
 - Duplicate gmgn-skills uploads were byte-identical to gmgn-skills/ (not re-added).
 - Every module has `GUIDE.fa.md` (Persian guide, first view in its tab). files.json per module = browser file index.
+- Web pages (tab view "صفحه‌ی وب", server address saved per browser in localStorage vtx.trade.<k>): SolScope page reads ?api=<server> (its /proxy sends CORS *) — tested end-to-end: 128 real wallets via a running server. gmgnAgent page: API base from ?api=, preview on Pages, real use = iframe of the owner's server. Freqtrade: FreqUI iframe of the server (freqtrade install-ui + api_server).
 ## Rules
 - Browser page only BROWSES code/docs (marked + DOMPurify from jsDelivr). Nothing executes in the browser.
 - Keys (wallet private key, API keys, RPC tokens) live only on the server in .env — never in the browser, site or repo.
