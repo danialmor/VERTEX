@@ -212,18 +212,15 @@ function profile(){return api('GET','/me').then(function(me){S=me;var p=me.profi
 try{T=localStorage.getItem('hub.token')||''}catch(e){}
 api('GET','/health').then(function(h){if(h.test_mode)$('#tmNote').hidden=false}).catch(function(){});
 window.TSP={get S(){return S},get T(){return T},set T(v){T=v},get MODS(){return MODS},NAV_ADMIN:NAV_ADMIN,NAV_OWNER:NAV_OWNER,A:A,O:O,api:api,head:head,openDlg:openDlg,closeDlg:closeDlg,go:go,esc:esc,emsg:emsg,toast:toast,isAdmin:isAdmin,modName:modName,lvName:lvName,logout:logout,fa:fa,fmtD:fmtD,$:$,$$:$$,onNav:null};
-/* GitHub Pages: one sign-in for the whole ecosystem (shared/auth.js, users in the repo) → root page with the user's platforms */
+/* GitHub Pages: the original sign-in (same users and passwords as before). After sign-in → next page or the root page with the user's platforms. */
 if(window.VX_AUTH&&VX_AUTH.STATIC){
  var nx=(location.search.match(/[?&]next=([^&]+)/)||[])[1];nx=nx?decodeURIComponent(nx):'';if(nx&&nx.indexOf(VX_AUTH.ROOT)!==0)nx='';
+ function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant;var sites=eco?[]:(r.modules||[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,t:Date.now()}))}catch(e){}}
+ var _lsub=lf.onsubmit;lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';if(!lf.code.value.trim()||!lf.pin.value){$('#lErr').textContent='نام کاربری و رمز را وارد کنید.';return}b.disabled=true;
+  api('POST','/auth/login',{code:lf.code.value.trim(),pin:lf.pin.value,device:'panel',remember:lf.remember.checked}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}lf.pin.value='';vxMark(r);if(r.must_change){enter(r);return}location.replace(nx||VX_AUTH.ROOT)}).catch(function(x){$('#lErr').textContent=emsg(x)}).then(function(){b.disabled=false})};
  var vs=VX_AUTH.session();
- function demoIn(){return api('POST','/auth/login',{code:'Admin',pin:'Admin123',device:'panel',remember:true}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}enter(r)})}
- if(vs&&!nx){if(vs.role==='admin'){(T?api('GET','/me').then(enter):Promise.reject()).catch(demoIn).catch(function(){show('login')})}else location.replace(VX_AUTH.ROOT)}
- else if(vs&&nx)location.replace(nx);
- else{show('login');var su=$('#suOpen');if(su)su.hidden=true;$('#tmNote').hidden=true;
-  VX_AUTH.getUsers().then(function(U){if(U!==null)return;var h=lf.querySelector('h1');h.textContent='راه‌اندازی: ساخت حساب مدیر اکوسیستم';var e=$('#lErr');e.insertAdjacentHTML('beforebegin','<label class="f">تکرار رمز<input name="pin2" type="password" class="ltr" autocomplete="new-password"></label><label class="f">کلید GitHub (برای ذخیره روی سرور)<input name="gh" type="password" class="ltr" placeholder="github_pat_…"></label>');lf.querySelector('.btn.p').textContent='ساخت حساب و ورود';lf.dataset.setup='1'});
-  lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';b.disabled=true;
-   var job=lf.dataset.setup?(lf.pin.value!==lf.pin2.value?Promise.reject(new Error('تکرار رمز یکی نیست')):VX_AUTH.setup(lf.code.value,lf.pin.value,lf.gh.value.trim())):VX_AUTH.login(lf.code.value,lf.pin.value,lf.remember.checked);
-   job.then(function(){location.replace(nx||VX_AUTH.ROOT)}).catch(function(x){$('#lErr').textContent=x.message||String(x);b.disabled=false})}}
+ if(vs&&nx)location.replace(nx);
+ else if(T)api('GET','/me').then(function(r){vxMark(r);enter(r)}).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>

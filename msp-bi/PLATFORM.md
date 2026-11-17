@@ -71,3 +71,4 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 - `admin/` on github.io: sign-in against users.json (first run = create admin + GitHub key, which also writes the vault); after sign-in → `next` or the root page. An admin opening `admin/` again enters the panel.
 - Root `index.html`: signed-in users see their platforms; others are greyed with 🔒; "Sign out".
 - msp-bi Data center 👥 box (admin): add/update/delete users, role and allowed platforms. Admin sign-in password also unlocks the vault (`sessionStorage.vxPw` → `vxAfterLogin`).
+- 3.77.1: `admin/` on github.io uses the original panel sign-in again (demo hub users and passwords, no GitHub key, no users.json). Successful sign-in writes `vxSess` (role admin for the ecosystem admin, `sites` = the user's modules) and goes to `next` or the root page. The users.json/vault setup screen was removed from sign-in.
