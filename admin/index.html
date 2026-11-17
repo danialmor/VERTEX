@@ -12,7 +12,7 @@
 <script src="../shared/demo.js"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="panel.css">
 </head>
 <body>
@@ -56,7 +56,19 @@
 
 <div id="app" hidden>
  <nav class="side" id="nav" aria-label="بخش‌های پنل"></nav>
- <main class="pg" id="pg"></main>
+ <div class="scrim" id="scrim"></div>
+ <div class="col">
+  <header class="hdr" id="hdr">
+   <button class="ib" id="sbT" type="button" aria-label="باز و بسته کردن منو"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg></button>
+   <div class="ttl"><b id="hdTitle">نمای کلی</b><small id="hdSub">کنترل پنل کاربران</small></div>
+   <span class="sp"></span>
+   <div id="hdTools"></div>
+   <button class="ib rd" id="hdTheme" type="button" aria-label="تغییر حالت روشن و تیره"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+   <div class="um"><button type="button" id="umB" aria-haspopup="true" aria-expanded="false"><span class="av" id="umAv">؟</span><span class="nm" id="umN"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></button>
+    <div class="dd" id="umD" hidden><div class="who"><b id="umN2"></b><span class="mono" id="umC"></span></div><button type="button" data-um="profile">پروفایل من</button><button type="button" data-um="security">امنیت حساب</button><button type="button" data-um="home">صفحه‌ی اصلی</button><button type="button" data-um="out">خروج</button></div></div>
+  </header>
+  <main class="pg" id="pg"></main>
+ </div>
 </div>
 
 <dialog id="dlg"></dialog>
@@ -207,6 +219,7 @@ if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeI
 <script src="filemap.js"></script>
 <script src="eco.js"></script>
 <script src="fx.js"></script>
+<script src="shell.js"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}

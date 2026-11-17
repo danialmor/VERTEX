@@ -77,3 +77,9 @@ See **"Next steps"** in `docs/STATUS.md`. The top item is always the current pri
 4. Admin panel (`admin/eco.js`): "لوگو و سیاست", "سایت کلی" (whole site), and one tab per platform (currently "I — کنترل پروژه"). Add a tab for each new platform.
 5. Each platform keeps an English, AI-readable `<platform>/PLATFORM.md` (purpose, build, data, rules, connections, open needs) and a generated `<platform>/platform.json` (version + changelog). Update both on every release so the panel records every change.
 6. Visits: pages include `shared/track.js` with `data-site="<slug>"`. Real all-user stats need the private server (`POST /api/v1/track`, not yet implemented server-side).
+
+## User Control Panel theme 4.0 (TailAdmin) — 2026-11-17
+- `admin/panel.css` rewritten in the TailAdmin free template's design language (MIT, license in `admin/lib/TAILADMIN.LICENSE`); old CSS kept nowhere — git history has it.
+- `admin/shell.js` (loaded last): grouped sidebar, header (toggle, title, search+bell moved from extras.js, theme, user menu), collapse/off-canvas sidebar. Features stay in index.html + extras/sitemap/filemap/eco/fx.js; they rely only on CSS variable names (--card, --muted, --line …) — keep them.
+- Logout is in the header user menu (`#umB` → `[data-um=out]`); `#lo` still exists hidden. e2e: `node hub/tests/e2e_panel.js` (admin nav = 15).
+- Saved design proposals: `docs/designs/` (see its README).
