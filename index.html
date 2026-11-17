@@ -10,6 +10,7 @@
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="shared/brand.js"></script>
 <script src="shared/track.js" data-site="site"></script>
+<script src="shared/auth.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Vazirmatn:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <style>
@@ -141,6 +142,19 @@ footer{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);text-al
  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(function(){if(!held&&!document.hidden)show((cur+1)%P.length)},3200);
  document.getElementById('mods').innerHTML=P.map(function(p){var tag=p.href?'a':'div';return '<li><'+tag+' class="pc"'+(p.href?' href="'+esc(p.href)+'"':'')+' style="--c:'+p.color+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+(I[p.icon]||'')+'</svg></span><b><i>'+p.n+'</i> — '+esc(p.en)+'</b><small>'+esc(p.desc_en)+'</small><span class="ft"><span class="fa" lang="fa">'+esc(p.fa)+'</span><span class="st'+(p.href?' live':'')+'">'+(p.href?'Live':'Planned')+'</span></span></'+tag+'></li>'}).join('');
  document.getElementById('yr').textContent=new Date().getFullYear();
+ /* sign-in aware: signed-in users see only the platforms they may open; others go through the sign-in page */
+ var AU=window.VX_AUTH,ss=AU&&AU.STATIC?AU.session():null;
+ if(AU&&AU.STATIC){
+  var slugOf=function(el){var h=el.getAttribute('href')||'';var m=P.filter(function(p){return p.href&&(h===p.href||el.href===new URL(p.href,location.href).href)})[0];return m?m.slug:''};
+  [].slice.call(document.querySelectorAll('#mods a.pc,#tri a.nd')).forEach(function(el){var sl=slugOf(el);if(!sl)return;
+   if(!ss){el.href='admin/?next='+encodeURIComponent(el.href);return}
+   if(!AU.allowed(sl,ss)){el.removeAttribute('href');el.classList.add('vxno');el.title='دسترسی ندارید';el.setAttribute('aria-disabled','true')}else el.classList.add('vxok')});
+  var si=document.querySelector('.top .signin'),go=document.querySelector('.cta .btn.go');
+  if(ss){if(si){si.textContent=ss.u+' · Sign out';si.href='#';si.onclick=function(e){e.preventDefault();AU.logout()}}if(go){go.textContent='MY PLATFORMS';go.href='#platforms'}
+   var dn=(location.search.match(/[?&]denied=([^&]+)/)||[])[1];var msg=dn?'You do not have access to that platform. · به آن بخش دسترسی ندارید.':'Signed in as '+ss.u+(ss.role==='admin'?' (admin) — all platforms':' — '+(ss.sites||[]).length+' platform(s)');
+   var w=document.querySelector('#platforms');if(w)w.insertAdjacentHTML('afterend','<p class="lead vxwho'+(dn?' dn':'')+'">'+esc(msg)+'</p>');}
+  var st=document.createElement('style');st.textContent='.vxno{opacity:.38;filter:grayscale(1);cursor:not-allowed!important}.vxno::after{content:"🔒";position:absolute;top:8px;inset-inline-end:10px;font-size:13px}.pc{position:relative}.vxwho{font-weight:600}.vxwho.dn{color:#e11d48}';document.head.appendChild(st);
+ }
 })();
 </script>
 </body>

@@ -10,6 +10,7 @@
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
 <script src="../shared/demo.js"></script>
+<script src="../shared/auth.js"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -101,7 +102,7 @@ lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#
 $('#suOpen').onclick=function(){openDlg('<form id="suf"><h2>درخواست اشتراک</h2><p style="margin:0;color:var(--muted)">اطلاعات تماس را بگذارید؛ برای راه‌اندازی اشتراک با شما تماس گرفته می‌شود.</p><label class="f">نام و نام خانوادگی<input name="name" required></label><label class="f">نام شرکت<input name="company"></label><div class="grid g2"><label class="f">تلفن همراه<input name="phone" class="ltr" inputmode="tel"></label><label class="f">ایمیل<input name="email" class="ltr" type="email"></label></div><label class="f">توضیح (بخش‌های مورد نیاز، تعداد کاربر)<textarea name="note" rows="3"></textarea></label><div class="err" role="alert"></div><div class="row"><button class="btn p">ارسال درخواست</button><button class="btn" type="button" data-close>انصراف</button></div></form>',function(f){
  f.onsubmit=function(e){e.preventDefault();api('POST','/signup',{name:f.name.value,company:f.company.value,phone:f.phone.value,email:f.email.value,note:f.note.value}).then(function(){closeDlg();toast('درخواست شما ثبت شد.')}).catch(function(x){f.querySelector('.err').textContent=emsg(x)})}})};
 $('#pcf').onsubmit=function(e){e.preventDefault();var f=e.target;api('POST','/auth/change-pin',{old:f.old.value,new:f.new.value}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}f.reset();return api('GET','/me')}).then(enter).catch(function(x){$('#pcErr').textContent=emsg(x)})};
-function logout(){try{localStorage.removeItem('hub.token')}catch(e){}T='';S=null;lf.reset();show('login');lf.code.focus()}
+function logout(){try{localStorage.removeItem('hub.token')}catch(e){}T='';S=null;if(window.VX_AUTH&&VX_AUTH.STATIC){VX_AUTH.logout();return}lf.reset();show('login');lf.code.focus()}
 
 /* ── بعد از ورود: هر کس به جای خودش ── */
 function enter(s){S=s;if(s.must_change){show('pwc');return}
@@ -211,7 +212,19 @@ function profile(){return api('GET','/me').then(function(me){S=me;var p=me.profi
 try{T=localStorage.getItem('hub.token')||''}catch(e){}
 api('GET','/health').then(function(h){if(h.test_mode)$('#tmNote').hidden=false}).catch(function(){});
 window.TSP={get S(){return S},get T(){return T},set T(v){T=v},get MODS(){return MODS},NAV_ADMIN:NAV_ADMIN,NAV_OWNER:NAV_OWNER,A:A,O:O,api:api,head:head,openDlg:openDlg,closeDlg:closeDlg,go:go,esc:esc,emsg:emsg,toast:toast,isAdmin:isAdmin,modName:modName,lvName:lvName,logout:logout,fa:fa,fmtD:fmtD,$:$,$$:$$,onNav:null};
-if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
+/* GitHub Pages: one sign-in for the whole ecosystem (shared/auth.js, users in the repo) → root page with the user's platforms */
+if(window.VX_AUTH&&VX_AUTH.STATIC){
+ var nx=(location.search.match(/[?&]next=([^&]+)/)||[])[1];nx=nx?decodeURIComponent(nx):'';if(nx&&nx.indexOf(VX_AUTH.ROOT)!==0)nx='';
+ var vs=VX_AUTH.session();
+ function demoIn(){return api('POST','/auth/login',{code:'Admin',pin:'Admin123',device:'panel',remember:true}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}enter(r)})}
+ if(vs&&!nx){if(vs.role==='admin'){(T?api('GET','/me').then(enter):Promise.reject()).catch(demoIn).catch(function(){show('login')})}else location.replace(VX_AUTH.ROOT)}
+ else if(vs&&nx)location.replace(nx);
+ else{show('login');var su=$('#suOpen');if(su)su.hidden=true;$('#tmNote').hidden=true;
+  VX_AUTH.getUsers().then(function(U){if(U!==null)return;var h=lf.querySelector('h1');h.textContent='راه‌اندازی: ساخت حساب مدیر اکوسیستم';var e=$('#lErr');e.insertAdjacentHTML('beforebegin','<label class="f">تکرار رمز<input name="pin2" type="password" class="ltr" autocomplete="new-password"></label><label class="f">کلید GitHub (برای ذخیره روی سرور)<input name="gh" type="password" class="ltr" placeholder="github_pat_…"></label>');lf.querySelector('.btn.p').textContent='ساخت حساب و ورود';lf.dataset.setup='1'});
+  lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';b.disabled=true;
+   var job=lf.dataset.setup?(lf.pin.value!==lf.pin2.value?Promise.reject(new Error('تکرار رمز یکی نیست')):VX_AUTH.setup(lf.code.value,lf.pin.value,lf.gh.value.trim())):VX_AUTH.login(lf.code.value,lf.pin.value,lf.remember.checked);
+   job.then(function(){location.replace(nx||VX_AUTH.ROOT)}).catch(function(x){$('#lErr').textContent=x.message||String(x);b.disabled=false})}}
+}else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
 <script src="extras.js"></script>

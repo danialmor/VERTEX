@@ -65,3 +65,9 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 ## 3.76.0 — encrypted admin vault
 - `shared/vault.json` = `{v,alg,salt,iv,ct,t}`; payload `{gh, coarena}` encrypted with PBKDF2-SHA256 (250k) → AES-256-GCM from the admin password (WebCrypto). Saved from the Data center "🔐" box (needs the GitHub key on that browser). On a new browser, the password unlocks it → `ghTok` stored locally → `storePush` then auto-saves every upload to the repo.
 - Plain GitHub tokens must never be committed: GitHub revokes tokens pushed to public repos.
+
+## 3.77.0 — one sign-in for the ecosystem (GitHub Pages)
+- `shared/auth.js`: users in `shared/users.json` (`{u,role,sites[],salt,h}`, PBKDF2-SHA256 150k). `<script src="../shared/auth.js" data-require="<slug>">` guards a page: no session → `admin/?next=…`; slug not allowed → root `?denied=`. Used by msp-bi (project-control), trading, mail, files (file-manager), aide (executive-desk). Only active on `*.github.io`; the own server keeps its hub login.
+- `admin/` on github.io: sign-in against users.json (first run = create admin + GitHub key, which also writes the vault); after sign-in → `next` or the root page. An admin opening `admin/` again enters the panel.
+- Root `index.html`: signed-in users see their platforms; others are greyed with 🔒; "Sign out".
+- msp-bi Data center 👥 box (admin): add/update/delete users, role and allowed platforms. Admin sign-in password also unlocks the vault (`sessionStorage.vxPw` → `vxAfterLogin`).
