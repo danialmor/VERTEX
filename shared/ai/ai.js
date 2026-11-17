@@ -34,8 +34,8 @@
 #vxai textarea{flex:1;resize:none;height:32px;max-height:90px;border-radius:10px;border:1px solid rgba(127,127,127,.22);padding:6px 9px;font:inherit;font-size:12px;line-height:1.6;background:transparent;color:inherit}
 #vxai form button{flex:none;border:0;border-radius:10px;width:32px;height:32px;padding:0;cursor:pointer;font:inherit;font-size:13px;display:grid;place-items:center}
 #vxai form button[type=submit]{background:#1b6f52;color:#fff}
-#vxai form .mic{background:rgba(127,127,127,.1);color:inherit}#vxai form .mic svg{width:15px;height:15px}
-#vxai form .mic.rec{background:#d6473b;color:#fff;animation:vxpulse 1.2s infinite}#vxai form .mic[hidden]{display:none}
+#vxai form .lng{background:none;color:var(--muted,#7a8380);width:26px!important;font-size:10.5px!important;font-weight:700}#vxai form .mic{background:rgba(127,127,127,.1);color:inherit}#vxai form .mic svg{width:15px;height:15px}
+#vxai form .mic.busy{opacity:.5;cursor:wait}#vxai form .mic.rec{background:#d6473b;color:#fff;animation:vxpulse 1.2s infinite}#vxai form .mic[hidden]{display:none}
 #vxai .set{display:none}
 #vxai .rate{display:flex;gap:2px;align-self:flex-end;margin-top:-3px}#vxai .rate button{border:0;background:none;cursor:pointer;opacity:.4;font-size:11px;padding:0 2px}#vxai .rate button.on{opacity:1}
 #vxai .chips{display:flex;flex-wrap:wrap;gap:4px;padding:0 10px 6px}#vxai .chips button{border:1px solid rgba(127,127,127,.2);background:transparent;color:var(--muted,#6b7572);border-radius:99px;padding:2px 9px;font:inherit;font-size:10.5px;cursor:pointer}
@@ -56,7 +56,7 @@
 <small class="on1">کلید را فقط مدیر اکوسیستم (با کلید GitHub واردشده در «بارگذاری») وارد می‌کند و روی سرور، در مخزن، برای همه‌ی کاربران ذخیره می‌شود.</small></div>
 <div class="log" id="vxaiLog"><div class="sys">بنویسید یا 🎙 را بزنید و بگویید.</div></div>
 <div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button></div>
-<form><textarea placeholder="پیام…" rows="1"></textarea><button type="button" class="mic" title="گفتن با صدا" aria-label="گفتن با صدا"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button type="submit" title="ارسال" aria-label="ارسال">↑</button></form>`;
+<form><textarea placeholder="پیام…" rows="1"></textarea><button type="button" class="lng" title="زبان گفتار" aria-label="زبان گفتار">فا</button><button type="button" class="mic" title="گفتن با صدا" aria-label="گفتن با صدا"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button><button type="submit" title="ارسال" aria-label="ارسال">↑</button></form>`;
   document.body.appendChild(box);
 
   function addRail() {
@@ -275,11 +275,48 @@
       const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.toLowerCase().startsWith(u.lang.slice(0, 2))); if (v) u.voice = v; u.rate = 1.02; speechSynthesis.speak(u); } catch (e) {}
   }
   window.__vxSay = say;
-  if (!SR) { mic.title = 'گفتن با صدا در این مرورگر پشتیبانی نمی‌شود'; mic.style.opacity = '.35'; }
-  mic.addEventListener('click', () => {
-    if (!SR) { sys('این مرورگر تبدیل صدا به متن را پشتیبانی نمی‌کند. روی صفحه‌کلید iPad دکمه‌ی 🎤 را بزنید و بگویید.'); ta.focus(); return; }
-    if (recOn && rec) { try { rec.stop(); } catch (e) {} setTimeout(() => { if (recOn) resetRec('ضبط متوقف شد.'); }, 1500); return; }
-    startRec(ta.value && !isFa(ta.value) ? 'en-US' : 'fa-IR');
+  // Voice input = record with the microphone (MediaRecorder) + Whisper in the browser (shared/ai/stt.js). Works in Safari on iPad;
+  // the browser asks for microphone permission on the first tap.
+  let micLang = 'fa'; try { micLang = localStorage.getItem('vxaiMicLang') || 'fa'; } catch (e) {}
+  const lngB = box.querySelector('.lng'); const lngPaint = () => { lngB.textContent = micLang === 'en' ? 'EN' : 'فا'; lngB.title = micLang === 'en' ? 'زبان گفتار: انگلیسی' : 'زبان گفتار: فارسی'; }; lngPaint();
+  lngB.addEventListener('click', () => { micLang = micLang === 'en' ? 'fa' : 'en'; try { localStorage.setItem('vxaiMicLang', micLang); } catch (e) {} lngPaint(); });
+  let sttW = null, sttReady = false, sttId = 0, mr = null, stream = null, recT = 0, recHint = null;
+  function stt() {
+    if (sttW) return sttW;
+    sttW = new Worker(BASE + 'stt.js', { type: 'module' });
+    sttW.onmessage = (e) => { const m = e.data;
+      if (m.t === 'prog' && recHint && !sttReady) recHint.textContent = 'بار اول: دریافت مدل تبدیل صدا… ' + m.p + '٪';
+      if (m.t === 'ready') sttReady = true;
+      if (m.t === 'text') { if (recHint) { recHint.remove(); recHint = null; } mic.classList.remove('busy'); if (m.text) { ta.value = ''; send(m.text); } else sys('صدایی تشخیص داده نشد؛ دوباره امتحان کنید.'); }
+      if (m.t === 'err') { if (recHint) { recHint.remove(); recHint = null; } mic.classList.remove('busy'); sys('تبدیل صدا انجام نشد: ' + String(m.e).replace(/</g, '&lt;')); }
+    };
+    return sttW;
+  }
+  async function toPcm16k(blob) {
+    const AC = window.AudioContext || window.webkitAudioContext; const ac = new AC();
+    const buf = await ac.decodeAudioData(await blob.arrayBuffer()); try { ac.close(); } catch (e) {}
+    const len = Math.max(1, Math.ceil(buf.duration * 16000)); const oc = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, len, 16000);
+    const src = oc.createBufferSource(); src.buffer = buf; src.connect(oc.destination); src.start(); const r = await oc.startRendering(); return r.getChannelData(0);
+  }
+  function stopRec() { if (mr && mr.state !== 'inactive') try { mr.stop(); } catch (e) {} clearTimeout(recT); }
+  mic.addEventListener('click', async () => {
+    if (mic.classList.contains('busy')) return;
+    if (mr && mr.state === 'recording') { stopRec(); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { sys('این مرورگر ضبط صدا را پشتیبانی نمی‌کند؛ از دکمه‌ی 🎤 صفحه‌کلید استفاده کنید.'); return; }
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }); }
+    catch (e) { sys(e && e.name === 'NotAllowedError' ? 'اجازه‌ی میکروفون داده نشد. در Safari: آیکن «aA» کنار نشانی ← Website Settings ← Microphone ← Allow.' : 'میکروفون در دسترس نیست: ' + String(e && e.message || e)); return; }
+    stt(); if (!sttReady) sttW.postMessage({ t: 'load' });
+    const chunks = []; mr = new MediaRecorder(stream);
+    mr.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+    mr.onstop = async () => {
+      mic.classList.remove('rec'); try { stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+      const blob = new Blob(chunks, { type: mr.mimeType || 'audio/mp4' }); if (!blob.size) { if (recHint) { recHint.remove(); recHint = null; } return; }
+      mic.classList.add('busy'); if (recHint) recHint.textContent = sttReady ? 'در حال تبدیل صدا به متن…' : 'بار اول: دریافت مدل تبدیل صدا (حدود ۷۷ مگابایت)…';
+      try { const pcm = await toPcm16k(blob); stt().postMessage({ t: 'stt', id: ++sttId, audio: pcm, lang: micLang === 'en' ? 'english' : 'persian' }, [pcm.buffer]); }
+      catch (e) { mic.classList.remove('busy'); if (recHint) { recHint.remove(); recHint = null; } sys('خواندن صدای ضبط‌شده ممکن نشد.'); }
+    };
+    mr.start(); mic.classList.add('rec'); if (recHint) recHint.remove(); recHint = sys('🎙 در حال شنیدن… حرفتان که تمام شد دوباره 🎙 را بزنید');
+    recT = setTimeout(stopRec, 30000);
   });
   const ERR = { 'not-allowed': 'اجازه‌ی میکروفون داده نشده. در Safari: آیکن «aA» کنار نشانی ← Website Settings ← Microphone ← Allow.',
     'service-not-allowed': 'تبدیل صدا به متن در این دستگاه خاموش است. در iPad: Settings ← General ← Keyboard ← Enable Dictation را روشن کنید (و Siri).',

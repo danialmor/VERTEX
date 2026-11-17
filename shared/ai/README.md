@@ -25,3 +25,7 @@ Runs **Qwen2.5-0.5B-Instruct** (ONNX, q4f16) fully inside the browser. Nothing i
 - Settings moved to the control panel → «هوش مصنوعی» (`admin/aiset.js`): enabled, name, mode (coarena|local), model (Coarena list), key, base prompt; saved to `shared/ai/config.json` with the GitHub key from «ذخیره در GitHub». The widget's own ⚙ is hidden.
 - `ai.js` is loaded on: root, admin, msp-bi (with project data), mail, files, trading, aide. Pages without `VX_CTX` get a generic ecosystem prompt with the page title.
 - `shared/demo.js` intercepts only same-origin `/api/v1/` calls (it used to swallow `https://coarena.ai/api/v1/...`).
+
+## Voice (speech to text)
+- Safari's built-in SpeechRecognition did not work on the owner's iPad, and Coarena accepts no audio, so voice uses Whisper-base (multilingual, int8, `models/whisper-base`, ~77 MB, MIT) in a Web Worker (`stt.js`, transformers.js). The 🎙 button records with MediaRecorder (the browser asks for the microphone on first tap), tap again to stop (30 s max), decodes to 16 kHz mono and transcribes. `فا/EN` button sets the spoken language (localStorage `vxaiMicLang`). The text is sent as the question.
+- Spoken answers: 🔈/🔊 toggle, `speechSynthesis` (fa-IR when the text is Persian).
