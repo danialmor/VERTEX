@@ -25,6 +25,11 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 - English names: `enOf(fa)` matches DimProject.ProjectName by the PERSIAN name, not the code (DimProject swaps 1008/1009 vs Project_information; Project_information wins). `ENX` holds names DimProject lacks (Dowran, Hezar Jarib, Hasht Behesht). `NM(fa,en)` renders English line + Persian line (project list, project header, info cards, dashboard chips).
 - `metaList()` merges Project_information rows missing from DimProject.
 - Home / Planning / Score: `rlHome/rlPlan/rlScore` replace sample content when PXREAL (observer on .view class + 20 s refresh while data loads). Planning comes from Project_information des/desN/desT (no designer names or sheet due dates exist in the data). Score shows real people with 0 points until activity is recorded.
+## 3.66
+- `NM(fa,en,code)` shows the DimProject code (ProjectUID, e.g. 1001) as a chip before the English name.
+- Dashboard hero: code, English line, Persian line; "last update" is a `<select class="dsnap">` of all snapshots. `dashSnap(m,H,T)` overrides headline figures from the stored history entry (plan/act/EVM/status counts/dates/delay/S-curve). Only the LATEST snapshot keeps full tasks, so task-level tiles always use the latest (note shown).
+- Global scope `GS` (localStorage gScope): header `.pillsel` is a real picker (all / one project). Applied by wrapping `leaves`, `filt`, `drawTl`, `treeHtml`, `rlHome`, `rlPlan`; dashboard switches DS_.src; project list rows hidden by data-pvopen. Mobile/iPad-portrait UI (role-based) keeps its own project picker.
+- Gantt rewritten (`drawGantt` + `gzBar`, state GZ in localStorage gz): auto range over visible rows, zoom day/week/month/quarter, sticky name/start/end/% columns, filters late/critical/running/milestone, open/close all, jump to today, late overrun stripe, critical outline, milestone diamonds, Friday shading in day zoom.
 ## Layout rules (see docs/THEME-RULES.md §0 and §6)
 - One standard box. Page locked at ≥900px (`--vh`), only `#stage` scrolls.
 - `fitPanes`/`fitBoxes`/`fillBody` size boxes; wrap resizes with `scSave/scRest` to avoid scroll jumps.
