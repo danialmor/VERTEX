@@ -159,6 +159,7 @@
   var of = window.fetch.bind(window);
   window.fetch = function (url, o) {
     var s = String(url && url.url || url), i = s.indexOf('/api/v1/');
+    if (i >= 0 && /^https?:\/\//i.test(s) && s.indexOf(location.origin + '/') !== 0) i = -1; // other sites (e.g. coarena.ai/api/v1) go to the network
     if (i < 0) return of(url, o);
     o = o || {}; var m = (o.method || 'GET').toUpperCase(), path = s.slice(i + 7).split('?')[0], body = {}, h = (o.headers && (o.headers.Authorization || o.headers.authorization)) || '';
     try { if (o.body) body = JSON.parse(o.body) } catch (e) { }

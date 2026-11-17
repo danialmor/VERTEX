@@ -9,6 +9,7 @@
   var $ = P.$, $$ = P.$$, esc = P.esc, app = $('#app'), r = document.documentElement;
   var IC = {
     ecopolicy: 'M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z M9 12l2 2 4-4',
+    aiset: 'M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z M19 14l.9 2.1L22 17l-2.1.9L19 20l-.9-2.1L16 17l2.1-.9z',
     github: 'M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5a3 3 0 0 0-.9-2.4c3-.3 6-1.5 6-6.6a5 5 0 0 0-1.4-3.6 4.7 4.7 0 0 0-.1-3.6s-1.1-.3-3.6 1.4a12.4 12.4 0 0 0-6.5 0C6 1.3 4.9 1.6 4.9 1.6a4.7 4.7 0 0 0-.1 3.6A5 5 0 0 0 3.4 8.8c0 5.1 3 6.3 6 6.6a3 3 0 0 0-.9 2.4V21',
     ecosite: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M3 12h18 M12 3c2.5 3 2.5 15 0 18 M12 3c-2.5 3-2.5 15 0 18',
     'eco-pc': 'M4 4h16L12 20z',
@@ -16,7 +17,7 @@
     sim: 'M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2 M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z'
   };
   var GROUP = [['overview', 'منو'], ['ecopolicy', 'اکوسیستم'], ['sitemap', 'ابزارها'], ['tenants', 'مشتریان و کاربران'], ['users', 'کاربران و دسترسی'], ['system', 'سیستم و حساب'], ['activity', 'سیستم و حساب'], ['profile', 'حساب من']];
-  var SUB = { github: 'اکوسیستم', ecopolicy: 'اکوسیستم', ecosite: 'اکوسیستم', 'eco-pc': 'پلتفرم I', sitemap: 'ابزارها', filemap: 'ابزارها', sim: 'ابزارها · هوش مصنوعی' };
+  var SUB = { aiset: 'اکوسیستم', github: 'اکوسیستم', ecopolicy: 'اکوسیستم', ecosite: 'اکوسیستم', 'eco-pc': 'پلتفرم I', sitemap: 'ابزارها', filemap: 'ابزارها', sim: 'ابزارها · هوش مصنوعی' };
   function decorate() {
     var nav = $('#nav'); if (!nav) return;
     $$('#nav button[data-go]').forEach(function (b) {

@@ -20,3 +20,8 @@ Runs **Qwen2.5-0.5B-Instruct** (ONNX, q4f16) fully inside the browser. Nothing i
 ## On our own server (hub)
 - The hub's AI gateway speaks OpenAI-compatible APIs: `config.json` → `"ai_url": "https://coarena.ai/api/v1", "ai_model": "claude-sonnet-5-5", "ai_key": "coa_…"` (or env `HUB_AI_KEY`). The key stays on the server.
 - `ai.js` detects it is not on github.io and calls `/api/v1/ai/stream` (SSE `{t}` … `{done,id}`) and `/api/v1/ai/feedback` with the user's `hub.token`. Model choice from ⚙ is passed through.
+
+## Ecosystem-wide (3.81)
+- Settings moved to the control panel → «هوش مصنوعی» (`admin/aiset.js`): enabled, name, mode (coarena|local), model (Coarena list), key, base prompt; saved to `shared/ai/config.json` with the GitHub key from «ذخیره در GitHub». The widget's own ⚙ is hidden.
+- `ai.js` is loaded on: root, admin, msp-bi (with project data), mail, files, trading, aide. Pages without `VX_CTX` get a generic ecosystem prompt with the page title.
+- `shared/demo.js` intercepts only same-origin `/api/v1/` calls (it used to swallow `https://coarena.ai/api/v1/...`).

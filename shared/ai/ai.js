@@ -40,13 +40,13 @@
   document.body.appendChild(fab);
 
   const box = document.createElement('div'); box.id = 'vxai';
-  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:22px;height:22px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt">روی دستگاه شما اجرا می‌شود · بدون سرور</small></div><button type="button" data-x="set" title="تنظیمات">⚙</button><button type="button" data-x="clear">پاک کردن</button><button type="button" data-x="close">✕</button></header>
+  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:22px;height:22px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt">روی دستگاه شما اجرا می‌شود · بدون سرور</small></div><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="clear">پاک کردن</button><button type="button" data-x="close">✕</button></header>
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
 <div class="on1 kst" id="vxaiKst">کلید API: …</div>
 <label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
 <label class="on1">مدل <select data-k="model"><option value="claude-sonnet-5-5">claude-sonnet-5-5</option></select></label>
 <small class="on1">کلید را فقط مدیر اکوسیستم (با کلید GitHub واردشده در «بارگذاری») وارد می‌کند و روی سرور، در مخزن، برای همه‌ی کاربران ذخیره می‌شود.</small></div>
-<div class="log" id="vxaiLog"><div class="sys">دو موتور دارد (⚙): «آنلاین · Coarena» قوی و رایگان (کلید را مدیر روی سرور ثبت می‌کند)، و «محلی · Qwen 0.5B» که بدون اینترنت داخل مرورگر اجرا می‌شود (بار اول ۴۸۰ مگابایت).<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
+<div class="log" id="vxaiLog"><div class="sys">سؤال خود را بپرسید. تنظیمات دستیار (موتور، مدل و کلید) در کنترل پنل ← «هوش مصنوعی» است.<br>اطلاعات پروژه‌ها به‌صورت خودکار به آن داده می‌شود.</div></div>
 <div class="chips"><button type="button">خلاصه‌ی وضعیت پروژه‌ها</button><button type="button">کدام پروژه بیشترین تأخیر را دارد؟</button><button type="button">Summarize delays in English</button></div>
 <form><textarea placeholder="سؤال خود را بنویسید…"></textarea><button type="submit">ارسال</button></form>`;
   document.body.appendChild(box);
@@ -88,6 +88,8 @@
   function context() {
     let c = '';
     try { if (typeof window.VX_CTX === 'function') c = window.VX_CTX() || ''; } catch (e) {}
+    const pg = 'Current page: ' + (document.title || location.pathname) + ' (' + location.pathname + ').\n';
+    if (!c) return 'You are the VERTEX ecosystem assistant (construction project management, mail, files, trading, executive desk). ' + pg + 'Answer briefly and clearly. Reply in Persian if the user writes Persian.' + (SRV.prompt ? '\n' + SRV.prompt : '');
     return 'You are VERTEX, a construction project assistant. Answer briefly and clearly. Reply in Persian if the user writes Persian. ' +
       'Facts only from this data (done=actual progress, plan=planned to date, late=delay days, end=planned→forecast end):\n' + (c || 'no data');
   }
@@ -119,11 +121,15 @@
   const dec = (k) => { try { return k ? atob(k).split('').reverse().join('') : ''; } catch (e) { return ''; } };
   const enc = (k) => btoa(k.split('').reverse().join(''));
   async function loadSrv() {
-    const tries = [BASE + 'config.json?t=' + Date.now(), 'https://api.github.com/repos/danialmor/VERTEX/contents/shared/ai/config.json?ref=main'];
+    // Settings live in the control panel (هوش مصنوعی) → shared/ai/config.json. GitHub API first (fresh), Pages copy as fallback.
+    const tries = ['https://api.github.com/repos/danialmor/VERTEX/contents/shared/ai/config.json?ref=main&t=' + Date.now(), BASE + 'config.json?t=' + Date.now()];
     for (const u of tries) {
-      try { const r = await fetch(u, { cache: 'no-store', headers: u.includes('api.github') ? { Accept: 'application/vnd.github.raw+json' } : {} }); if (r.ok) { const j = await r.json(); if (j && (j.k || j.model)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0 }; break; } } } catch (e) {}
+      try { const r = await fetch(u, { cache: 'no-store', headers: u.includes('api.github') ? { Accept: 'application/vnd.github.raw+json' } : {} }); if (r.ok) { const j = await r.json(); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000) }; break; } } } catch (e) {}
     }
-    if (SRV.model && !cfg.modelSet) cfg.model = SRV.model;
+    if (SRV.model) cfg.model = SRV.model;
+    if (SRV.mode) { cfg.mode = SRV.mode; try { fld('mode').value = cfg.mode; } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); }
+    if (SRV.enabled === false) { fab.hidden = true; document.querySelectorAll('.rail .vxai').forEach(b => b.hidden = true); box.classList.remove('open'); }
+    if (SRV.name) { const hb = box.querySelector('header b'); if (hb) hb.textContent = SRV.name; }
     kst(); label();
   }
   function kst() {
@@ -137,7 +143,7 @@
   const setEl = box.querySelector('#vxaiSet');
   const fld = k => setEl.querySelector('[data-k=' + k + ']');
   function saveCfg() { try { localStorage.setItem(CFG_K, JSON.stringify(cfg)); } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); label(); }
-  function label() { if (VIAHUB && cfg.mode !== 'local') { stEl.textContent = 'آنلاین · Coarena از طریق سرور خودمان · ' + cfg.model; return; } if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (SRV.k ? '' : ' · کلید توسط مدیر وارد نشده'); }
+  function label() { if (VIAHUB && cfg.mode !== 'local') { stEl.textContent = 'آنلاین · Coarena از طریق سرور خودمان · ' + cfg.model; return; } if (cfg.mode === 'local') { if (!ready) stEl.textContent = 'محلی · Qwen 0.5B · بدون سرور'; } else stEl.textContent = 'آنلاین · Coarena · ' + cfg.model + (SRV.k ? '' : ' · کلید در کنترل پنل وارد نشده'); }
   fld('mode').value = cfg.mode;
   ['mode', 'model'].forEach(k => fld(k).addEventListener('change', () => { cfg[k] = fld(k).value.trim(); if (k === 'model') cfg.modelSet = 1; saveCfg(); if (k === 'mode' && cfg.mode === 'local') ensureWorker(); }));
   let modelsLoaded = false;
@@ -222,7 +228,7 @@
     q = (q || '').trim(); if (!q) return;
     if (gen) return;
     const isOn = cfg.mode !== 'local';
-    if (isOn && !SRV.k && !VIAHUB) { setEl.hidden = false; loadModels(); kst(); sys('کلید Coarena هنوز توسط مدیر اکوسیستم روی سرور ثبت نشده. تا آن موقع می‌توانید موتور «محلی» را انتخاب کنید.'); return; }
+    if (isOn && !SRV.k && !VIAHUB) { setEl.hidden = false; loadModels(); kst(); sys('دستیار هنوز راه‌اندازی نشده: مدیر باید در کنترل پنل ← «هوش مصنوعی» کلید Coarena را وارد کند.'); return; }
     const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); return; }
     if (!isOn) ensureWorker();
     msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);
