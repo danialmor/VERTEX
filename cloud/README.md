@@ -9,3 +9,6 @@ Online store for the whole ecosystem on GitHub Pages: one Cloudflare Worker (`wo
 
 Deploy: `wrangler kv namespace create VX` → put id in `wrangler.toml` → `wrangler deploy`. Allowed origins: `ORIGINS` var. Local test: `wrangler dev --local`.
 Limits (free plan): KV 1 GB, 1,000 writes/day, value ≤ 25 MB (Worker caps files at 20 MB).
+
+Live: https://vertex-cloud.0tddq47ko7zqg6gdmwllyzi.workers.dev (account 6cf1c3b1…, KV `vertex-cloud-VX` 0532a269289a4eb0bed4a85b95cc817a). Files list uses an index doc `fidx:<site>` because KV list() lags up to 60 s; reads from other regions can lag up to 60 s too.
+Deploy needs a Cloudflare API token (Edit Cloudflare Workers) in env `CLOUDFLARE_API_TOKEN` — never commit it.

@@ -2,7 +2,7 @@
    No key in the browser: the Worker holds the storage. Every page and every device reads/writes the same data.
    URL: set CLOUD below after deploying the Worker (or localStorage.vxCloud for tests). */
 (function () {
-  var CLOUD = ''; // set to the Worker URL after deploy, e.g. https://vertex-cloud.<account>.workers.dev
+  var CLOUD = 'https://vertex-cloud.0tddq47ko7zqg6gdmwllyzi.workers.dev'; // VERTEX Cloud (Cloudflare Worker, cloud/)
   try { CLOUD = localStorage.getItem('vxCloud') || CLOUD } catch (e) { }
   CLOUD = String(CLOUD || '').replace(/\/+$/, '');
   var who = function () { try { var s = JSON.parse(localStorage.getItem('vxSess') || sessionStorage.getItem('vxSess') || 'null'); return (s && s.u) || '' } catch (e) { return '' } };

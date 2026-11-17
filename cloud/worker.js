@@ -10,7 +10,7 @@
      GET    /files/<site>/<name>            → raw bytes
      DELETE /files/<site>/<name>            → {ok}
    Names: doc [a-z0-9._-]{1,60}; site [a-z0-9-]{1,40}; file name ≤120 chars, no slashes, known extensions. */
-const VERSION = '1.0.0';
+const VERSION = '1.1.0';
 const DOC = /^[a-z0-9._-]{1,60}$/i, SITE = /^[a-z0-9-]{1,40}$/, FILE = /^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp|png|jpg|jpeg|webp|docx)$/i;
 const MAX_FILE = 20 * 1024 * 1024, MAX_DOC = 20 * 1024 * 1024;
 
@@ -23,6 +23,12 @@ function cors(req, env) {
 const json = (o, s, h) => new Response(JSON.stringify(o), { status: s || 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, h) });
 async function sha256(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
 
+async function ixSet(env, site, name, meta) {
+  let ix = await env.VX.get('fidx:' + site, 'json');
+  if (!ix) { ix = []; let cur; do { const l = await env.VX.list({ prefix: 'file:' + site + ':', cursor: cur }); l.keys.forEach(x => ix.push(Object.assign({ name: x.name.slice(('file:' + site + ':').length) }, x.metadata || {}))); cur = l.list_complete ? null : l.cursor; } while (cur); }
+  ix = ix.filter(x => x.name !== name); if (meta) ix.push(Object.assign({ name }, meta)); ix.sort((a, b) => a.name < b.name ? -1 : 1);
+  await env.VX.put('fidx:' + site, JSON.stringify(ix));
+}
 export default {
   async fetch(req, env) {
     const c = cors(req, env), H = c.h;
@@ -45,6 +51,8 @@ export default {
       if (seg[0] === 'files' && (seg.length === 2 || seg.length === 3)) {
         const site = seg[1]; if (!SITE.test(site)) return json({ error: 'bad-site' }, 400, H);
         if (seg.length === 2 && m === 'GET') {
+          // index doc (strongly up to date after each upload); KV list() can lag up to 60 s
+          const ix = await env.VX.get('fidx:' + site, 'json'); if (ix) return json({ files: ix }, 200, H);
           const out = []; let cur;
           do { const l = await env.VX.list({ prefix: 'file:' + site + ':', cursor: cur }); l.keys.forEach(x => out.push(Object.assign({ name: x.name.slice(('file:' + site + ':').length) }, x.metadata || {}))); cur = l.list_complete ? null : l.cursor; } while (cur);
           out.sort((a, b) => a.name < b.name ? -1 : 1); return json({ files: out }, 200, H);
@@ -55,9 +63,9 @@ export default {
         if (m === 'PUT') {
           const b = await req.arrayBuffer(); if (!b.byteLength) return json({ error: 'empty' }, 400, H); if (b.byteLength > MAX_FILE) return json({ error: 'too-large' }, 413, H);
           const sha = await sha256(b), meta = { size: b.byteLength, ts: Date.now(), by: (req.headers.get('X-By') || '').slice(0, 40), sha };
-          await env.VX.put(key, b, { metadata: meta }); return json(Object.assign({ ok: true, name }, meta), 200, H);
+          await env.VX.put(key, b, { metadata: meta }); await ixSet(env, site, name, meta); return json(Object.assign({ ok: true, name }, meta), 200, H);
         }
-        if (m === 'DELETE') { if (env.ADMIN_PIN && req.headers.get('X-Pin') !== env.ADMIN_PIN) return json({ error: 'forbidden' }, 403, H); await env.VX.delete(key); return json({ ok: true }, 200, H); }
+        if (m === 'DELETE') { if (env.ADMIN_PIN && req.headers.get('X-Pin') !== env.ADMIN_PIN) return json({ error: 'forbidden' }, 403, H); await env.VX.delete(key); await ixSet(env, site, name, null); return json({ ok: true }, 200, H); }
       }
       return json({ error: 'not-found' }, 404, H);
     } catch (e) { return json({ error: 'server', detail: String(e && e.message || e).slice(0, 200) }, 500, H); }
