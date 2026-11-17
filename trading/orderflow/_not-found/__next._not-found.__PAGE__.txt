@@ -1,0 +1,55 @@
+1:"$Sreact.fragment"
+2:"/VERTEX/trading/orderflow/_next/static/chunks/0umf92h1sb77c.js"
+3:I[39756,["$2"],"default"]
+4:I[37457,["$2"],"default"]
+5:"/VERTEX/trading/orderflow/_next/static/chunks/15pqqz5ux6dor.js"
+6:I[79520,["$5"],""]
+d:I[97367,["$2"],"OutletBoundary"]
+e:"$Sreact.suspense"
+11:"ViewportBoundary"
+12:I[97367,["$2"],"$11"]
+13:"MetadataBoundary"
+14:I[97367,["$2"],"$13"]
+:HL["/VERTEX/trading/orderflow/_next/static/chunks/2t-1x1i2fjwnv.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap","style"]
+8:X
+b:X
+b:C
+c:[["children",{"s":"__PAGE__","h":160,"d":{"r":["$","$1","c",{"children":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":"$0:t:t:d:r:props:children:1:props:children:1:props:children:0:props:notFound:0:1:props:style","children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":"$0:t:t:d:r:props:children:1:props:children:1:props:children:0:props:notFound:0:1:props:children:props:children:1:props:style","children":404}],["$","div",null,{"style":"$0:t:t:d:r:props:children:1:props:children:1:props:children:0:props:notFound:0:1:props:children:props:children:2:props:style","children":["$","h2",null,{"style":"$0:t:t:d:r:props:children:1:props:children:1:props:children:0:props:notFound:0:1:props:children:props:children:2:props:children:props:style","children":"This page could not be found."}]}]]}]}]],null,["$","$Ld",null,{"children":["$","$e",null,{"name":"Next.MetadataOutlet","children":"$@f"}]}]]}],"p":"$@10","v":null,"s":"$8"}}]]
+9:[["children",{"s":"/_not-found","h":96,"d":{"r":["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}]}]]}],"p":"$@a","v":"$b","s":"$8"},"c":"$Qc"}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/VERTEX/trading/orderflow/_next/static/chunks/2t-1x1i2fjwnv.css","precedence":"next"}],["$","script","script-0",{"src":"/VERTEX/trading/orderflow/_next/static/chunks/15pqqz5ux6dor.js","async":true}]],["$","html",null,{"lang":"en","className":"h-full","children":[["$","head",null,{"children":[["$","link",null,{"rel":"preconnect","href":"https://fonts.googleapis.com","crossOrigin":"anonymous"}],["$","link",null,{"rel":"preconnect","href":"https://fonts.gstatic.com","crossOrigin":"anonymous"}],["$","link",null,{"href":"https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap","rel":"stylesheet"}]]}],["$","body",null,{"className":"min-h-full flex flex-col","children":[["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}],["$","$L6",null,{"src":"https://www.googletagmanager.com/gtag/js?id=G-RECLTGYHCC","strategy":"afterInteractive"}],["$","$L6",null,{"id":"ga4-init","strategy":"afterInteractive","children":"\n            window.dataLayer = window.dataLayer || [];\n            function gtag(){dataLayer.push(arguments);}\n            gtag('js', new Date());\n            gtag('config', 'G-RECLTGYHCC');\n          "}]]}]]}]]}],"p":"$@7","v":null,"s":"$8"},"c":"$Q9"},"h":{"r":["$","$1","h",{"children":[["$","meta",null,{"name":"robots","content":"noindex"}],["$","$L12",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","2",{"name":"theme-color","content":"#08090b"}],["$","meta","3",{"name":"color-scheme","content":"dark"}]]}],["$","$L14",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$e",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"orderflow. — Real-time order flow terminal"}],["$","meta","1",{"name":"description","content":"Open-source order flow terminal for crypto and FX: live footprint charts, VWAP, CVD, order book, depth, volume z-score and realized volatility."}],["$","meta","2",{"name":"application-name","content":"orderflow"}],["$","link","3",{"rel":"author","href":"https://github.com/zadescoxp"}],["$","meta","4",{"name":"author","content":"zadescoxp"}],["$","link","5",{"rel":"manifest","href":"/VERTEX/trading/orderflow/manifest.webmanifest"}],["$","meta","6",{"name":"keywords","content":"order flow,footprint chart,volume profile,cumulative delta,CVD,VWAP,order book,depth of market,time and sales,volume z-score,realized volatility,crypto trading terminal,bitcoin order flow,market microstructure,Binance,Bybit,OKX,Hyperliquid"}],["$","meta","7",{"name":"creator","content":"zadescoxp"}],["$","meta","8",{"name":"publisher","content":"zadescoxp"}],["$","meta","9",{"name":"robots","content":"index, follow"}],["$","meta","10",{"name":"googlebot","content":"index, follow, max-image-preview:large, max-snippet:-1"}],["$","meta","11",{"name":"category","content":"finance"}],["$","meta","12",{"name":"msapplication-TileColor","content":"#08090b"}],["$","link","13",{"rel":"canonical","href":"http://localhost:3000/"}],["$","meta","14",{"name":"format-detection","content":"telephone=no, address=no, email=no"}],"$L15","$L16","$L17","$L18","$L19","$L1a","$L1b","$L1c","$L1d","$L1e","$L1f","$L20","$L21","$L22","$L23","$L24","$L25","$L26","$L27","$L28","$L29","$L2a","$L2b","$L2c","$L2d"]}]}],null]}],null]}],"p":"$@2e","v":null,"s":"$8"}},"a":"$@2f","u":"$@30","b":"dyL8d6AJY3Py-wbTU-4Z9"}
+31:I[27201,["$2"],"IconMark"]
+f:null
+15:["$","meta","15",{"name":"mobile-web-app-capable","content":"yes"}]
+16:["$","meta","16",{"name":"apple-mobile-web-app-title","content":"orderflow"}]
+17:["$","meta","17",{"name":"apple-mobile-web-app-status-bar-style","content":"black-translucent"}]
+18:["$","meta","18",{"property":"og:title","content":"orderflow. — Real-time order flow terminal"}]
+19:["$","meta","19",{"property":"og:description","content":"Open-source order flow terminal for crypto and FX: live footprint charts, VWAP, CVD, order book, depth, volume z-score and realized volatility."}]
+1a:["$","meta","20",{"property":"og:url","content":"http://localhost:3000/"}]
+1b:["$","meta","21",{"property":"og:site_name","content":"orderflow."}]
+1c:["$","meta","22",{"property":"og:locale","content":"en_US"}]
+1d:["$","meta","23",{"property":"og:image","content":"http://localhost:3000/opengraph-image?afcbdc417814a8f8"}]
+1e:["$","meta","24",{"property":"og:image:type","content":"image/png"}]
+1f:["$","meta","25",{"property":"og:image:width","content":"1200"}]
+20:["$","meta","26",{"property":"og:image:height","content":"630"}]
+21:["$","meta","27",{"property":"og:image:alt","content":"orderflow. — real-time footprint, order book, CVD, volume z-score and realized volatility for crypto and FX"}]
+22:["$","meta","28",{"property":"og:type","content":"website"}]
+23:["$","meta","29",{"name":"twitter:card","content":"summary_large_image"}]
+24:["$","meta","30",{"name":"twitter:title","content":"orderflow. — Real-time order flow terminal"}]
+25:["$","meta","31",{"name":"twitter:description","content":"Open-source order flow terminal for crypto and FX: live footprint charts, VWAP, CVD, order book, depth, volume z-score and realized volatility."}]
+26:["$","meta","32",{"name":"twitter:image","content":"http://localhost:3000/twitter-image?eb8c47c152e9fd5e"}]
+27:["$","meta","33",{"name":"twitter:image:alt","content":"orderflow. — real-time footprint, order book, CVD, volume z-score and realized volatility for crypto and FX"}]
+28:["$","meta","34",{"name":"twitter:image:type","content":"image/png"}]
+29:["$","meta","35",{"name":"twitter:image:width","content":"1200"}]
+2a:["$","meta","36",{"name":"twitter:image:height","content":"630"}]
+2b:["$","link","37",{"rel":"icon","href":"/VERTEX/trading/orderflow/icon.svg?icon.1wspago57--bv.svg","sizes":"any","type":"image/svg+xml"}]
+2c:["$","link","38",{"rel":"apple-touch-icon","href":"/apple-icon?696ee4934badd87d","type":"image/png","sizes":"180x180"}]
+2d:["$","$L31","39",{}]
+8:300
+30:true
+8:C
+2f:0
+a:"$undefined"
+7:"$undefined"
+10:"$undefined"
+2e:"$undefined"

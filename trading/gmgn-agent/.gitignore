@@ -1,0 +1,7 @@
+.env
+!.env.example
+node_modules/
+bun.lock
+agent/state*.json
+*.db
+*.log

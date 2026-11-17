@@ -1,0 +1,4 @@
+:HL["/VERTEX/trading/orderflow/_next/static/chunks/2t-1x1i2fjwnv.css","style"]
+:HL["https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap","style"]
+1:[["children",{"s":"__PAGE__","h":160}]]
+0:{"b":"dyL8d6AJY3Py-wbTU-4Z9","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

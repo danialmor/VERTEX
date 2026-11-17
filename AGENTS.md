@@ -85,3 +85,4 @@ See **"Next steps"** in `docs/STATUS.md`. The top item is always the current pri
 - Saved design proposals: `docs/designs/` (see its README).
 - Panel tab "Sim · گردش‌کار هوشمند" (`admin/sim.js`, admin only): connects a Sim instance (simstudioai/sim, Apache-2.0, uploaded 2026-11-17 as sim-main.zip — NOT vendored: Next.js+Postgres, needs Docker/12 GB, runs on the future VPS). Stores {url, chats, ideas} at /data/admin/sim/main. Sim /workspace forbids cross-site framing → opened in a new tab; deployed /chat/* agents are embedded in an iframe. Admin nav = 16.
 - Platform XII renamed to **Trading** (`trading/`, see `trading/PLATFORM.md`): two independent tabs — GMGN Skills and the pump.fun bot (both vendored source, browse-only, run on server). `.nojekyll` added at repo root.
+- Trading now has 7 module tabs (GMGN Skills, gmgnAgent, SolScope, pump.fun bot, Freqtrade, CCXT live, Order Flow live); each with GUIDE.fa.md. Details: trading/PLATFORM.md.

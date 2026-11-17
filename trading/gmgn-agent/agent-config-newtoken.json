@@ -1,0 +1,42 @@
+{
+  "agentLabel": "New Token",
+  "autoEvolveAfterTrades": 15,
+  "enabled": true,
+  "dryRun": false,
+  "chain": "sol",
+  "screeningIntervalMinutes": 3,
+  "managementIntervalMinutes": 1,
+  "maxPositions": 3,
+  "amountSolPerTrade": 0.05,
+  "stopLossPercent": 20,
+  "takeProfitPercent": 150,
+  "trailingEnabled": true,
+  "trailingTriggerPercent": 50,
+  "trailingDropPercent": 20,
+  "tieredExits": [
+    { "triggerPct": 60, "sellPct": 50 }
+  ],
+  "timeStopHours": 6,
+  "timeStopMinGainPct": 20,
+  "siblingStatePaths": ["/root/trader/agent/state.json"],
+  "newTokenScreening": {
+    "minSmartDegen": 1,
+    "minProgress": 0.05,
+    "maxProgress": 0.85,
+    "minHolders": 20,
+    "minVolume24h": 1000,
+    "minSwaps24h": 5,
+    "minMcap": 5000,
+    "maxMcap": 500000,
+    "maxBundlerRate": 0.30,
+    "maxRugRatio": 0.15,
+    "maxEntrapmentRatio": 0.30,
+    "requireRenounced": true,
+    "limit": 50
+  },
+  "claude": {
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "maxSteps": 20,
+    "temperature": 0.3
+  }
+}
