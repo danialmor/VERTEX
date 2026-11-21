@@ -17,6 +17,8 @@
 #vxai{position:fixed;left:16px;bottom:70px;z-index:9999;width:min(340px,calc(100vw - 32px));height:min(480px,calc(100vh - 100px));display:none;flex-direction:column;
  background:var(--card,#fff);color:var(--ink,#14181a);border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,.16);overflow:hidden;font:inherit;font-size:12px;direction:rtl;border:1px solid rgba(127,127,127,.14)}
 #vxai.open{display:flex}
+#vxai.full{left:0!important;right:0!important;top:0!important;bottom:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;border-radius:0!important;font-size:14px;z-index:10000}#vxai.full .log{padding:18px max(18px,calc((100vw - 860px)/2))}#vxai.full form{padding-inline:max(12px,calc((100vw - 860px)/2))}#vxai.full .chips{padding-inline:max(12px,calc((100vw - 860px)/2))}
+
 #vxai header{display:flex;align-items:center;gap:7px;padding:9px 11px;border-bottom:1px solid rgba(127,127,127,.12)}
 #vxai header>svg{color:#1b6f52;flex:none}
 #vxai header b{font-size:12.5px;font-weight:700}#vxai header small{color:var(--muted,#7a8380);font-size:10px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
@@ -48,7 +50,7 @@
   document.body.appendChild(fab);
 
   const box = document.createElement('div'); box.id = 'vxai';
-  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
+  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="full" title="صفحه‌ی کامل دستیار" aria-label="صفحه‌ی کامل">⤢</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
 <div class="on1 kst" id="vxaiKst">کلید API: …</div>
 <label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
@@ -87,13 +89,20 @@
         else stEl.textContent = 'در حال بارگذاری · ' + m.device;
       }
       if (m.t === 'tok' && cur) { cur.textContent += m.x; log.scrollTop = log.scrollHeight; }
-      if (m.t === 'done') { if (cur) { hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; fab.classList.remove('busy'); btn.textContent = '↑'; }
+      if (m.t === 'done') { if (cur) { postAnswer(cur); hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; fab.classList.remove('busy'); btn.textContent = '↑'; }
       if (m.t === 'err') { gen = false; fab.classList.remove('busy'); btn.textContent = '↑'; sys('خطا: ' + m.e.replace(/</g, '&lt;')); cur = null; }
     };
     worker.postMessage({ t: 'load' });
   }
 
-  function context(q) {
+  // Knowledge from the admin (answers to questions the assistant could not answer) + flag for unanswered questions.
+  let KB = []; let lastQ = '';
+  async function loadKB() { try { const CL = await needCloud(); if (CL && CL.on) { const j = await CL.getDoc('ai-kb'); KB = (j && j.items) || []; } } catch (e) {} }
+  const NA = '\n\nIf you cannot answer accurately from the given data or knowledge, start your reply with the exact token [?] and then say briefly what is missing.';
+  function kbText(q) { if (!KB.length) return ''; const w = String(q || '').split(/\s+/).filter(x => x.length > 2); const sc = KB.map(k => ({ k, s: w.filter(x => (k.q + ' ' + k.a).indexOf(x) >= 0).length })).sort((a, b) => b.s - a.s).slice(0, 12).map(x => x.k);
+    return '\n\nVerified answers from the administrator (use them when relevant):\n' + sc.map(k => 'Q: ' + k.q + '\nA: ' + k.a).join('\n'); }
+  function context(q) { return context0(q) + kbText(q) + NA; }
+  function context0(q) {
     let c = '';
     try { if (typeof window.VX_CTX === 'function') c = window.VX_CTX(q || '') || ''; } catch (e) {}
     const pg = 'Current page: ' + (document.title || location.pathname) + ' (' + location.pathname + ').\n';
@@ -227,13 +236,23 @@
       const el = cur; finish(); if (id && el) rateBar(el, id);
     } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
   }
-  function finish() { if (cur && cur.textContent) { hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = '↑'; }
+  async function logQA(q, a, na) {
+    try { const CL = await needCloud(); if (!CL || !CL.on || !q) return; let u = ''; try { u = (JSON.parse(localStorage.getItem('vxSess') || 'null') || {}).u || '' } catch (e) {}
+      const it = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), u, page: (document.title || location.pathname).slice(0, 60), q: q.slice(0, 600), a: String(a || '').slice(0, 1500), na: na ? 1 : 0 };
+      for (let k = 0; k < 3; k++) { const j = (await CL.getDoc('ai-log')) || { items: [] }; const L = (j.items || []).concat([it]).slice(-600); try { await CL.putDoc('ai-log', { t: Date.now(), items: L }, j.t || 0); break } catch (e) { if (!e.conflict) throw e } }
+      return it.id; } catch (e) { }
+  }
+  async function flagQA(id) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) x.na = 2 }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
+  function postAnswer(el) { if (!el || !el.textContent) return; let t = el.textContent, na = /^\s*\[\?\]/.test(t); if (na) { t = t.replace(/^\s*\[\?\]\s*/, ''); el.textContent = t; const n = document.createElement('div'); n.className = 'm sys'; n.textContent = 'این پرسش برای بررسی به مدیر سیستم فرستاده شد.'; el.after(n); }
+    logQA(lastQ, t, na).then(id => { if (id) el.dataset.qa = id; }); }
+  function finish() { if (cur && cur.textContent) { postAnswer(cur); hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = '↑'; }
   function rateBar(el, id) {
     const d = document.createElement('div'); d.className = 'rate';
     d.innerHTML = '<button type="button" data-r="up" title="خوب">👍</button><button type="button" data-r="down" title="بد">👎</button>';
     d.addEventListener('click', (e) => {
       const b = e.target.closest('[data-r]'); if (!b) return;
       const on = b.classList.contains('on'); d.querySelectorAll('button').forEach(x => x.classList.remove('on')); if (!on) b.classList.add('on');
+      if (!on && b.dataset.r === 'down' && el.dataset.qa) flagQA(el.dataset.qa);
       if (VIAHUB) { fetch('/api/v1/ai/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {}); return; }
       fetch(API + '/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {});
     });
@@ -242,7 +261,7 @@
 
   const btn = box.querySelector('form button[type=submit]');
   function send(q) {
-    q = (q || '').trim(); if (!q) return;
+    q = (q || '').trim(); if (!q) return; lastQ = q;
     if (gen) return;
     const isOn = cfg.mode !== 'local';
     if (isOn && !SRV.k && !VIAHUB) { setEl.hidden = false; loadModels(); kst(); sys('دستیار هنوز راه‌اندازی نشده: مدیر باید در کنترل پنل ← «هوش مصنوعی» کلید Coarena را وارد کند.'); return; }
@@ -257,6 +276,12 @@
   ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); box.querySelector('form').requestSubmit(); } });
   box.querySelectorAll('.chips button').forEach(b => b.addEventListener('click', () => send(b.textContent)));
   box.querySelector('[data-x=close]').addEventListener('click', toggle);
+  const fullB = box.querySelector('[data-x=full]');
+  function setFull(on) { box.classList.toggle('full', on); fullB.textContent = on ? '⤡' : '⤢'; fullB.title = on ? 'کادر کوچک' : 'صفحه‌ی کامل دستیار'; try { localStorage.setItem('vxaiFull', on ? '1' : '0') } catch (e) {} }
+  fullB.addEventListener('click', () => setFull(!box.classList.contains('full')));
+  try { if (localStorage.getItem('vxaiFull') === '1') setFull(true) } catch (e) {}
+  if (/^#ai$/.test(location.hash)) setTimeout(() => { setFull(true); if (!box.classList.contains('open')) toggle(); }, 800);
+  loadKB();
   box.querySelector('[data-x=clear]').addEventListener('click', () => { hist = []; log.querySelectorAll('.m,.rate').forEach(x => x.remove()); const ch = box.querySelector('.chips'); if (ch) ch.style.display = ''; });
 
   // ── voice: speak the question (Web Speech recognition) and optionally hear the answer (speech synthesis)
@@ -356,7 +381,7 @@
     const call = async (model) => fetch(API + '/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: msgs, max_tokens: 700 }) });
     let r = await call(cfg.model); if (r.status === 402 && cfg.model !== 'gpt-6-luna') r = await call('gpt-6-luna');
     const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status);
-    return ((j.choices || [{}])[0].message || {}).content || '';
+    return String(((j.choices || [{}])[0].message || {}).content || '').replace(/^\s*\[\?\]\s*/, '');
   }
-  window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, send, ask, ready: () => !!(cfg && (VIAHUB || (cfg.mode !== 'local' && SRV.k))) };
+  window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, full: (on) => { setFull(on !== false); if (!box.classList.contains('open')) toggle(); }, send, ask, ready: () => !!(cfg && (VIAHUB || (cfg.mode !== 'local' && SRV.k))) };
 })();
