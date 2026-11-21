@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // worker.js
-var VERSION = "1.1.0";
+var VERSION = "1.2.0";
 var DOC = /^[a-z0-9._-]{1,60}$/i;
 var SITE = /^[a-z0-9-]{1,40}$/;
 var FILE = /^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp|png|jpg|jpeg|webp|docx)$/i;
@@ -12,7 +12,7 @@ function cors(req, env) {
   const o = req.headers.get("Origin") || "";
   const allow = (env.ORIGINS || "https://danialmor.github.io").split(",").map((s) => s.trim()).filter(Boolean);
   const ok = !o || allow.includes(o) || allow.includes("*") || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
-  return { ok, h: { "Access-Control-Allow-Origin": ok && o ? o : allow[0], "Access-Control-Allow-Methods": "GET,PUT,DELETE,OPTIONS", "Access-Control-Allow-Headers": "Content-Type,X-By,X-Pin", "Access-Control-Max-Age": "600", Vary: "Origin" } };
+  return { ok, h: { "Access-Control-Allow-Origin": ok && o ? o : allow[0], "Access-Control-Allow-Methods": "GET,PUT,DELETE,OPTIONS", "Access-Control-Allow-Headers": "Content-Type,X-By,X-Pin,X-If-T", "Access-Control-Max-Age": "600", Vary: "Origin" } };
 }
 __name(cors, "cors");
 var json = /* @__PURE__ */ __name((o, s, h) => new Response(JSON.stringify(o), { status: s || 200, headers: Object.assign({ "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }, h) }), "json");
@@ -57,10 +57,21 @@ var worker_default = {
         if (m === "PUT") {
           const t = await req.text();
           if (t.length > MAX_DOC) return json({ error: "too-large" }, 413, H);
+          let nj;
           try {
-            JSON.parse(t);
+            nj = JSON.parse(t);
           } catch (e) {
             return json({ error: "bad-json" }, 400, H);
+          }
+          const ift = req.headers.get("X-If-T");
+          if (ift !== null) {
+            const cur = await env.VX.get("doc:" + k, { cacheTtl: 30 }).catch(() => null);
+            let ct = 0;
+            try {
+              ct = cur ? JSON.parse(cur).t || 0 : 0;
+            } catch (e) {
+            }
+            if (String(ct) !== String(+ift || 0)) return json({ error: "conflict", t: ct }, 409, H);
           }
           await env.VX.put("doc:" + k, t, { metadata: { ts: Date.now(), by: (req.headers.get("X-By") || "").slice(0, 40) } });
           return json({ ok: true, t: Date.now() }, 200, H);
@@ -164,7 +175,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-PbPhce/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-Hhhxxw/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -196,7 +207,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-PbPhce/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-Hhhxxw/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

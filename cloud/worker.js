@@ -10,7 +10,7 @@
      GET    /files/<site>/<name>            → raw bytes
      DELETE /files/<site>/<name>            → {ok}
    Names: doc [a-z0-9._-]{1,60}; site [a-z0-9-]{1,40}; file name ≤120 chars, no slashes, known extensions. */
-const VERSION = '1.1.0';
+const VERSION = '1.2.0';
 const DOC = /^[a-z0-9._-]{1,60}$/i, SITE = /^[a-z0-9-]{1,40}$/, FILE = /^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp|png|jpg|jpeg|webp|docx)$/i;
 const MAX_FILE = 20 * 1024 * 1024, MAX_DOC = 20 * 1024 * 1024;
 
@@ -18,7 +18,7 @@ function cors(req, env) {
   const o = req.headers.get('Origin') || '';
   const allow = (env.ORIGINS || 'https://danialmor.github.io').split(',').map(s => s.trim()).filter(Boolean);
   const ok = !o || allow.includes(o) || allow.includes('*') || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
-  return { ok, h: { 'Access-Control-Allow-Origin': ok && o ? o : allow[0], 'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type,X-By,X-Pin', 'Access-Control-Max-Age': '600', Vary: 'Origin' } };
+  return { ok, h: { 'Access-Control-Allow-Origin': ok && o ? o : allow[0], 'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type,X-By,X-Pin,X-If-T', 'Access-Control-Max-Age': '600', Vary: 'Origin' } };
 }
 const json = (o, s, h) => new Response(JSON.stringify(o), { status: s || 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, h) });
 async function sha256(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
@@ -43,7 +43,10 @@ export default {
         if (m === 'GET') { const v = await env.VX.get('doc:' + k); return v === null ? json({ error: 'not-found' }, 404, H) : new Response(v, { headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, H) }); }
         if (m === 'PUT') {
           const t = await req.text(); if (t.length > MAX_DOC) return json({ error: 'too-large' }, 413, H);
-          try { JSON.parse(t) } catch (e) { return json({ error: 'bad-json' }, 400, H) }
+          let nj; try { nj = JSON.parse(t) } catch (e) { return json({ error: 'bad-json' }, 400, H) }
+          // optimistic concurrency: the client says which version it merged on top of (X-If-T); refuse if someone saved meanwhile
+          const ift = req.headers.get('X-If-T');
+          if (ift !== null) { const cur = await env.VX.get('doc:' + k, { cacheTtl: 30 }).catch(() => null); let ct = 0; try { ct = cur ? (JSON.parse(cur).t || 0) : 0 } catch (e) { } if (String(ct) !== String(+ift || 0)) return json({ error: 'conflict', t: ct }, 409, H); }
           await env.VX.put('doc:' + k, t, { metadata: { ts: Date.now(), by: (req.headers.get('X-By') || '').slice(0, 40) } }); return json({ ok: true, t: Date.now() }, 200, H);
         }
         if (m === 'DELETE') { if (env.ADMIN_PIN && req.headers.get('X-Pin') !== env.ADMIN_PIN) return json({ error: 'forbidden' }, 403, H); await env.VX.delete('doc:' + k); return json({ ok: true }, 200, H); }

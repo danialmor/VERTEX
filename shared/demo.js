@@ -26,28 +26,80 @@
   }
   var D; try { D = JSON.parse(localStorage.getItem(KEY)) } catch (e) { } if (!D) D = seed();
   function save() { try { localStorage.setItem(KEY, JSON.stringify(D)) } catch (e) { } }
-  /* Shared storage: the whole panel database is one file in the public repo (data/vertex.json).
-     Every browser loads it on start; changes are written back with the admin's GitHub key (already saved on this browser), so all systems see the same data. */
   /* Shared storage: the whole panel database is one online document on VERTEX Cloud (Cloudflare, doc "vertex").
      Every browser loads it on start and every change is saved back — no key needed. Fallback: the old repo file data/vertex.json (read only). */
   var CL = window.VX_CLOUD, ROOT = (B && B.base) || '/VERTEX/';
   var REMOTE = { loaded: false, t: 0, busy: false, err: '', timer: 0 };
-  var ready = (async function () {
+  /* Three-way merge so two devices never erase each other's changes.
+     BASE = the last version both sides agreed on. Per item: changed here → keep ours; otherwise take theirs.
+     Arrays of records are matched by id / slug / code; plain objects key by key; audit logs are united. */
+  var BK = KEY + '.base', BASE = null; try { BASE = JSON.parse(localStorage.getItem(BK) || 'null') } catch (e) { }
+  var J = function (x) { return JSON.stringify(x) }, cp = function (x) { return x == null ? x : JSON.parse(J(x)) };
+  function keyOf(x) { return x && typeof x === 'object' ? (x.id != null ? 'i' + x.id : x.slug ? 's' + x.slug : x.code ? 'c' + x.code : x.ts != null ? 't' + x.ts + (x.action || '') + (x.user || '') : 'j' + J(x)) : 'j' + J(x) }
+  function isRecs(a) { return Array.isArray(a) && a.every(function (x) { return x && typeof x === 'object' && !Array.isArray(x) }) }
+  function m3(b, l, r, path) {
+    if (J(l) === J(r)) return cp(l);
+    if (J(l) === J(b)) return cp(r);          // only they changed
+    if (J(r) === J(b)) return cp(l);          // only we changed
+    if (path === 'audit' && Array.isArray(l) && Array.isArray(r)) { var seen = {}, o = []; l.concat(r).forEach(function (x) { var k = keyOf(x); if (!seen[k]) { seen[k] = 1; o.push(x) } }); o.sort(function (a, c) { return (c.ts || 0) - (a.ts || 0) }); return o.slice(0, 200) }
+    if (isRecs(l) && isRecs(r)) {
+      var B0 = {}, L0 = {}, R0 = {}, order = [];
+      (Array.isArray(b) ? b : []).forEach(function (x) { B0[keyOf(x)] = x });
+      l.forEach(function (x) { var k = keyOf(x); L0[k] = x; order.push(k) }); r.forEach(function (x) { var k = keyOf(x); R0[k] = x; if (order.indexOf(k) < 0) order.push(k) });
+      var out = [], maxId = 0; l.concat(r).forEach(function (x) { if (typeof x.id === 'number') maxId = Math.max(maxId, x.id) });
+      order.forEach(function (k) {
+        var bx = B0[k], lx = L0[k], rx = R0[k];
+        if (!bx) { if (lx && rx && J(lx) !== J(rx) && typeof lx.id === 'number') { out.push(cp(rx)); var n = cp(lx); n.id = ++maxId; out.push(n) } else out.push(cp(lx || rx)); return }
+        if (!lx && !rx) return;
+        if (!lx) { if (J(rx) !== J(bx)) out.push(cp(rx)); return }          // we deleted; keep only if they edited it meanwhile
+        if (!rx) { if (J(lx) !== J(bx)) out.push(cp(lx)); return }          // they deleted
+        out.push(m3(bx, lx, rx, path + '[]'));
+      });
+      return out;
+    }
+    if (l && r && typeof l === 'object' && typeof r === 'object' && !Array.isArray(l) && !Array.isArray(r)) {
+      var o2 = {}, bb = (b && typeof b === 'object') ? b : {}; Object.keys(l).concat(Object.keys(r)).forEach(function (k) {
+        if (k in o2) return; var inL = k in l, inR = k in r, inB = k in bb;
+        if (inL && inR) o2[k] = m3(bb[k], l[k], r[k], path ? path + '.' + k : k);
+        else if (inL) { if (!inB || J(l[k]) !== J(bb[k])) o2[k] = cp(l[k]) }   // new here, or they deleted but we changed it
+        else if (inR) { if (!inB || J(r[k]) !== J(bb[k])) o2[k] = cp(r[k]) }
+      }); return o2;
+    }
+    if (typeof l === 'number' && typeof r === 'number' && /seq|_t$/.test(path)) return Math.max(l, r);
+    return cp(l);                                // both changed a single value: ours wins
+  }
+  function setBase(h) { BASE = cp(h); try { localStorage.setItem(BK, J(BASE)) } catch (e) { } }
+  function adopt(j) { if (!(j && j.hub)) return false; var before = J(D); D = BASE ? m3(BASE, D, j.hub, '') : cp(j.hub); D._t = j.t; setBase(j.hub); save(); REMOTE.t = j.t; return J(D) !== before }
+  async function fetchRemote() {
     var j = null;
     if (CL && CL.on) { try { j = await CL.getDoc('vertex'); REMOTE.cloud = true } catch (e) { REMOTE.err = 'cloud' } }
-    if (!j) { try { var r2 = await fetch(ROOT + 'data/vertex.json?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
-    if (j && j.hub && (j.t || 0) > (D._t || 0)) { D = j.hub; D._t = j.t; save(); }
-    REMOTE.loaded = !!j; REMOTE.t = j ? j.t : 0; paint();
+    else { try { var r2 = await fetch(ROOT + 'data/vertex.json?t=' + Date.now(), { cache: 'no-store' }); if (r2.ok) j = await r2.json() } catch (e) { } }
+    return j;
+  }
+  var ready = (async function () {
+    var j = await fetchRemote();
+    if (j && j.hub) { if (!BASE && (j.t || 0) <= (D._t || 0)) setBase(j.hub); adopt(j); } else if (!BASE) setBase(D);   // nothing online yet: what we have is the common base
+    REMOTE.loaded = !!j; paint();
   })();
   function push() {
     if (!(CL && CL.on)) { REMOTE.err = 'no-cloud'; paint(); return }
     clearTimeout(REMOTE.timer); REMOTE.timer = setTimeout(async function () {
       REMOTE.busy = true; paint();
-      try { var t = Date.now(); D._t = t; save(); await CL.putDoc('vertex', { v: 1, t: t, hub: D }); REMOTE.t = t; REMOTE.err = '' }
-      catch (e) { REMOTE.err = String(e.message || e) }
+      try {
+        for (var tries = 0; tries < 5; tries++) {
+          var j = await fetchRemote(); if (j && j.hub && j.t !== REMOTE.t) adopt(j);   // merge what others saved meanwhile
+          var t = Date.now(); D._t = t; save();
+          try { await CL.putDoc('vertex', { v: 1, t: t, hub: D }, j ? (j.t || 0) : 0); setBase(D); REMOTE.t = t; REMOTE.err = ''; break }
+          catch (e) { if (!e.conflict) throw e; await new Promise(function (z) { setTimeout(z, 400 + Math.random() * 900) }) }   // someone saved at the same moment: merge again
+        }
+      } catch (e) { REMOTE.err = String(e.message || e) }
       REMOTE.busy = false; paint();
     }, 800);
   }
+  // Keep every open page fresh: pull others' changes every 20 s and when the page comes back into view.
+  async function pull() { if (REMOTE.busy || !(CL && CL.on)) return; try { var j = await fetchRemote(); if (j && j.hub && j.t !== REMOTE.t && adopt(j)) { try { window.dispatchEvent(new CustomEvent('vx-data')) } catch (e) { } } } catch (e) { } }
+  setInterval(pull, 20000); document.addEventListener('visibilitychange', function () { if (!document.hidden) pull() });
+  window.VX_HUB = { pull: pull, merge: m3 };
   function paint() { var d = document.getElementById('demoBar'); if (!d) return; var sp = d.querySelector('span'); if (!sp) return;
     sp.textContent = REMOTE.busy ? 'در حال ذخیره‌ی آنلاین…' : (REMOTE.err === 'no-cloud' ? 'فضای آنلاین تنظیم نشده — تغییرها فقط در این مرورگر' : REMOTE.err ? 'ذخیره‌ی آنلاین نشد: ' + REMOTE.err : '✓ داده‌ها آنلاین ذخیره می‌شود (Cloudflare)') }
   function log(u, a, t) { D.audit.unshift({ ts: now(), user: u ? u.code : '-', action: a, target: t || '' }); D.audit = D.audit.slice(0, 200) }

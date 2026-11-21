@@ -12,7 +12,7 @@
     url: CLOUD, on: !!CLOUD,
     ready: null,
     async getDoc(name) { var r = await req('/doc/' + encodeURIComponent(name)); if (r.status === 404) return null; if (!r.ok) throw new Error('cloud ' + r.status); return r.json() },
-    async putDoc(name, obj) { var r = await req('/doc/' + encodeURIComponent(name), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj) }); if (!r.ok) throw new Error('cloud ' + r.status); return r.json() },
+    async putDoc(name, obj, ifT) { var h = { 'Content-Type': 'application/json' }; if (ifT != null && C.ver >= 1.2) h['X-If-T'] = String(ifT); var r = await req('/doc/' + encodeURIComponent(name), { method: 'PUT', headers: h, body: JSON.stringify(obj) }); if (r.status === 409) { var e = new Error('conflict'); e.conflict = true; throw e } if (!r.ok) throw new Error('cloud ' + r.status); return r.json() },
     async listFiles(site) { var r = await req('/files/' + site); if (!r.ok) throw new Error('cloud ' + r.status); return (await r.json()).files || [] },
     async putFile(site, file) { var r = await req('/files/' + site + '/' + encodeURIComponent(file.name), { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: file }); var j = {}; try { j = await r.json() } catch (e) { } if (!r.ok) throw new Error(j.error || ('cloud ' + r.status)); return j },
     // Upload with progress (XMLHttpRequest gives upload progress; fetch does not). onp(loaded,total)
@@ -22,6 +22,6 @@
     async getFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name)); if (!r.ok) throw new Error('cloud ' + r.status); return r.blob() },
     async delFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name), { method: 'DELETE' }); if (!r.ok) throw new Error('cloud ' + r.status); return true }
   };
-  C.ready = C.on ? _f(CLOUD + '/health', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null }).then(function (j) { C.up = !!(j && j.ok && j.kv); return C.up }).catch(function () { C.up = false; return false }) : Promise.resolve(false);
+  C.ready = C.on ? _f(CLOUD + '/health', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null }).then(function (j) { C.up = !!(j && j.ok && j.kv); C.ver = parseFloat((j && j.version) || '0'); return C.up }).catch(function () { C.up = false; return false }) : Promise.resolve(false);
   window.VX_CLOUD = C;
 })();
