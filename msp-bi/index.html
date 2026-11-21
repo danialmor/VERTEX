@@ -2023,8 +2023,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='3.89.2';
+var VERSION='3.90.0';
 var CHANGELOG=[
+{v:'3.90.0',d:'30 آبان 1405',t:'انتخاب پروژه از نوار بالا برای کل داشبرد',b:['در داشبورد، پروژه فقط از دکمه‌ی بالا (کنار پروفایل و اعلان‌ها) انتخاب می‌شود','ردیف دکمه‌های نام پروژه‌ها حذف شد','همه‌ی صفحه‌های داشبورد (خلاصه مدیریتی، راندمان، SPI، زمان، کارت پروژه‌ها و…) فقط پروژه‌ی انتخاب‌شده را نشان می‌دهند؛ «همه‌ی پروژه‌ها» نمای کلی را نشان می‌دهد','در خلاصه مدیریتی کاشی «راندمان پروژه‌ها» و توضیح‌های برآورد/شروع‌نشده حذف شد']},
 {v:'3.89.2',d:'30 آبان 1405',t:'همگام‌سازی کاربران پنل بین دستگاه‌ها',b:['کاربرانی که یک مدیر در پنل می‌سازد دیگر با ذخیره‌ی دستگاه دیگر پاک نمی‌شوند (ادغام سه‌طرفه به‌جای بازنویسی)','پنل هر ۲۰ ثانیه تغییرات دیگران را می‌گیرد و صفحه را تازه می‌کند']},
 {v:'3.89.1',d:'28 آبان 1405',t:'رفع هم‌پوشانی تب‌ها',b:['زمینه‌ی تب انتخاب‌شده دیگر روی تب کناری نمی‌افتد (روی iPad «خط زمان پروژه‌ها» روی «پیش‌رو» افتاده بود)']},
 {v:'3.89.0',d:'28 آبان 1405',t:'صفحه‌ی پروژه‌ها با اطلاعات واقعی',b:['مشخصات هر پروژه از «اطلاعات پروژه‌ها»: کاربری، مدیر پروژه، سوپروایزر، کارفرما، طبقات و واحدها، سقف‌ها و زیرزمین، پارکینگ، زیربنا، بتن و آرماتور، مدت قرارداد، طراحی مهندسی، سرمایش و گرمایش','کد پروژه همان کد DimProject (مثل 1001)؛ کدهای P01 حذف شد']},
@@ -3568,6 +3569,18 @@ var mrz=0;mdLoad().then(function(){if(SIM&&!GH_ON&&!realPref()){GH_ON=true;ghost
 document.addEventListener('click',function(e){if(!e.target.closest('[data-mobt]'))return;var on=localStorage.getItem('mobForce')==='1';localStorage.setItem('mobForce',on?'0':'1');var was=MOBON;mobInit();if(was&&!MOBON&&cur==='mob')mgoView('home');$('#disp')&&$('#disp').classList.remove('on')});
 // ───── شروع
 window.addEventListener('resize',function(){if(resizeMatters())layoutFill()});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){layoutFill();fitBoxes()});
+/* 3.90: انتخاب پروژه‌ی داشبورد مدیریتی فقط از دکمه‌ی بالا (کنار پروفایل)؛ نوار نام پروژه‌ها حذف شد */
+(function(){var st=document.createElement('style');st.textContent='#v-dash #dashBar,#v-dash #efProj,#efBody .estnote,#efBody .nsnote{display:none!important}.top .pillsel.dsel{cursor:pointer}';document.head.appendChild(st)})();
+function dsCur(){try{var PR=dProjects();return PR.filter(function(p){return p.code===DS_.src})[0]||null}catch(e){return null}}
+var _gsPill90=gsPill;gsPill=function(){_gsPill90();var el=document.querySelector('.top .pillsel');if(!el)return;el.classList.toggle('dsel',cur==='dash');if(cur!=='dash')return;
+ var all=!!DS_.all||DS_.page==='b',x=all?null:dsCur();el.querySelector('i').textContent=x?String(x.en||x.fa||'پ').slice(0,1):'پ';el.querySelector('span').textContent=x?(x.fa||x.en):(DS_.src==='demo'&&!all?'نمونه‌ی PDF':'همه‌ی پروژه‌ها');el.title='انتخاب پروژه برای کل داشبرد'};
+function dsMenu(){var old=document.getElementById('gsMenu');if(old){old.remove();return}var el=document.querySelector('.top .pillsel'),r=el.getBoundingClientRect(),PR=[];try{PR=dProjects()}catch(e){}var all=!!DS_.all||DS_.page==='b';
+ var m=document.createElement('div');m.id='gsMenu';m.setAttribute('role','listbox');m.style.cssText='position:fixed;z-index:9000;top:'+(r.bottom+8)+'px;left:'+Math.max(8,Math.min(innerWidth-300,r.left))+'px;width:290px;max-height:min(70vh,560px);overflow:auto;background:var(--glass2,#fff);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px rgba(0,0,0,.18);padding:6px';
+ m.innerHTML='<button type="button" class="gsi'+(all?' on':'')+'" data-dsall="1"><span class="nm2"><b>همه‌ی پروژه‌ها</b><span class="nmf">'+fa(PR.length)+' پروژه · نمای کلی</span></span></button>'+PR.map(function(p,i){return '<button type="button" class="gsi'+(!all&&p.code===DS_.src?' on':'')+(p.n?'':' off')+'" data-dspick="'+esc(p.code)+'"><i class="pdot" style="background:'+PC[['P01','P02','P03','P04'][i%4]]+'"></i>'+NM(p.fa,p.en)+'<em class="fa">'+(p.cur?dfmt(p.cur.act,0)+'%':'—')+'</em></button>'}).join('');
+ document.body.appendChild(m);setTimeout(function(){document.addEventListener('click',function cl(ev){if(!ev.target.closest('#gsMenu')&&!ev.target.closest('.top .pillsel')){m.remove();document.removeEventListener('click',cl,true)}},true)},0)}
+document.addEventListener('click',function(e){var b=e.target.closest('#gsMenu [data-dspick],#gsMenu [data-dsall]');if(b){var m=document.getElementById('gsMenu');if(m)m.remove();if(b.dataset.dsall){DS_.all=1;if(DS_.page==='a')DS_.page='b'}else{DS_.all=0;DS_.touched=1;DS_.src=b.dataset.dspick;if(DS_.page==='b')DS_.page='a'}renderDash();return}
+ if(cur==='dash'&&e.target.closest('.top .pillsel')){e.stopPropagation();dsMenu()}},true);
+var _rd90=renderDash;renderDash=function(){try{if(DS_.page==='b')DS_.all=1;else if(DS_.page==='a')DS_.all=0;var c=DS_.src&&DS_.src!=='demo'?pxCode(DS_.src):'';ef.p=(DS_.all||!c||!PX.some(function(x){return x.c===c}))?'all':c}catch(e){}var r=_rd90.apply(this,arguments);try{var eb=$('#efBody');if(eb)[].forEach.call(eb.querySelectorAll('.card'),function(cd){var h=cd.querySelector('h2');if(h&&/^راندمان پروژه‌ها/.test(h.textContent.trim()))cd.remove()})}catch(e){}try{var ib=$('#inBody');if(ib&&ef.p&&ef.p!=='all')[].forEach.call(ib.querySelectorAll('[data-openpj]'),function(bt){var x=PX[+bt.dataset.openpj],cd=bt.closest('.card')||bt.parentNode.parentNode;if(x&&x.c!==ef.p&&cd)cd.style.display='none'})}catch(e){}try{gsPill()}catch(e){}return r};
 layoutFill();counts($('#v-home'));
 
 /* ═════ 3.65 — حالت داده‌ی واقعی برای خانه، برنامه‌ریزی و امتیازها ═════
