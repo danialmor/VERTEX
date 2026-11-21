@@ -9,9 +9,10 @@
 <title>{brand} · IV — کنترل پنل کاربران</title>
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=404"></script>
-<script src="../shared/demo.js?v=404"></script>
-<script src="../shared/auth.js?v=404"></script>
+<script src="../shared/cloud.js?v=405"></script>
+<script src="../shared/demo.js?v=405"></script>
+<script src="../shared/avatar.js?v=405"></script>
+<script src="../shared/auth.js?v=405"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -208,8 +209,9 @@ function userForm(u,us){var o=OV,mx=o.sub.max_levels,allowed=o.modules.map(funct
 /* ── پروفایل (مشترک) ── */
 function profile(){return api('GET','/me').then(function(me){S=me;var p=me.profile||{},t=me.tenant;
  $('#pg').innerHTML=head('پروفایل من','')+'<div class="grid g2"><div class="card"><div class="grid" style="gap:6px">'+[['کد اختصاصی','<span class="mono">'+esc(me.ucode||me.user.code)+'</span>'],['نام کاربری','<span class="mono">'+esc(me.user.code)+'</span>'],['اشتراک',t?esc(t.name)+' <span class="mono">'+esc(t.code)+'</span>':'مدیریت اکوسیستم'],['نقش',me.user.role==='owner'?'مدیر اشتراک':(me.user.role==='admin'?'مدیر کل اکوسیستم':'کاربر')],['بخش‌ها',me.modules?chipsMods(me.modules):'همه‌ی بخش‌ها']].map(function(r){return '<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0"><span style="color:var(--muted)">'+r[0]+'</span><span>'+r[1]+'</span></div>'}).join('')+'</div></div>'+
- '<form class="card grid" id="prf" style="gap:10px"><h2 style="margin:0;font-size:16px">اطلاعات تماس</h2><label class="f">نام<input name="name" value="'+esc(me.user.name)+'"></label><label class="f">سمت<input name="title" value="'+esc(p.title||'')+'"></label><div class="grid g2"><label class="f">تلفن<input name="phone" class="ltr" inputmode="tel" value="'+esc(p.phone||'')+'"></label><label class="f">ایمیل<input name="email" class="ltr" type="email" value="'+esc(p.email||'')+'"></label></div><button class="btn p">ذخیره</button></form>'+
+ '<div class="card" style="grid-column:1/-1"><h2 style="margin:0 0 6px;font-size:16px">آواتار</h2><small style="color:var(--muted)">یکی از آواتارهای پیشنهادی را انتخاب کنید؛ در همه‌ی پلتفرم‌ها نشان داده می‌شود.</small><div id="avG" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px"></div></div>'+'<form class="card grid" id="prf" style="gap:10px"><h2 style="margin:0;font-size:16px">اطلاعات تماس</h2><label class="f">نام<input name="name" value="'+esc(me.user.name)+'"></label><label class="f">سمت<input name="title" value="'+esc(p.title||'')+'"></label><div class="grid g2"><label class="f">تلفن<input name="phone" class="ltr" inputmode="tel" value="'+esc(p.phone||'')+'"></label><label class="f">ایمیل<input name="email" class="ltr" type="email" value="'+esc(p.email||'')+'"></label></div><button class="btn p">ذخیره</button></form>'+
  '<form class="card grid" id="pwf" style="gap:10px"><h2 style="margin:0;font-size:16px">تغییر رمز</h2><label class="f">رمز فعلی<input name="old" type="password" class="ltr" autocomplete="current-password"></label><label class="f">رمز تازه (دست‌کم ۸ نویسه)<input name="new" type="password" class="ltr" autocomplete="new-password"></label><div class="err" role="alert"></div><button class="btn">تغییر رمز</button></form></div>';
+ (function(){var g=$('#avG');if(!g||!window.VXAV)return;var cur=p.avatar||'';var draw=function(){g.innerHTML='';VXAV.list.forEach(function(a){var bt=document.createElement('button');bt.type='button';bt.setAttribute('aria-label','انتخاب آواتار');bt.style.cssText='border:3px solid '+(a.id===cur?'#7fb6ff':'transparent')+';border-radius:50%;padding:2px;background:none;cursor:pointer;min-width:60px;min-height:60px';bt.innerHTML=VXAV.svg(a.id,me.user.name,52);bt.onclick=function(){cur=a.id;draw();api('PATCH','/me/profile',{avatar:a.id}).then(function(r){S=r;toast('آواتار ذخیره شد.')}).catch(function(x){toast(emsg(x))})};g.appendChild(bt)})};draw()})();
  $('#prf').onsubmit=function(e){e.preventDefault();var f=e.target;api('PATCH','/me/profile',{name:f.name.value,title:f.title.value,phone:f.phone.value,email:f.email.value}).then(function(r){S=r;buildNav();toast('ذخیره شد.')}).catch(function(x){toast(emsg(x))})};
  $('#pwf').onsubmit=function(e){e.preventDefault();var f=e.target;api('POST','/auth/change-pin',{old:f.old.value,new:f.new.value}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}f.reset();toast('رمز عوض شد.')}).catch(function(x){f.querySelector('.err').textContent=emsg(x)})}})}
 
@@ -229,22 +231,22 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
-<script src="extras.js?v=404"></script>
-<script src="sitemap.js?v=404"></script>
-<script src="filemap.js?v=404"></script>
-<script src="eco.js?v=404"></script>
-<script src="sim.js?v=404"></script>
-<script src="github.js?v=404"></script>
-<script src="aiset.js?v=404"></script>
-<script src="billing.js?v=404"></script>
-<script src="scores.js?v=404"></script>
-<script src="aiq.js?v=404"></script>
-<script src="fx.js?v=404"></script>
-<script src="shell.js?v=404"></script>
+<script src="extras.js?v=405"></script>
+<script src="sitemap.js?v=405"></script>
+<script src="filemap.js?v=405"></script>
+<script src="eco.js?v=405"></script>
+<script src="sim.js?v=405"></script>
+<script src="github.js?v=405"></script>
+<script src="aiset.js?v=405"></script>
+<script src="billing.js?v=405"></script>
+<script src="scores.js?v=405"></script>
+<script src="aiq.js?v=405"></script>
+<script src="fx.js?v=405"></script>
+<script src="shell.js?v=405"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();</script>
-<script src="../shared/ai/ai.js?v=404" defer></script>
+<script src="../shared/ai/ai.js?v=405" defer></script>
 </body>
 </html>

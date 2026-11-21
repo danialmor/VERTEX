@@ -8,13 +8,14 @@
 <meta name="theme-color" content="#0a0d14">
 <title>VERTEX — خانه</title>
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=404"></script>
-<script src="../shared/demo.js?v=404"></script>
-<script src="../shared/auth.js?v=404"></script>
+<script src="../shared/cloud.js?v=405"></script>
+<script src="../shared/demo.js?v=405"></script>
+<script src="../shared/auth.js?v=405"></script>
+<script src="../shared/avatar.js?v=405"></script>
 <script>(function(){try{var v=JSON.parse(localStorage.getItem('vxSess')||'null');if(v&&v.role==='admin'){location.replace('../home/');return}if(!localStorage.getItem('hub.token')&&!localStorage.getItem('vxSess'))location.replace('../admin/?next='+encodeURIComponent(location.href))}catch(e){}})()</script>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&amp;display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0d14;--card:#111827;--card2:#16213a;--line:rgba(255,255,255,.07);--mut:#9aa7bd;--txt:#e8edf6;--blue:#2f78c4;--sky:#7fb6ff;--ok:#3fb37f;--warn:#f0a53a}
+:root{--ink:#e8edf6;--bg:#0a0d14;--card:#111827;--card2:#16213a;--line:rgba(255,255,255,.07);--mut:#9aa7bd;--txt:#e8edf6;--blue:#2f78c4;--sky:#7fb6ff;--ok:#3fb37f;--warn:#f0a53a}
 *{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:Vazirmatn,system-ui,sans-serif;line-height:1.7}
 a{color:var(--sky)}
@@ -56,7 +57,7 @@ h1{margin:0;font-size:28px;font-weight:900}
   <a class="on" href="#" data-nav=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>خانه</a>
   <a href="#team" data-owner data-nav="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 21c0-3-2-5-5-5.5"/></svg>تیم</a>
   <a href="#levels" data-owner data-nav="levels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16M7 12h13M10 19h10"/></svg>سطوح</a>
-  <button type="button" id="aiBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l1.8 4.7L18 9.5l-4.2 1.8L12 16l-1.8-4.7L6 9.5l4.2-1.8z"/></svg>دستیار</button>
+  <a href="../ai/" id="aiBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l1.8 4.7L18 9.5l-4.2 1.8L12 16l-1.8-4.7L6 9.5l4.2-1.8z"/></svg>دستیار</a>
   <a href="../admin/#buy" data-owner><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>اشتراک</a>
   <a href="../admin/#profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>تنظیمات</a>
   <button type="button" id="outBtn" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>خروج</button>
@@ -66,7 +67,7 @@ h1{margin:0;font-size:28px;font-weight:900}
   <header class="top">
     <div><h1 id="hi">خوش آمدید</h1><small class="mut" id="sub">…</small></div>
     <form class="ask" id="askF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fb6ff" stroke-width="2" aria-hidden="true"><path d="M12 3l1.8 4.7L18 9.5l-4.2 1.8L12 16l-1.8-4.7L6 9.5l4.2-1.8z"/></svg><input id="askQ" aria-label="از دستیار بپرسید" placeholder="از دستیار بپرسید… مثلاً «برنامه‌ی هفته‌ی آینده چیست؟»"><button class="btn" style="min-height:36px;padding:6px 14px">بپرس</button></form>
-    <span class="av" id="av" aria-hidden="true">؟</span>
+    <a class="av" id="av" href="../admin/#profile" title="پروفایل و آواتار" aria-label="پروفایل و آواتار" style="text-decoration:none;color:#fff">؟</a>
   </header>
 
   <section class="grid">
@@ -130,8 +131,8 @@ h1{margin:0;font-size:28px;font-weight:900}
   function api(p) { return fetch(API + p, { headers: T ? { Authorization: 'Bearer ' + T } : {}, cache: 'no-store' }).then(function (r) { return r.json().then(function (j) { if (!r.ok) throw j; return j }) }) }
   var MN = { 'project-control': 'کنترل پروژه', mail: 'نامه‌نگاری', 'file-manager': 'فایل منیجر', messenger: 'پیام‌رسان', 'executive-desk': 'میز مدیرعامل', trading: 'تریدینگ', scores: 'امتیازها' };
   $('outBtn').onclick = function () { try { VX_AUTH.logout() } catch (e) { location.href = '../admin/' } };
-  $('aiBtn').onclick = function () { if (window.VXAI && VXAI.full) VXAI.full(); else if (window.VXAI) VXAI.open() };
-  $('askF').onsubmit = function (e) { e.preventDefault(); var q = $('askQ').value.trim(); if (!q) return; if (window.VXAI && VXAI.full) { VXAI.full(); setTimeout(function () { VXAI.send && VXAI.send(q) }, 300) } $('askQ').value = '' };
+  
+  $('askF').onsubmit = function (e) { e.preventDefault(); var q = $('askQ').value.trim(); if (!q) return; if (window.VXAI) { VXAI.open(); setTimeout(function () { VXAI.send && VXAI.send(q) }, 300) } $('askQ').value = '' };
   var ME = null, SUB = {}, LV = [];
   function view() { var v = location.hash.slice(1); if (!ME || ME.user.role !== 'owner') v = ''; ['Home', 'Team', 'Levels'].forEach(function (k) { $('v' + k).hidden = (k.toLowerCase() !== (v === 'team' || v === 'levels' ? v : 'home')) });
     [].forEach.call(document.querySelectorAll('[data-nav]'), function (a) { a.classList.toggle('on', a.dataset.nav === (v === 'team' || v === 'levels' ? v : '')) });
@@ -168,7 +169,7 @@ h1{margin:0;font-size:28px;font-weight:900}
   api('/me').then(function (me) {
     if (me.sub_active === false) { location.replace('../admin/#buy'); return }
     var nm = (me.user && me.user.name) || ''; $('hi').textContent = greet + (nm ? '، ' + nm.split(' ')[0] : '');
-    $('av').textContent = nm.charAt(0) || '؟';
+    if (window.VXAV) { $('av').style.background = 'none'; $('av').innerHTML = VXAV.svg((me.profile || {}).avatar, nm, 44) } else $('av').textContent = nm.charAt(0) || '؟';
     $('sub').textContent = new Date().toLocaleDateString('fa-IR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (me.tenant ? ' · ' + me.tenant.name : '');
     ME = me; view();
     var owner = me.user && me.user.role === 'owner';
@@ -200,6 +201,6 @@ h1{margin:0;font-size:28px;font-weight:900}
   }).catch(function () { $('wD').textContent = 'آب‌وهوا در دسترس نیست' });
 })();
 </script>
-<script src="../shared/ai/ai.js?v=404" defer></script>
+<script src="../shared/ai/ai.js?v=405" defer></script>
 </body>
 </html>

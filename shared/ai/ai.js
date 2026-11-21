@@ -83,7 +83,7 @@
   document.body.appendChild(fab);
 
   const box = document.createElement('div'); box.id = 'vxai';
-  box.innerHTML = `<aside class="side" id="vxaiSide"></aside><header><button type="button" data-x="side" class="sideb" title="گفتگوها" aria-label="گفتگوها">☰</button>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="full" title="صفحه‌ی کامل دستیار" aria-label="صفحه‌ی کامل">⤢</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
+  box.innerHTML = `<aside class="side" id="vxaiSide"></aside><header><button type="button" data-x="side" class="sideb" title="گفتگوها" aria-label="گفتگوها">☰</button>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="page" title="باز کردن در پلتفرم هوش مصنوعی" aria-label="پلتفرم هوش مصنوعی">↗</button><button type="button" data-x="full" title="صفحه‌ی کامل دستیار" aria-label="صفحه‌ی کامل">⤢</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
 <div class="on1 kst" id="vxaiKst">کلید API: …</div>
 <label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
@@ -466,5 +466,13 @@
   box.querySelector('[data-x=clear]').addEventListener('click', chNew);
   chSide(); chPull();
   window.__vxChat = { add: chAdd, md, tools };
+  // standalone AI platform (ai/) and the hand-off from the floating panel: every chat lives in the same archive
+  const AIROOT = (() => { try { return new URL('../../', [...document.scripts].map(x => x.src).find(x => /shared\/ai\/ai\.js/.test(x))).href } catch (e) { return '/' } })();
+  box.querySelector('[data-x=page]').addEventListener('click', () => { chSave(); location.href = AIROOT + 'ai/' + (CH.cur ? '?c=' + encodeURIComponent(CH.cur) : '') });
+  if (window.VXAI_PAGE) {
+    document.documentElement.classList.add('vxai-page'); setFull(true); if (!box.classList.contains('open')) toggle();
+    ['close', 'full', 'page'].forEach(k => { const x = box.querySelector('[data-x=' + k + ']'); if (x) x.hidden = true }); fab.style.display = 'none';
+    const c0 = new URLSearchParams(location.search).get('c'); const go = () => { if (c0 && CH.list.find(c => c.id === c0)) chShow(c0); chSide() }; go(); setTimeout(() => { chPull && chPull(); setTimeout(go, 800) }, 300);
+  }
   window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, full: (on) => { setFull(on !== false); if (!box.classList.contains('open')) toggle(); }, send, ask, ready: () => !!(cfg && (VIAHUB || (cfg.mode !== 'local' && SRV.k))) };
 })();
