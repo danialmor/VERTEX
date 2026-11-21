@@ -1,0 +1,40 @@
+name: mpp robot (MS Project → XML)
+# Converts new .mpp files uploaded to VERTEX Cloud (site msp-bi) into MS Project XML so the dashboard can read them.
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: mpp-robot
+  cancel-in-progress: false
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools
+      - name: Any new .mpp?
+        id: chk
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, urllib.request
+          r = urllib.request.Request('https://vertex-cloud.0tddq47ko7zqg6gdmwllyzi.workers.dev/files/msp-bi', headers={'X-By': 'mpp-robot'})
+          f = json.load(urllib.request.urlopen(r, timeout=60))['files']
+          have = {x['name']: x for x in f}
+          todo = [x for x in f if x['name'].lower().endswith('.mpp') and (have.get(x['name'][:-4] + '.xml') or {}).get('ts', 0) < x.get('ts', 0)]
+          print('todo=%d' % len(todo))
+          PY
+      - uses: actions/setup-java@v4
+        if: steps.chk.outputs.todo != '0'
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Convert
+        if: steps.chk.outputs.todo != '0'
+        run: |
+          pip install --quiet mpxj jpype1
+          python3 tools/mpp2xml.py
