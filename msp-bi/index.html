@@ -2023,8 +2023,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='3.90.6';
+var VERSION='3.90.7';
 var CHANGELOG=[
+{v:'3.90.7',d:'30 آبان 1405',t:'هایلایت بدون کم‌رنگ کردن بقیه',b:['با انتخاب پروژه، بقیه‌ی پروژه‌ها دیگر کم‌رنگ نمی‌شوند؛ فقط پروژه‌ی انتخاب‌شده با زمینه و قاب زرد هایلایت می‌شود']},
 {v:'3.90.6',d:'30 آبان 1405',t:'چیدمان خلاصه مدیریتی برای تک پروژه',b:['کاشی‌ها دیگر روی هم نمی‌افتند','قد هر ردیف به اندازه‌ی محتوایش و سهم عادلانه از صفحه؛ همه‌ی کاشی‌ها در یک صفحه جا می‌شوند','متن خلاصه مدیریتی بزرگ‌تر از اندازه‌ی عادی نمی‌شود']},
 {v:'3.90.5',d:'30 آبان 1405',t:'۳۰ روز آینده با انتخاب پروژه',b:['صفحه‌ی «۳۰ روز آینده» داشبورد حالا فقط فعالیت‌های پروژه‌ی انتخاب‌شده را نشان می‌دهد؛ «همه‌ی پروژه‌ها» همه را']},
 {v:'3.90.4',d:'30 آبان 1405',t:'حذف دکمه‌های اضافه‌ی نام پروژه',b:['کنترل پروژه: ردیف دکمه‌های نام پروژه‌ها و انتخاب «تب‌ها برای» حذف شد؛ پروژه فقط از دکمه‌ی بالا انتخاب می‌شود']},
@@ -3590,7 +3591,7 @@ function dsHi(){var c=DS_.hiC,x=c&&PX.filter(function(p){return p.c===c})[0];var
  R.forEach(function(B){if(!B||B.offsetParent===null&&B.id!=='efBody')return;B.classList.toggle('dshi-on',!!x);[].forEach.call(B.querySelectorAll('.dshi'),function(e){e.classList.remove('dshi')});if(!x)return;if(DS_.src)[].forEach.call(B.querySelectorAll('[data-dsrc="'+DS_.src+'"]'),function(e){e.classList.add('dshi')});
   [].forEach.call(B.querySelectorAll('.bl,.pa2,tr,.tl>div,.hb,.hbar,li'),function(e){var hit=[].some.call(e.querySelectorAll(':scope>span,:scope>b,:scope>td,:scope>td>b,:scope>td>span,:scope>label'),function(t){return nm.indexOf(t.textContent.trim())>=0});if(hit){e.classList.add('dshi');var nx=e.nextElementSibling;if(e.parentNode.classList.contains('tl')&&nx&&nx.classList.contains('ax'))nx.classList.add('dshi')}})})}
 function dsTime(){var B=$('#efBody');if(!B)return;var on=DS_.page==='e:time';[].forEach.call(B.querySelectorAll(':scope > .card, :scope > div > .card'),function(cd){if(on){cd.style.height='calc((100vh - 300px) / 2)';cd.style.minHeight='240px';cd.style.overflow='auto';var h=cd.querySelector('h2');if(h){h.style.position='sticky';h.style.top='-1px';h.style.zIndex=3;h.style.background='inherit'}}else{cd.style.height=cd.style.minHeight=cd.style.overflow=''}})}
-(function(){var st=document.createElement('style');st.textContent='.dshi-on .bl:not(.dshi),.dshi-on .pa2:not(.dshi),.dshi-on tbody tr:not(.dshi),.dshi-on .tl>div:not(.dshi):not(:first-child),.dshi-on .pc2:not(.dshi){opacity:.45}.pc2.dshi{outline:2px solid var(--brand,#2f78c4)}.dshi{opacity:1!important;font-weight:700;background:color-mix(in srgb,var(--brand,#2f78c4) 12%,transparent);border-radius:8px}.dshi b,.dshi span,.dshi td{font-weight:800}';document.head.appendChild(st)})();
+(function(){var st=document.createElement('style');st.textContent='.pc2.dshi{outline:3px solid #f2b640}.dshi{font-weight:700;background:color-mix(in srgb,#f2b640 30%,transparent)!important;box-shadow:0 0 0 2px color-mix(in srgb,#f2b640 70%,transparent);border-radius:8px}.dshi b,.dshi span,.dshi td{font-weight:800}';document.head.appendChild(st)})();
 /* 3.90.2: کاشی‌های داشبورد تا جای خالی صفحه بزرگ می‌شوند؛ هر کاشی فقط یک اسکرول داخلی دارد؛ در صفحه‌ی باریک (موبایل) کاشی‌ها قد طبیعی دارند و خود صفحه اسکرول می‌شود */
 var FIT_SC='.dscroll,.tw,.efb,.efo-cs,.efo-rr,.tl';
 function efFit(){var B=$('#efBody');if(!B||!B.offsetHeight)return;var all=B.querySelectorAll('[data-fit]');[].forEach.call(all,function(e){e.style.zoom='';e.style.height=e.style.maxHeight=e.style.minHeight=e.style.overflow=e.style.display=e.style.flexDirection=e.style.flex='';e.removeAttribute('data-fit')});
