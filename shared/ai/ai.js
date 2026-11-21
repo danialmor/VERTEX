@@ -278,7 +278,7 @@
   async function markQA(id, o) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) Object.assign(x, o) }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
   async function flagQA(id) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) x.na = 2 }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
   function postAnswer(el) { if (!el || !el.textContent) return; let t = el.textContent, na = /^\s*\[\?\]/.test(t); if (na) t = t.replace(/^\s*\[\?\]\s*/, ''); if (window.__vxChat) { __vxChat.add('a', t); el.innerHTML = __vxChat.md(t); __vxChat.tools(el, t) } else el.textContent = t; if (na) { const n = document.createElement('div'); n.className = 'm sys'; n.textContent = 'این پرسش برای بررسی به مدیر سیستم فرستاده شد.'; el.after(n); }
-    logQA(lastQ, t, na).then(id => { if (id) el.dataset.qa = id; }); }
+    logQA(lastQ, t, na).then(id => { if (id) el.dataset.qa = id; try { window.dispatchEvent(new CustomEvent('vxai-answer', { detail: { q: lastQ, a: t, na } })) } catch (e) { } }); }
   function finish() { if (cur && cur.textContent) { postAnswer(cur); hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = '↑'; }
   function rateBar(el, id) {
     const d = document.createElement('div'); d.className = 'rate';
