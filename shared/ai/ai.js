@@ -242,6 +242,7 @@
       for (let k = 0; k < 3; k++) { const j = (await CL.getDoc('ai-log')) || { items: [] }; const L = (j.items || []).concat([it]).slice(-600); try { await CL.putDoc('ai-log', { t: Date.now(), items: L }, j.t || 0); break } catch (e) { if (!e.conflict) throw e } }
       return it.id; } catch (e) { }
   }
+  async function markQA(id, o) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) Object.assign(x, o) }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
   async function flagQA(id) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) x.na = 2 }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
   function postAnswer(el) { if (!el || !el.textContent) return; let t = el.textContent, na = /^\s*\[\?\]/.test(t); if (na) { t = t.replace(/^\s*\[\?\]\s*/, ''); el.textContent = t; const n = document.createElement('div'); n.className = 'm sys'; n.textContent = 'این پرسش برای بررسی به مدیر سیستم فرستاده شد.'; el.after(n); }
     logQA(lastQ, t, na).then(id => { if (id) el.dataset.qa = id; }); }
@@ -253,6 +254,7 @@
       const b = e.target.closest('[data-r]'); if (!b) return;
       const on = b.classList.contains('on'); d.querySelectorAll('button').forEach(x => x.classList.remove('on')); if (!on) b.classList.add('on');
       if (!on && b.dataset.r === 'down' && el.dataset.qa) flagQA(el.dataset.qa);
+      if (!on && b.dataset.r === 'up' && el.dataset.qa) markQA(el.dataset.qa, { g: 1 });
       if (VIAHUB) { fetch('/api/v1/ai/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {}); return; }
       fetch(API + '/feedback', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ request_id: id, rating: on ? null : b.dataset.r }) }).catch(() => {});
     });

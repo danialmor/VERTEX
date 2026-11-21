@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>آید · اتصال تقویم به سیستم</title>
-<script src="../shared/auth.js?v=395" data-require="executive-desk"></script>
+<script src="../shared/auth.js?v=396" data-require="executive-desk"></script>
 <style>
 :root{--bg:#f1f4ef;--card:rgba(255,255,255,.78);--ink:#14232a;--ink2:#566a70;--line:rgba(20,35,42,.12);--pri:#14323a;--ok:#1f8a5b;--warn:#c98a10;--bad:#c23a3a;--lime:#8fbf1f;--r:18px}
 *{box-sizing:border-box}body{margin:0;font-family:"Vazirmatn",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;background:radial-gradient(55% 45% at 90% 0,rgba(166,214,58,.25),transparent 70%),radial-gradient(50% 40% at 0 100%,rgba(47,183,166,.18),transparent 70%),var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
@@ -64,6 +64,6 @@ $('#ef').addEventListener('submit',function(e){e.preventDefault();var d=new Form
  H.put('events','ev-'+Date.now().toString(36),{title:d.get('title'),start:d.get('start'),end:d.get('end'),attendees:a,type:'meeting',by:H.user.code}).then(function(){e.target.reset()})});
 document.addEventListener('click',function(e){var r=e.target.closest('[data-r]'),x=e.target.closest('[data-del]');if(r)H.resolve(r.dataset.o,r.dataset.r).then(render);if(x&&confirm('این جلسه حذف شود؟'))H.remove('events',x.dataset.del).then(render)});
 </script>
-<script src="../shared/ai/ai.js?v=395" defer></script>
+<script src="../shared/ai/ai.js?v=396" defer></script>
 </body>
 </html>
