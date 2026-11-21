@@ -93,13 +93,13 @@
     worker.postMessage({ t: 'load' });
   }
 
-  function context() {
+  function context(q) {
     let c = '';
-    try { if (typeof window.VX_CTX === 'function') c = window.VX_CTX() || ''; } catch (e) {}
+    try { if (typeof window.VX_CTX === 'function') c = window.VX_CTX(q || '') || ''; } catch (e) {}
     const pg = 'Current page: ' + (document.title || location.pathname) + ' (' + location.pathname + ').\n';
     if (!c) return 'You are the VERTEX ecosystem assistant (construction project management, mail, files, trading, executive desk). ' + pg + 'Answer briefly and clearly. Reply in Persian if the user writes Persian.' + (SRV.prompt ? '\n' + SRV.prompt : '');
     return 'You are VERTEX, a construction project assistant. Answer briefly and clearly. Reply in Persian if the user writes Persian. ' +
-      'Facts only from this data (done=actual progress, plan=planned to date, late=delay days, end=planned→forecast end):\n' + (c || 'no data');
+      'Facts only from this data (done=actual progress, plan=planned to date, late=delay days, end=planned→forecast end; schedule lines: WBS | activity | start→finish (Jalali) | % done | flags). Dates are Jalali (Persian calendar). If the data does not contain the answer, say so.\n' + (c || 'no data');
   }
 
   // Instant, exact answers from the dashboard data for common questions (the 0.5B model is weak at Persian facts).
@@ -250,7 +250,7 @@
     if (!isOn) ensureWorker();
     msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);
     cur = msg('a', ''); gen = true; fab.classList.add('busy'); btn.textContent = '■';
-    const msgs = [{ role: 'system', content: context() }].concat(hist); window.VXAI.last = msgs;
+    const msgs = [{ role: 'system', content: context(q) }].concat(hist); window.VXAI.last = msgs;
     if (isOn) online(msgs); else worker.postMessage({ t: 'chat', messages: msgs });
   }
   box.querySelector('form').addEventListener('submit', (e) => { e.preventDefault(); if (gen) { if (ctl) ctl.abort(); else if (worker) worker.postMessage({ t: 'stop' }); return; } send(ta.value); ta.value = ''; });
