@@ -68,7 +68,8 @@
     window.VX_USER = s;
   }
   window.VX_AUTH = { ROOT: ROOT, STATIC: STATIC, session: session, allowed: allowed, login: login, setup: setup, logout: logout, require: require, getUsers: getUsers, hashPw: hashPw };
-  var s0 = session(); if (s0) window.VX_USER = s0;
+  var DEMO = STATIC && /\/msp-bi\//.test(location.pathname) && /[?&]demo\b/.test(location.search);
+  var s0 = DEMO ? { u: 'demo', name: 'بازدیدکننده‌ی دمو', role: 'user', sites: ['project-control'], paid: true, demo: true } : session(); if (s0) window.VX_USER = s0;
   // One theme for the whole ecosystem: whatever dark/light a user picks on any platform is kept on every platform.
   (function () {
     var KEYS = ['dsTheme', 'tsuba.theme', 'vx.fm.theme'], U = (s0 && s0.u) || '', CK = 'vx.theme' + (U ? ':' + U : ''), de = document.documentElement, busy = false;
@@ -82,16 +83,16 @@
     addEventListener('storage', function (e) { if (e.key === CK && e.newValue && de.getAttribute('data-theme') !== e.newValue) de.setAttribute('data-theme', e.newValue) });
   })();
   // company account without an active subscription: only the purchase page in the control panel
-  if (STATIC && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
+  if (STATIC && !DEMO && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
   // VERTEX core dashboard (msp-bi) is private to the platform admin for now; company users get the app home
-  if (STATIC && s0 && s0.role !== 'admin' && /\/(msp-bi(-next)?|home)\//.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
+  if (STATIC && !DEMO && s0 && s0.role !== 'admin' && /\/(msp-bi(-next)?|home)\//.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
   // Platform switcher: a small VERTEX home button on every platform page (not on the landing, panel or app home)
   if (STATIC && s0 && !/\/(admin|app|home)\/?/.test(location.pathname) && location.pathname.replace(/\/index\.html$/, '/') !== new URL(ROOT, location.href).pathname) {
-    var addHome = function () { if (document.getElementById('vxHomeBtn')) return; var a = document.createElement('a'); a.id = 'vxHomeBtn'; a.href = ROOT + (s0.role === 'admin' ? 'home/' : 'app/'); a.title = 'خانه‌ی VERTEX'; a.setAttribute('aria-label', 'خانه‌ی VERTEX و جابه‌جایی بین پلتفرم‌ها');
+    var addHome = function () { if (document.getElementById('vxHomeBtn')) return; var a = document.createElement('a'); a.id = 'vxHomeBtn'; a.href = ROOT + (DEMO ? '' : s0.role === 'admin' ? 'home/' : 'app/'); a.title = 'خانه‌ی VERTEX'; a.setAttribute('aria-label', 'خانه‌ی VERTEX و جابه‌جایی بین پلتفرم‌ها');
       a.innerHTML = '<svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L32 48 L50 18" fill="none" stroke="#7fb6ff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="48" r="5" fill="#f0a53a"/></svg>';
       a.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:2147483000;width:46px;height:46px;border-radius:50%;background:#111827;border:1px solid rgba(127,182,255,.45);box-shadow:0 6px 20px rgba(0,0,0,.45);display:grid;place-items:center';
       if (matchMedia('(max-width:760px)').matches) a.style.bottom = '86px'; if (/\/ai\//.test(location.pathname)) { a.style.bottom = 'auto'; a.style.top = '6px'; a.style.width = a.style.height = '38px' } document.body.appendChild(a) };
     if (document.body) addHome(); else document.addEventListener('DOMContentLoaded', addHome);
   }
-  var need = document.currentScript.getAttribute('data-require'); if (need) require(need);
+  var need = document.currentScript.getAttribute('data-require'); if (need && !DEMO) require(need);
 })();
