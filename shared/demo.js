@@ -102,7 +102,7 @@
   window.VX_HUB = { pull: pull, merge: m3 };
   function paint() { var d = document.getElementById('demoBar'); if (!d) return; var sp = d.querySelector('span'); if (!sp) return;
     sp.textContent = REMOTE.busy ? 'در حال ذخیره‌ی آنلاین…' : (REMOTE.err === 'no-cloud' ? 'فضای آنلاین تنظیم نشده — تغییرها فقط در این مرورگر' : REMOTE.err ? 'ذخیره‌ی آنلاین نشد: ' + REMOTE.err : '✓ داده‌ها آنلاین ذخیره می‌شود (Cloudflare)') }
-  function log(u, a, t) { D.audit.unshift({ ts: now(), user: u ? u.code : '-', action: a, target: t || '' }); D.audit = D.audit.slice(0, 200) }
+  function log(u, a, t) { D.audit.unshift({ ts: now(), user: u ? u.code : '-', action: a, target: t || '' }); D.audit = D.audit.slice(0, 2000) }
   function E(st, err) { var e = { status: st, body: { error: err } }; throw e }
   var tn = function (id) { return D.tenants.filter(function (x) { return x.id === id })[0] };
   var sub = function (id) { return D.subs.filter(function (s) { return s.tenant_id === id }).sort(function (a, b) { return b.created - a.created })[0] || null };
@@ -134,6 +134,8 @@
       { id: 3, name: 'سازمانی', price: 25000000, months: 12, modules: ['project-control', 'mail', 'file-manager', 'messenger', 'executive-desk'], seats: 40, max_levels: 6, desc: 'همه‌ی بخش‌ها برای کل شرکت', on: true }];
     if (!D.pay) D.pay = { card: '', holder: '', bank: '', note: 'مبلغ را کارت‌به‌کارت کنید و کد پیگیری را وارد کنید؛ بعد از تأیید، اشتراک فعال می‌شود.' };
     if (!D.orders) D.orders = [];
+    if (!D.modules.some(function (md) { return md.slug === 'scores' })) D.modules.push({ slug: 'scores', name_fa: 'امتیازها', name_en: 'Scores', status: 'live', path: '/admin/#scores', site: 'admin', color: '#f2b640', icon: 'star', ord: 99, summary_en: 'Team activity scores' });
+    if (!D.scoreW) D.scoreW = { login: 1, create: 5, update: 3, file: 4, approve: 4, other: 1 };
     if (p === '/plans' && m === 'GET') return { plans: D.plans.filter(function (x) { return x.on !== false }), pay: D.pay };
     if (p === '/register' && m === 'POST') {
       var rc = String(b.code || '').trim(); if (!b.name || !b.company || !rc || String(b.pin || '').length < 8) E(400, 'invalid'); if (!/^[A-Za-z0-9._-]{3,30}$/.test(rc)) E(400, 'bad-code'); if (codeTaken(rc)) E(409, 'code-exists');
@@ -163,6 +165,18 @@
       if (m === 'PUT') { var rv = (C[dm[3]] ? C[dm[3]].rev : 0) + 1; C[dm[3]] = { data: b.data, rev: rv }; return { id: dm[3], rev: rv } }
       if (m === 'DELETE') { delete C[dm[3]]; return { ok: true } }
     }
+    if (p === '/scores' && m === 'GET') {
+      var isA = U.role === 'admin' && !U.tenant_id, tid = isA ? +(b.tenant || 0) : U.tenant_id; if (!tid) E(400, 'tenant');
+      if (!isA) { var sb = sub(tid); if (!(U.role === 'owner' && sb && (sb.modules || []).indexOf('scores') >= 0)) E(403, 'not-in-plan') }
+      var days = Math.min(365, Math.max(1, +(b.days || 30))), from = now() - days * 86400, W = D.scoreW, K = ['login', 'create', 'update', 'file', 'approve', 'other'];
+      var cat = function (a) { a = String(a || ''); if (/login/.test(a)) return 'login'; if (/approve|\.ok$|confirm/.test(a)) return 'approve'; if (/file|upload/.test(a)) return 'file'; if (/create|new|add|register|invite/.test(a)) return 'create'; if (/update|edit|save|change|set|reset/.test(a)) return 'update'; return 'other' };
+      var us = D.users.filter(function (u) { return u.tenant_id === tid }), by = {};
+      us.forEach(function (u) { by[u.code] = { code: u.code, name: u.name, ucode: u.ucode || '', role: u.role, level: u.level || 0, active: u.active !== false, n: { login: 0, create: 0, update: 0, file: 0, approve: 0, other: 0 }, last: u.last_login || 0 } });
+      D.audit.forEach(function (x) { var r = by[x.user]; if (!r || x.ts < from) return; r.n[cat(x.action)]++; if (x.ts > r.last) r.last = x.ts });
+      var items = Object.keys(by).map(function (k) { var r = by[k]; r.total = K.reduce(function (s0, c) { return s0 + r.n[c] * (+W[c] || 0) }, 0); return r }).sort(function (a2, b2) { return b2.total - a2.total });
+      var t0 = tn(tid); return { tenant: t0 ? { id: t0.id, code: t0.code, name: t0.name } : null, days: days, weights: W, items: items };
+    }
+    if (p === '/admin/score-weights' && m === 'PUT') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); ['login', 'create', 'update', 'file', 'approve', 'other'].forEach(function (c) { if (b[c] != null) D.scoreW[c] = Math.max(0, Math.min(100, +b[c] || 0)) }); log(U, 'scores.weights'); return { ok: true } }
     if (p === '/orders' && m === 'POST') {
       if (!U.tenant_id || U.role !== 'owner') E(403, 'forbidden'); var pl = D.plans.filter(function (x) { return x.id === +b.plan_id && x.on !== false })[0]; if (!pl) E(400, 'invalid'); if (!String(b.ref || '').trim()) E(400, 'invalid');
       var od = { id: nextId(D.orders), tenant_id: U.tenant_id, user: U.code, plan_id: pl.id, plan: pl.name, amount: pl.price, months: pl.months, ref: String(b.ref).slice(0, 60), note: String(b.note || '').slice(0, 200), ts: now(), status: 'pending' };
@@ -236,6 +250,7 @@
     if (i < 0) return of(url, o);
     o = o || {}; var m = (o.method || 'GET').toUpperCase(), path = s.slice(i + 7).split('?')[0], body = {}, h = (o.headers && (o.headers.Authorization || o.headers.authorization)) || '';
     try { if (o.body) body = JSON.parse(o.body) } catch (e) { }
+    if (m === 'GET') { var qs = s.split('?')[1]; if (qs) qs.split('&').forEach(function (kv) { var z = kv.split('='); if (z[0]) body[decodeURIComponent(z[0])] = decodeURIComponent((z[1] || '').replace(/\+/g, ' ')) }) }
     var st = 200, out;
     return ready.then(function () {
       try { out = route(m, path, body, h); save(); if (m !== 'GET' && path !== '/auth/login') push() } catch (e) { st = e.status || 500; out = e.body || { error: String(e && e.message || e) } }

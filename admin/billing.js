@@ -11,7 +11,7 @@
   var money = function (n) { return fa(Math.round(+n || 0)) + ' تومان' };
   var dt = function (ts) { try { return P.fmtD(ts) } catch (e) { return '' } };
   var ST = { pending: '<span class="chip warn">در انتظار تأیید</span>', ok: '<span class="chip ok">تأیید شد</span>', rejected: '<span class="chip bad">رد شد</span>' };
-  var MODS_ALL = [['project-control', 'کنترل پروژه'], ['mail', 'نامه‌نگاری'], ['file-manager', 'فایل منیجر'], ['messenger', 'پیام‌رسان'], ['executive-desk', 'میز مدیرعامل و منشی'], ['trading', 'تریدینگ']];
+  var MODS_ALL = [['project-control', 'کنترل پروژه'], ['mail', 'نامه‌نگاری'], ['file-manager', 'فایل منیجر'], ['messenger', 'پیام‌رسان'], ['executive-desk', 'میز مدیرعامل و منشی'], ['trading', 'تریدینگ'], ['scores', 'امتیازها']];
 
   /* ── owner: purchase page */
   function buy() {
