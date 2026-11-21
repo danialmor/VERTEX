@@ -6,9 +6,9 @@
 (function () {
   'use strict';
   var P = window.TSP; if (!P) return;
-  var $ = P.$, esc = P.esc, head = P.head, toast = P.toast, api = P.api, fa = P.fa || function (x) { return x };
+  var $ = P.$, esc = P.esc, head = P.head, toast = P.toast, api = P.api, fa = function (x) { var n = +x; return isNaN(n) ? String(x) : n.toLocaleString('fa-IR') };
   var MODN = function (s) { try { return P.modName(s) } catch (e) { return s } };
-  var money = function (n) { n = Math.round(+n || 0); return fa(String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '٬')) + ' تومان' };
+  var money = function (n) { return fa(Math.round(+n || 0)) + ' تومان' };
   var dt = function (ts) { try { return P.fmtD(ts) } catch (e) { return '' } };
   var ST = { pending: '<span class="chip warn">در انتظار تأیید</span>', ok: '<span class="chip ok">تأیید شد</span>', rejected: '<span class="chip bad">رد شد</span>' };
   var MODS_ALL = [['project-control', 'کنترل پروژه'], ['mail', 'نامه‌نگاری'], ['file-manager', 'فایل منیجر'], ['messenger', 'پیام‌رسان'], ['executive-desk', 'میز مدیرعامل و منشی'], ['trading', 'تریدینگ']];
@@ -19,9 +19,9 @@
       var pl = R[0].plans || [], pay = R[0].pay || {}, ords = R[1].items || [], me = R[2], pend = ords.filter(function (o) { return o.status === 'pending' })[0];
       var h = head('اشتراک و خرید', me.sub_active ? ('اشتراک فعال: <b>' + esc(me.plan || '') + '</b>' + (me.sub_ends ? ' · تا ' + dt(me.sub_ends) : '') + ' — برای تمدید یا ارتقا یکی از تعرفه‌ها را انتخاب کنید.') : 'برای استفاده از بخش‌ها، یکی از تعرفه‌ها را انتخاب و پرداخت کنید. تا فعال شدن اشتراک، فقط همین صفحه در دسترس است.');
       if (pend) h += '<div class="card mb" style="border:1px solid rgba(240,165,58,.55)"><b>سفارش شما در انتظار تأیید است</b> — تعرفه‌ی «' + esc(pend.plan) + '» · ' + money(pend.amount) + ' · کد پیگیری <span class="mono">' + esc(pend.ref) + '</span>. بعد از بررسی پرداخت، اشتراک خودکار فعال می‌شود و همین صفحه را تازه کنید.</div>';
-      h += '<div class="grid g3 mb">' + pl.map(function (x) {
+      h += '<div class="mb" style="display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">' + pl.map(function (x) {
         return '<div class="card" style="display:grid;gap:10px;align-content:start;' + (x.best ? 'border:2px solid var(--brand,#2f78c4)' : '') + '">' + (x.best ? '<span class="chip ok" style="justify-self:start">پیشنهاد ما</span>' : '') +
-          '<h2 style="margin:0;font-size:18px">' + esc(x.name) + '</h2><div style="font-size:22px;font-weight:800">' + money(x.price) + '</div><small style="color:var(--muted)">برای ' + fa(x.months) + ' ماه · ' + fa(x.seats) + ' کاربر · ' + fa(x.max_levels) + ' سطح</small>' +
+          '<h2 style="margin:0;font-size:18px">' + esc(x.name) + '</h2><div style="font-size:22px;font-weight:800">' + money(x.price) + '</div><small style="color:var(--muted)">برای ' + fa(x.months) + ' ماه، ' + fa(x.seats) + ' کاربر، ' + fa(x.max_levels) + ' سطح</small>' +
           (x.desc ? '<p style="margin:0">' + esc(x.desc) + '</p>' : '') + '<ul style="margin:0;padding-inline-start:18px;display:grid;gap:4px;font-size:13px">' + (x.modules || []).map(function (m) { return '<li>' + esc(MODN(m)) + '</li>' }).join('') + '</ul>' +
           '<button class="btn p" type="button" data-buy="' + x.id + '"' + (pend ? ' disabled' : '') + '>انتخاب و پرداخت</button></div>'
       }).join('') + '</div>';
