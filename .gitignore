@@ -5,3 +5,4 @@ secret.key
 __pycache__/
 node_modules/
 s-*.png
+cloud/.wrangler/
