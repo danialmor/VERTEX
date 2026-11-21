@@ -80,3 +80,10 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 ## 3.79.0 — uploads on our own server
 - Hub (`hub/server.py`): `GET /api/v1/files/<site>` (list: name,size,ts,by,sha), `PUT /api/v1/files/<site>/<name>` (raw body, ≤ `max_file` 25 MB, needs write grant), `GET …/<name>` (download, read grant), `DELETE …/<name>` (manager/admin). Stored under `<data_dir>/files/<site storage key>/` with `.meta.json`; per-subscription isolation via `ss()`. Tests: `hub/tests/test_files.py`.
 - Dashboard: when not on github.io (`HUBF`), `ingest()` first PUTs every dropped/selected file to the hub with `hub.token`, then loads it; `inboxPull()` lists the hub folder and loads new files in every browser. On github.io the GitHub inbox flow (3.78) stays.
+
+## 3.90–3.95
+- Top-bar project picker drives the whole dashboard; compare pages (portfolio, eff, SPI, perf, time, cards) keep all projects and highlight the selected one (`dsHi`, `DS_.hiC`); `efFit` sizes tiles to the screen with one inner scroll and auto-zoom.
+- Tab «برنامه» (`v-upd`, `UPD`): tree schedule editor working on a copy (`UPD.T`, outline level `L`); `updFix` renumbers WBS and rolls up summaries; save = `mkProj`+`dashMeta`+`addP`+`saveFiles`+`storePush` as a new dated version; CSV / MSPDI XML export.
+- AI context (`VX_CTX(q)`) adds the schedule of the named / selected project.
+- mpp: uploaded to the cloud; `.github/workflows/mpp.yml` (every 10 min) runs `tools/mpp2xml.py` (MPXJ) and writes `<name>.xml` back; the inbox ingests it.
+- Subscriptions (panel, `admin/billing.js`, hub `/plans`, `/register`, `/orders`, `/admin/plans`, `/admin/orders`): unpaid owners only see «اشتراک و خرید»; `vxSess.paid=false` sends every platform page to `admin/#buy` (`shared/auth.js`).

@@ -9,9 +9,9 @@
 <title>{brand} · IV — کنترل پنل کاربران</title>
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=391"></script>
-<script src="../shared/demo.js?v=391"></script>
-<script src="../shared/auth.js?v=391"></script>
+<script src="../shared/cloud.js?v=392"></script>
+<script src="../shared/demo.js?v=392"></script>
+<script src="../shared/auth.js?v=392"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -107,18 +107,20 @@ function logout(){try{localStorage.removeItem('hub.token')}catch(e){}T='';S=null
 
 /* ── بعد از ورود: هر کس به جای خودش ── */
 function enter(s){S=s;if(s.must_change){show('pwc');return}
+ if(s.tenant&&s.sub_active===false&&!s.panel){location.replace((window.VX_AUTH?VX_AUTH.ROOT:'/')+'admin/#buy')}
  if(!s.panel){location.replace(s.home||'/');return}
  api('GET','/modules').then(function(r){MODS=r.modules}).catch(function(){}).then(function(){show('app');buildNav();go(location.hash.slice(1)||'overview')})}
 var NAV_ADMIN=[['overview','نمای کلی'],['tenants','اشتراک‌ها'],['signups','درخواست‌ها'],['modules','ماژول‌ها'],['staff','کاربران دفتر مرکزی'],['system','سیستم'],['profile','پروفایل من']];
 var NAV_OWNER=[['overview','نمای کلی'],['users','کاربران'],['levels','سطوح'],['profile','پروفایل من']];
 function isAdmin(){return S&&S.user.role==='admin'&&!S.tenant}
-function buildNav(){var n=isAdmin()?NAV_ADMIN:NAV_OWNER;
+function buildNav(){var n=isAdmin()?NAV_ADMIN:NAV_OWNER;if(unpaid())n=n.filter(function(x){return x[0]==='buy'||x[0]==='profile'});
  $('#nav').innerHTML='<div class="brand"><img src="'+esc(BRAND.logo)+'" alt=""><div><b>'+esc(BRAND.name)+'</b><small>'+(isAdmin()?'مدیریت اکوسیستم':esc(S.tenant.name))+'</small></div></div>'+n.map(function(x){return '<button type="button" data-go="'+x[0]+'">'+x[1]+'</button>'}).join('')+'<div class="me"><b>'+esc(S.user.name)+'</b><span class="mono">'+esc(S.ucode||S.user.code)+'</span><div class="row" style="margin-top:8px"><a class="btn s" href="'+esc(BRAND.base)+'">صفحه‌ی اصلی</a><button class="btn s" type="button" id="lo">خروج</button></div></div>';
  $('#lo').onclick=logout;if(window.TSP&&TSP.onNav)TSP.onNav()}
 $('#nav').addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
 addEventListener('hashchange',function(){if(S&&!$('#app').hidden)go(location.hash.slice(1)||'overview',true)});
 window.addEventListener('vx-data',function(){try{var a=document.activeElement;if(S&&VIEW&&!(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)))go(VIEW,true)}catch(e){}});
-function go(v,fromHash){var list=isAdmin()?NAV_ADMIN:NAV_OWNER;if(!list.some(function(x){return x[0]===v}))v='overview';VIEW=v;if(!fromHash&&location.hash!=='#'+v)history.replaceState(null,'','#'+v);
+function unpaid(){return !!(S&&S.tenant&&S.sub_active===false)}
+function go(v,fromHash){var list=isAdmin()?NAV_ADMIN:NAV_OWNER;if(unpaid()&&v!=='buy'&&v!=='profile')v='buy';if(!list.some(function(x){return x[0]===v}))v='overview';VIEW=v;if(!fromHash&&location.hash!=='#'+v)history.replaceState(null,'','#'+v);
  $$('#nav [data-go]').forEach(function(b){if(b.dataset.go===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
  $('#pg').innerHTML='<p class="empty">در حال بارگذاری…</p>';(isAdmin()?A:O)[v]().catch(function(x){$('#pg').innerHTML='<div class="card err">'+esc(emsg(x))+'</div>'})}
 function head(t,sub,act){return '<div class="head"><div><h1>'+t+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div><div class="row">'+(act||'')+'</div></div>'}
@@ -213,11 +215,11 @@ function profile(){return api('GET','/me').then(function(me){S=me;var p=me.profi
 /* ── شروع ── */
 try{T=localStorage.getItem('hub.token')||''}catch(e){}
 api('GET','/health').then(function(h){if(h.test_mode)$('#tmNote').hidden=false}).catch(function(){});
-window.TSP={get S(){return S},get T(){return T},set T(v){T=v},get MODS(){return MODS},NAV_ADMIN:NAV_ADMIN,NAV_OWNER:NAV_OWNER,A:A,O:O,api:api,head:head,openDlg:openDlg,closeDlg:closeDlg,go:go,esc:esc,emsg:emsg,toast:toast,isAdmin:isAdmin,modName:modName,lvName:lvName,logout:logout,fa:fa,fmtD:fmtD,$:$,$$:$$,onNav:null};
+window.TSP={enter:function(r){return enter(r)},get S(){return S},get T(){return T},set T(v){T=v},get MODS(){return MODS},NAV_ADMIN:NAV_ADMIN,NAV_OWNER:NAV_OWNER,A:A,O:O,api:api,head:head,openDlg:openDlg,closeDlg:closeDlg,go:go,esc:esc,emsg:emsg,toast:toast,isAdmin:isAdmin,modName:modName,lvName:lvName,logout:logout,fa:fa,fmtD:fmtD,$:$,$$:$$,onNav:null};
 /* GitHub Pages: the original sign-in (same users and passwords as before). After sign-in → next page or the root page with the user's platforms. */
 if(window.VX_AUTH&&VX_AUTH.STATIC){
  var nx=(location.search.match(/[?&]next=([^&]+)/)||[])[1];nx=nx?decodeURIComponent(nx):'';if(nx&&nx.indexOf(VX_AUTH.ROOT)!==0)nx='';
- function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant;var sites=eco?[]:(r.modules||[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,t:Date.now()}))}catch(e){}}
+ function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant,paid=r.sub_active!==false;var sites=eco||!paid?[]:(r.modules||[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,paid:paid,t:Date.now()}))}catch(e){}}window.TSP_vxMark=vxMark;
  var _lsub=lf.onsubmit;lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';if(!lf.code.value.trim()||!lf.pin.value){$('#lErr').textContent='نام کاربری و رمز را وارد کنید.';return}b.disabled=true;
   api('POST','/auth/login',{code:lf.code.value.trim(),pin:lf.pin.value,device:'panel',remember:lf.remember.checked}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}lf.pin.value='';vxMark(r);if(r.must_change){enter(r);return}location.replace(nx||VX_AUTH.ROOT)}).catch(function(x){$('#lErr').textContent=emsg(x)}).then(function(){b.disabled=false})};
  var vs=VX_AUTH.session();
@@ -226,19 +228,20 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
-<script src="extras.js?v=391"></script>
-<script src="sitemap.js?v=391"></script>
-<script src="filemap.js?v=391"></script>
-<script src="eco.js?v=391"></script>
-<script src="sim.js?v=391"></script>
-<script src="github.js?v=391"></script>
-<script src="aiset.js?v=391"></script>
-<script src="fx.js?v=391"></script>
-<script src="shell.js?v=391"></script>
+<script src="extras.js?v=392"></script>
+<script src="sitemap.js?v=392"></script>
+<script src="filemap.js?v=392"></script>
+<script src="eco.js?v=392"></script>
+<script src="sim.js?v=392"></script>
+<script src="github.js?v=392"></script>
+<script src="aiset.js?v=392"></script>
+<script src="billing.js?v=392"></script>
+<script src="fx.js?v=392"></script>
+<script src="shell.js?v=392"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();</script>
-<script src="../shared/ai/ai.js?v=391" defer></script>
+<script src="../shared/ai/ai.js?v=392" defer></script>
 </body>
 </html>

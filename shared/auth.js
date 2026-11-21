@@ -69,5 +69,7 @@
   }
   window.VX_AUTH = { ROOT: ROOT, STATIC: STATIC, session: session, allowed: allowed, login: login, setup: setup, logout: logout, require: require, getUsers: getUsers, hashPw: hashPw };
   var s0 = session(); if (s0) window.VX_USER = s0;
+  // company account without an active subscription: only the purchase page in the control panel
+  if (STATIC && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
   var need = document.currentScript.getAttribute('data-require'); if (need) require(need);
 })();

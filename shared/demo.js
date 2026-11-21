@@ -113,6 +113,7 @@
   function sess(u, tok) {
     var t = u.tenant_id ? tn(u.tenant_id) : null, s = t ? sub(t.id) : null;
     var r = { user: { id: u.id, code: u.code, name: u.name, role: u.role }, tenant: t ? { id: t.id, code: t.code, name: t.name } : null, ucode: u.ucode || '', home: home(u), panel: (u.role === 'admin' && !t) || u.role === 'owner', must_change: !!u.must_change, profile: u.profile || {}, modules: t ? (u.role === 'owner' ? (s ? s.modules : []) : u.mods) : null, grants: u.grants || (t ? { 'msp-bi': 'member' } : {}) };
+    r.sub_active = t ? active(t) : true; r.plan = s ? s.plan : ''; r.sub_ends = s ? s.ends : 0;
     if (tok) r.token = tok; return r;
   }
   function me(h) { var m = /demo-(\d+)/.exec(h || ''); var u = m && usr(+m[1]); if (!u || !u.active) E(401, 'unauthorized'); return u }
@@ -126,6 +127,20 @@
     var x;
     if (p === '/health') return { ok: true, version: 'demo', test_mode: false, demo: true };
     if (p === '/modules') return { modules: D.modules };
+    // ── اشتراک: تعرفه‌ها (عمومی)، ساخت حساب، سفارش و تأیید پرداخت
+    if (!D.plans) D.plans = [
+      { id: 1, name: 'پایه', price: 3000000, months: 1, modules: ['project-control'], seats: 3, max_levels: 2, desc: 'کنترل پروژه برای یک تیم کوچک', on: true },
+      { id: 2, name: 'حرفه‌ای', price: 7500000, months: 3, modules: ['project-control', 'mail', 'file-manager', 'messenger'], seats: 10, max_levels: 3, desc: 'کنترل پروژه، نامه‌نگاری و فایل', on: true, best: true },
+      { id: 3, name: 'سازمانی', price: 25000000, months: 12, modules: ['project-control', 'mail', 'file-manager', 'messenger', 'executive-desk'], seats: 40, max_levels: 6, desc: 'همه‌ی بخش‌ها برای کل شرکت', on: true }];
+    if (!D.pay) D.pay = { card: '', holder: '', bank: '', note: 'مبلغ را کارت‌به‌کارت کنید و کد پیگیری را وارد کنید؛ بعد از تأیید، اشتراک فعال می‌شود.' };
+    if (!D.orders) D.orders = [];
+    if (p === '/plans' && m === 'GET') return { plans: D.plans.filter(function (x) { return x.on !== false }), pay: D.pay };
+    if (p === '/register' && m === 'POST') {
+      var rc = String(b.code || '').trim(); if (!b.name || !b.company || !rc || String(b.pin || '').length < 8) E(400, 'invalid'); if (!/^[A-Za-z0-9._-]{3,30}$/.test(rc)) E(400, 'bad-code'); if (codeTaken(rc)) E(409, 'code-exists');
+      var nt = { id: nextId(D.tenants), code: 'T' + ('00' + (D.tenants.length + 1)).slice(-3), name: String(b.company).slice(0, 80), status: 'active', levels: ['مدیرعامل', 'مدیر پروژه', 'سرپرست کارگاه'], contact: { phone: b.phone || '', email: b.email || '' }, self: true, created: now() };
+      D.tenants.push(nt); var nu = { id: nextId(D.users), code: rc, name: String(b.name).slice(0, 80), role: 'owner', tenant_id: nt.id, ucode: nt.code + '-0001', level: 1, mods: [], home: '', pin: b.pin, must_change: false, active: true, profile: { phone: b.phone || '', email: b.email || '' } };
+      D.users.push(nu); log(nu, 'auth.register', nt.code); nu.last_login = now(); return sess(nu, 'demo-' + nu.id);
+    }
     if (p === '/signup' && m === 'POST') { D.signups.unshift({ id: nextId(D.signups), ts: now(), name: b.name, company: b.company, phone: b.phone, email: b.email, note: b.note, status: 'new' }); return { ok: true } }
     if (p === '/auth/login') {
       var c = String(b.code || '').toLowerCase(), u = D.users.filter(function (u) { return u.code.toLowerCase() === c || (u.ucode || '').toLowerCase() === c })[0];
@@ -148,6 +163,18 @@
       if (m === 'PUT') { var rv = (C[dm[3]] ? C[dm[3]].rev : 0) + 1; C[dm[3]] = { data: b.data, rev: rv }; return { id: dm[3], rev: rv } }
       if (m === 'DELETE') { delete C[dm[3]]; return { ok: true } }
     }
+    if (p === '/orders' && m === 'POST') {
+      if (!U.tenant_id || U.role !== 'owner') E(403, 'forbidden'); var pl = D.plans.filter(function (x) { return x.id === +b.plan_id && x.on !== false })[0]; if (!pl) E(400, 'invalid'); if (!String(b.ref || '').trim()) E(400, 'invalid');
+      var od = { id: nextId(D.orders), tenant_id: U.tenant_id, user: U.code, plan_id: pl.id, plan: pl.name, amount: pl.price, months: pl.months, ref: String(b.ref).slice(0, 60), note: String(b.note || '').slice(0, 200), ts: now(), status: 'pending' };
+      D.orders.unshift(od); log(U, 'order.new', pl.name); return { ok: true, order: od };
+    }
+    if (p === '/orders' && m === 'GET') return { items: D.orders.filter(function (o) { return o.tenant_id === U.tenant_id }) };
+    if (p === '/admin/plans' && m === 'PUT') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); if (Array.isArray(b.plans)) D.plans = b.plans.map(function (x, i) { return { id: +x.id || (i + 1), name: String(x.name || '').slice(0, 40), price: Math.max(0, +x.price || 0), months: Math.max(1, +x.months || 1), modules: x.modules || ['project-control'], seats: Math.max(1, +x.seats || 1), max_levels: Math.min(10, Math.max(1, +x.max_levels || 1)), desc: String(x.desc || '').slice(0, 200), on: x.on !== false, best: !!x.best } }); if (b.pay) D.pay = { card: String(b.pay.card || ''), holder: String(b.pay.holder || ''), bank: String(b.pay.bank || ''), note: String(b.pay.note || '') }; log(U, 'plans.save'); return { ok: true } }
+    if (p === '/admin/orders' && m === 'GET') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); return { items: D.orders.map(function (o) { var t = tn(o.tenant_id); return Object.assign({ tenant: t ? t.name : '', tcode: t ? t.code : '' }, o) }) } }
+    if ((x = /^\/admin\/orders\/(\d+)$/.exec(p))) { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); var o = D.orders.filter(function (z) { return z.id === +x[1] })[0]; if (!o) E(404, 'not-found'); if (o.status !== 'pending') E(409, 'done');
+      o.status = b.status === 'ok' ? 'ok' : 'rejected'; o.done = now(); o.by = U.code;
+      if (o.status === 'ok') { var pl2 = D.plans.filter(function (z) { return z.id === o.plan_id })[0] || { modules: ['project-control'], seats: 1, max_levels: 1 }; var cur0 = sub(o.tenant_id), base = cur0 && cur0.ends > now() ? cur0.ends : now(); newSub(o.tenant_id, { plan: o.plan, modules: pl2.modules, seats: pl2.seats, max_levels: pl2.max_levels, months: o.months, price: String(o.amount), note: 'سفارش #' + o.id + ' · پیگیری ' + o.ref }); var ns = sub(o.tenant_id); ns.ends = base + o.months * 30 * 86400 }
+      log(U, 'order.' + o.status, '#' + o.id); return { ok: true } }
     if (p.indexOf('/admin/') === 0) {
       if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden');
       if (p === '/admin/tenants' && m === 'GET') return { tenants: D.tenants.map(tenantRow) };
