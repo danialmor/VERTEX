@@ -9,9 +9,9 @@
 <title>{brand} · IV — کنترل پنل کاربران</title>
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=402"></script>
-<script src="../shared/demo.js?v=402"></script>
-<script src="../shared/auth.js?v=402"></script>
+<script src="../shared/cloud.js?v=403"></script>
+<script src="../shared/demo.js?v=403"></script>
+<script src="../shared/auth.js?v=403"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -109,6 +109,7 @@ function logout(){try{localStorage.removeItem('hub.token')}catch(e){}T='';S=null
 function enter(s){S=s;if(s.must_change){show('pwc');return}
  if(s.tenant&&s.sub_active===false&&!s.panel){location.replace((window.VX_AUTH?VX_AUTH.ROOT:'/')+'admin/#buy')}
  if(!s.panel){location.replace(s.home||'/');return}
+ if(s.user&&s.user.role==='owner'&&s.sub_active!==false&&!location.hash){location.replace((window.VX_AUTH?VX_AUTH.ROOT:'/')+'app/');return}
  api('GET','/modules').then(function(r){MODS=r.modules}).catch(function(){}).then(function(){show('app');buildNav();go(location.hash.slice(1)||'overview')})}
 var NAV_ADMIN=[['overview','نمای کلی'],['tenants','اشتراک‌ها'],['signups','درخواست‌ها'],['modules','ماژول‌ها'],['staff','کاربران دفتر مرکزی'],['system','سیستم'],['profile','پروفایل من']];
 var NAV_OWNER=[['overview','نمای کلی'],['users','کاربران'],['levels','سطوح'],['profile','پروفایل من']];
@@ -228,22 +229,22 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
-<script src="extras.js?v=402"></script>
-<script src="sitemap.js?v=402"></script>
-<script src="filemap.js?v=402"></script>
-<script src="eco.js?v=402"></script>
-<script src="sim.js?v=402"></script>
-<script src="github.js?v=402"></script>
-<script src="aiset.js?v=402"></script>
-<script src="billing.js?v=402"></script>
-<script src="scores.js?v=402"></script>
-<script src="aiq.js?v=402"></script>
-<script src="fx.js?v=402"></script>
-<script src="shell.js?v=402"></script>
+<script src="extras.js?v=403"></script>
+<script src="sitemap.js?v=403"></script>
+<script src="filemap.js?v=403"></script>
+<script src="eco.js?v=403"></script>
+<script src="sim.js?v=403"></script>
+<script src="github.js?v=403"></script>
+<script src="aiset.js?v=403"></script>
+<script src="billing.js?v=403"></script>
+<script src="scores.js?v=403"></script>
+<script src="aiq.js?v=403"></script>
+<script src="fx.js?v=403"></script>
+<script src="shell.js?v=403"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();</script>
-<script src="../shared/ai/ai.js?v=402" defer></script>
+<script src="../shared/ai/ai.js?v=403" defer></script>
 </body>
 </html>

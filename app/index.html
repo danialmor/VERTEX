@@ -8,10 +8,10 @@
 <meta name="theme-color" content="#0a0d14">
 <title>VERTEX — خانه</title>
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=402"></script>
-<script src="../shared/demo.js?v=402"></script>
-<script src="../shared/auth.js?v=402"></script>
-<script>(function(){try{if(!localStorage.getItem('hub.token')&&!localStorage.getItem('vxSess'))location.replace('../admin/?next='+encodeURIComponent(location.href))}catch(e){}})()</script>
+<script src="../shared/cloud.js?v=403"></script>
+<script src="../shared/demo.js?v=403"></script>
+<script src="../shared/auth.js?v=403"></script>
+<script>(function(){try{var v=JSON.parse(localStorage.getItem('vxSess')||'null');if(v&&v.role==='admin'){location.replace('../home/');return}if(!localStorage.getItem('hub.token')&&!localStorage.getItem('vxSess'))location.replace('../admin/?next='+encodeURIComponent(location.href))}catch(e){}})()</script>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&amp;display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0d14;--card:#111827;--card2:#16213a;--line:rgba(255,255,255,.07);--mut:#9aa7bd;--txt:#e8edf6;--blue:#2f78c4;--sky:#7fb6ff;--ok:#3fb37f;--warn:#f0a53a}
@@ -79,6 +79,7 @@ h1{margin:0;font-size:28px;font-weight:900}
     </div>
   </section>
 
+  <section style="display:flex;flex-direction:column;gap:12px"><div class="hd"><h2 style="margin:0;font-size:20px">پلتفرم‌های شما</h2><small class="mut">برای رفتن به هر بخش بزنید</small></div><div class="grid" id="plats" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px"></div></section>
   <section class="grid" id="capG" data-owner>
     <div class="card"><div class="hd"><b>لیدرها</b><small class="mut" id="cLt"></small></div><div class="kpi" id="cL">—</div><div class="meter"><span id="mL" style="width:0"></span></div></div>
     <div class="card"><div class="hd"><b>کاربران</b><small class="mut" id="cUt"></small></div><div class="kpi" id="cU">—</div><div class="meter"><span id="mU" style="width:0"></span></div></div>
@@ -118,6 +119,11 @@ h1{margin:0;font-size:28px;font-weight:900}
     var days = me.sub_ends ? Math.max(0, Math.ceil((me.sub_ends - Date.now() / 1000) / 86400)) : 0;
     $('spX').textContent = me.sub_ends ? 'اعتبار تا ' + new Date(me.sub_ends * 1000).toLocaleDateString('fa-IR') + '. از همین صفحه تیم، لیدرها و سطوح دسترسی را مدیریت کنید.' : '';
     $('ringT').textContent = me.sub_ends ? fa(days) : '∞'; $('ring').setAttribute('stroke-dashoffset', String(100 - Math.min(100, Math.round(days / 30 * 100))));
+    var PL = (window.BRAND && BRAND.platforms) || [], mods = me.modules || [];
+    PL.filter(function (x) { return mods.indexOf(x.slug) >= 0 }).forEach(function (x) {
+      var soon = !x.href || /\/msp-bi\//.test(x.href), el = document.createElement(soon ? 'div' : 'a'); el.className = 'card'; if (!soon) el.href = x.href; el.style.cssText = 'text-decoration:none;color:inherit;gap:6px;padding:16px;border-top:3px solid ' + x.color + (soon ? ';opacity:.6' : '');
+      el.innerHTML = '<b></b><small class="mut"></small>'; el.firstChild.textContent = x.fa; el.lastChild.textContent = soon ? 'به‌زودی برای شرکت شما فعال می‌شود' : x.desc_fa; $('plats').appendChild(el) });
+    if (!$('plats').children.length) $('plats').innerHTML = '<div class="mut">بخشی در طرح شما فعال نیست.</div>';
     (me.modules || []).forEach(function (m) { var s = document.createElement('span'); s.className = 'chip'; s.style.cssText = 'background:#16213a;padding:6px 14px;font-size:13px'; s.textContent = MN[m] || m; $('mods').appendChild(s) });
     if (!owner) return;
     api('/panel/overview').then(function (o) {
@@ -136,6 +142,6 @@ h1{margin:0;font-size:28px;font-weight:900}
   }).catch(function () { $('wD').textContent = 'آب‌وهوا در دسترس نیست' });
 })();
 </script>
-<script src="../shared/ai/ai.js?v=402" defer></script>
+<script src="../shared/ai/ai.js?v=403" defer></script>
 </body>
 </html>

@@ -72,6 +72,14 @@
   // company account without an active subscription: only the purchase page in the control panel
   if (STATIC && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
   // VERTEX core dashboard (msp-bi) is private to the platform admin for now; company users get the app home
-  if (STATIC && s0 && s0.role !== 'admin' && /\/msp-bi(-next)?\//.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
+  if (STATIC && s0 && s0.role !== 'admin' && /\/(msp-bi(-next)?|home)\//.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
+  // Platform switcher: a small VERTEX home button on every platform page (not on the landing, panel or app home)
+  if (STATIC && s0 && !/\/(admin|app|home)\/?/.test(location.pathname) && location.pathname.replace(/\/index\.html$/, '/') !== new URL(ROOT, location.href).pathname) {
+    var addHome = function () { if (document.getElementById('vxHomeBtn')) return; var a = document.createElement('a'); a.id = 'vxHomeBtn'; a.href = ROOT + (s0.role === 'admin' ? 'home/' : 'app/'); a.title = 'خانه‌ی VERTEX'; a.setAttribute('aria-label', 'خانه‌ی VERTEX و جابه‌جایی بین پلتفرم‌ها');
+      a.innerHTML = '<svg width="22" height="22" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 18 L32 48 L50 18" fill="none" stroke="#7fb6ff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="48" r="5" fill="#f0a53a"/></svg>';
+      a.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:2147483000;width:46px;height:46px;border-radius:50%;background:#111827;border:1px solid rgba(127,182,255,.45);box-shadow:0 6px 20px rgba(0,0,0,.45);display:grid;place-items:center';
+      if (matchMedia('(max-width:760px)').matches) a.style.bottom = '86px'; document.body.appendChild(a) };
+    if (document.body) addHome(); else document.addEventListener('DOMContentLoaded', addHome);
+  }
   var need = document.currentScript.getAttribute('data-require'); if (need) require(need);
 })();
