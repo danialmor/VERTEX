@@ -2023,8 +2023,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='3.90.3';
+var VERSION='3.90.4';
 var CHANGELOG=[
+{v:'3.90.4',d:'30 آبان 1405',t:'حذف دکمه‌های اضافه‌ی نام پروژه',b:['کنترل پروژه: ردیف دکمه‌های نام پروژه‌ها و انتخاب «تب‌ها برای» حذف شد؛ پروژه فقط از دکمه‌ی بالا انتخاب می‌شود']},
 {v:'3.90.3',d:'30 آبان 1405',t:'اندازه‌ی خودکار متن و نمودار در کاشی‌ها',b:['متن و نمودار هر کاشی با اندازه‌ی همان کاشی بزرگ یا کوچک می‌شود تا جای خالی نماند (بین ۸۵٪ تا ۱۴۵٪)','اگر محتوا خیلی زیاد باشد ریز نمی‌شود و داخل کاشی اسکرول می‌شود']},
 {v:'3.90.2',d:'30 آبان 1405',t:'اندازه‌ی کاشی‌ها در همه‌ی دستگاه‌ها',b:['هر کاشی فقط یک اسکرول داخلی دارد (تب زمان دو اسکرول داشت)','در صفحه‌ی پهن (iPad افقی، لپ‌تاپ) کاشی‌ها تا پایین صفحه بزرگ می‌شوند و جای خالی پر می‌شود','در صفحه‌ی باریک (iPad عمودی، موبایل) کاشی‌ها قد کامل دارند و خود صفحه اسکرول می‌شود']},
 {v:'3.90.1',d:'30 آبان 1405',t:'مقایسه با برجسته‌سازی پروژه‌ی انتخاب‌شده',b:['کاشی «راندمان پروژه‌ها» برگشت','در نمای کلی پورتفولیو، راندمان، SPI، عملکرد و زمان همه‌ی پروژه‌ها می‌مانند و فقط پروژه‌ی انتخاب‌شده پررنگ و برجسته می‌شود','تب زمان: دو کاشی بالا و پایین، هر کدام با اسکرول داخلی']},
@@ -3573,7 +3574,7 @@ document.addEventListener('click',function(e){if(!e.target.closest('[data-mobt]'
 // ───── شروع
 window.addEventListener('resize',function(){if(resizeMatters())layoutFill()});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){layoutFill();fitBoxes()});
 /* 3.90: انتخاب پروژه‌ی داشبورد مدیریتی فقط از دکمه‌ی بالا (کنار پروفایل)؛ نوار نام پروژه‌ها حذف شد */
-(function(){var st=document.createElement('style');st.textContent='#v-dash #dashBar,#v-dash #efProj,#efBody .estnote,#efBody .nsnote{display:none!important}.top .pillsel.dsel{cursor:pointer}';document.head.appendChild(st)})();
+(function(){var st=document.createElement('style');st.textContent='.tlpk,#tlpk,#gsSeg,#v-dash #dashBar,#v-dash #efProj,#efBody .estnote,#efBody .nsnote{display:none!important}.top .pillsel.dsel{cursor:pointer}';document.head.appendChild(st)})();
 function dsCur(){try{var PR=dProjects();return PR.filter(function(p){return p.code===DS_.src})[0]||null}catch(e){return null}}
 var _gsPill90=gsPill;gsPill=function(){_gsPill90();var el=document.querySelector('.top .pillsel');if(!el)return;el.classList.toggle('dsel',cur==='dash');if(cur!=='dash')return;
  var all=!!DS_.all,x=all?null:dsCur();el.querySelector('i').textContent=x?String(x.en||x.fa||'پ').slice(0,1):'پ';el.querySelector('span').textContent=x?(x.fa||x.en):(DS_.src==='demo'&&!all?'نمونه‌ی PDF':'همه‌ی پروژه‌ها');el.title='انتخاب پروژه برای کل داشبرد'};
