@@ -2023,8 +2023,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='3.90.1';
+var VERSION='3.90.2';
 var CHANGELOG=[
+{v:'3.90.2',d:'30 آبان 1405',t:'اندازه‌ی کاشی‌ها در همه‌ی دستگاه‌ها',b:['هر کاشی فقط یک اسکرول داخلی دارد (تب زمان دو اسکرول داشت)','در صفحه‌ی پهن (iPad افقی، لپ‌تاپ) کاشی‌ها تا پایین صفحه بزرگ می‌شوند و جای خالی پر می‌شود','در صفحه‌ی باریک (iPad عمودی، موبایل) کاشی‌ها قد کامل دارند و خود صفحه اسکرول می‌شود']},
 {v:'3.90.1',d:'30 آبان 1405',t:'مقایسه با برجسته‌سازی پروژه‌ی انتخاب‌شده',b:['کاشی «راندمان پروژه‌ها» برگشت','در نمای کلی پورتفولیو، راندمان، SPI، عملکرد و زمان همه‌ی پروژه‌ها می‌مانند و فقط پروژه‌ی انتخاب‌شده پررنگ و برجسته می‌شود','تب زمان: دو کاشی بالا و پایین، هر کدام با اسکرول داخلی']},
 {v:'3.90.0',d:'30 آبان 1405',t:'انتخاب پروژه از نوار بالا برای کل داشبرد',b:['در داشبورد، پروژه فقط از دکمه‌ی بالا (کنار پروفایل و اعلان‌ها) انتخاب می‌شود','ردیف دکمه‌های نام پروژه‌ها حذف شد','همه‌ی صفحه‌های داشبورد (خلاصه مدیریتی، راندمان، SPI، زمان، کارت پروژه‌ها و…) فقط پروژه‌ی انتخاب‌شده را نشان می‌دهند؛ «همه‌ی پروژه‌ها» نمای کلی را نشان می‌دهد','در خلاصه مدیریتی کاشی «راندمان پروژه‌ها» و توضیح‌های برآورد/شروع‌نشده حذف شد']},
 {v:'3.89.2',d:'30 آبان 1405',t:'همگام‌سازی کاربران پنل بین دستگاه‌ها',b:['کاربرانی که یک مدیر در پنل می‌سازد دیگر با ذخیره‌ی دستگاه دیگر پاک نمی‌شوند (ادغام سه‌طرفه به‌جای بازنویسی)','پنل هر ۲۰ ثانیه تغییرات دیگران را می‌گیرد و صفحه را تازه می‌کند']},
@@ -3586,7 +3587,24 @@ function dsHi(){var c=DS_.hiC,x=c&&PX.filter(function(p){return p.c===c})[0];var
   [].forEach.call(B.querySelectorAll('.bl,.pa2,tr,.tl>div,.hb,.hbar,li'),function(e){var hit=[].some.call(e.querySelectorAll(':scope>span,:scope>b,:scope>td,:scope>td>b,:scope>td>span,:scope>label'),function(t){return nm.indexOf(t.textContent.trim())>=0});if(hit){e.classList.add('dshi');var nx=e.nextElementSibling;if(e.parentNode.classList.contains('tl')&&nx&&nx.classList.contains('ax'))nx.classList.add('dshi')}})})}
 function dsTime(){var B=$('#efBody');if(!B)return;var on=DS_.page==='e:time';[].forEach.call(B.querySelectorAll(':scope > .card, :scope > div > .card'),function(cd){if(on){cd.style.height='calc((100vh - 300px) / 2)';cd.style.minHeight='240px';cd.style.overflow='auto';var h=cd.querySelector('h2');if(h){h.style.position='sticky';h.style.top='-1px';h.style.zIndex=3;h.style.background='inherit'}}else{cd.style.height=cd.style.minHeight=cd.style.overflow=''}})}
 (function(){var st=document.createElement('style');st.textContent='.dshi-on .bl:not(.dshi),.dshi-on .pa2:not(.dshi),.dshi-on tbody tr:not(.dshi),.dshi-on .tl>div:not(.dshi):not(:first-child),.dshi-on .pc2:not(.dshi){opacity:.45}.pc2.dshi{outline:2px solid var(--brand,#2f78c4)}.dshi{opacity:1!important;font-weight:700;background:color-mix(in srgb,var(--brand,#2f78c4) 12%,transparent);border-radius:8px}.dshi b,.dshi span,.dshi td{font-weight:800}';document.head.appendChild(st)})();
-var _rd90=renderDash;renderDash=function(){try{var c=DS_.src&&DS_.src!=='demo'?pxCode(DS_.src):'';var CMP=/^e:(eff|spi|perf|time)$/.test(DS_.page)||DS_.page==='b';DS_.hiC=(!DS_.all&&c)?c:'';ef.p=(CMP||DS_.all||!c||!PX.some(function(x){return x.c===c}))?'all':c}catch(e){}var r=_rd90.apply(this,arguments);setTimeout(function(){try{dsHi();dsTime()}catch(e){}},0);try{var eb=$('#efBody');if(eb)[].forEach.call(eb.querySelectorAll('.card'),function(cd){var h=cd.querySelector('h2');if(false&&h&&/^راندمان پروژه‌ها/.test(h.textContent.trim()))cd.remove()})}catch(e){}try{var ib=$('#inBody');if(ib&&ef.p&&ef.p!=='all')[].forEach.call(ib.querySelectorAll('[data-openpj]'),function(bt){var x=PX[+bt.dataset.openpj],cd=bt.closest('.card')||bt.parentNode.parentNode;if(x&&x.c!==ef.p&&cd)cd.style.display='none'})}catch(e){}try{gsPill()}catch(e){}return r};
+/* 3.90.2: کاشی‌های داشبورد تا جای خالی صفحه بزرگ می‌شوند؛ هر کاشی فقط یک اسکرول داخلی دارد؛ در صفحه‌ی باریک (موبایل) کاشی‌ها قد طبیعی دارند و خود صفحه اسکرول می‌شود */
+var FIT_SC='.dscroll,.tw,.efb,.efo-cs,.efo-rr,.tl';
+function efFit(){var B=$('#efBody');if(!B||!B.offsetHeight)return;var all=B.querySelectorAll('[data-fit]');[].forEach.call(all,function(e){e.style.height=e.style.maxHeight=e.style.minHeight=e.style.overflow=e.style.display=e.style.flexDirection=e.style.flex='';e.removeAttribute('data-fit')});
+ var wide=innerWidth>=900&&innerHeight>=560,root=(B.children.length===1&&B.firstElementChild.children.length>1)?B.firstElementChild:B;
+ var cards=[].filter.call(B.querySelectorAll('.card'),function(c){return !c.classList.contains('tile')&&!c.parentNode.closest('.card')&&c.offsetHeight});
+ cards.forEach(function(c){var sc=[].filter.call(c.querySelectorAll(FIT_SC),function(x){return x.offsetHeight});var main=sc.filter(function(x){return !x.parentNode.closest(FIT_SC)||x.parentNode.closest('.card')!==c})[0]||null;
+  if(main&&main.parentNode.closest('.card')!==c)main=null;
+  sc.forEach(function(x){x.setAttribute('data-fit','');x.style.maxHeight='none';x.style.overflow=(wide&&x===main)?'auto':'visible';if(wide&&x===main){x.style.flex='1 1 0';x.style.minHeight='0'}});
+  c.setAttribute('data-fit','');c.style.overflow=wide?'hidden':'visible';c.style.maxHeight='none';if(wide){c.style.display='flex';c.style.flexDirection='column'}else c.style.height='auto';
+  var h2=c.querySelector('h2');if(h2){h2.style.position='';h2.style.flex='0 0 auto'}});
+ if(!wide)return;
+ var top=B.getBoundingClientRect().top+scrollY,avail=innerHeight-(top-scrollY<innerHeight?top-scrollY:120)-24;
+ var rows=[].filter.call(root.children,function(r){return r.offsetHeight}),fixed=0,vr=[];
+ rows.forEach(function(r){var cs=r.classList.contains('card')?[r]:[].filter.call(r.querySelectorAll('.card'),function(c){return cards.indexOf(c)>=0});if(!cs.length){fixed+=r.offsetHeight+12;return}var tops={};cs.forEach(function(c){tops[c.offsetTop]=1});vr.push({cs:cs,n:Object.keys(tops).length})});
+ var N=vr.reduce(function(a,x){return a+x.n},0)||1,gaps=12*N,share=Math.max(240,Math.floor((avail-fixed-gaps)/N));
+ vr.forEach(function(x){x.cs.forEach(function(c){c.style.height=share+'px'})})}
+window.addEventListener('resize',function(){clearTimeout(efFit.t);efFit.t=setTimeout(function(){if(cur==='dash')efFit()},150)});
+var _rd90=renderDash;renderDash=function(){try{var c=DS_.src&&DS_.src!=='demo'?pxCode(DS_.src):'';var CMP=/^e:(eff|spi|perf|time)$/.test(DS_.page)||DS_.page==='b';DS_.hiC=(!DS_.all&&c)?c:'';ef.p=(CMP||DS_.all||!c||!PX.some(function(x){return x.c===c}))?'all':c}catch(e){}var r=_rd90.apply(this,arguments);setTimeout(function(){try{dsHi();efFit()}catch(e){}},0);try{var eb=$('#efBody');if(eb)[].forEach.call(eb.querySelectorAll('.card'),function(cd){var h=cd.querySelector('h2');if(false&&h&&/^راندمان پروژه‌ها/.test(h.textContent.trim()))cd.remove()})}catch(e){}try{var ib=$('#inBody');if(ib&&ef.p&&ef.p!=='all')[].forEach.call(ib.querySelectorAll('[data-openpj]'),function(bt){var x=PX[+bt.dataset.openpj],cd=bt.closest('.card')||bt.parentNode.parentNode;if(x&&x.c!==ef.p&&cd)cd.style.display='none'})}catch(e){}try{gsPill()}catch(e){}return r};
 layoutFill();counts($('#v-home'));
 
 /* ═════ 3.65 — حالت داده‌ی واقعی برای خانه، برنامه‌ریزی و امتیازها ═════
