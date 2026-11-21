@@ -17,6 +17,39 @@
 #vxai{position:fixed;left:16px;bottom:70px;z-index:9999;width:min(340px,calc(100vw - 32px));height:min(480px,calc(100vh - 100px));display:none;flex-direction:column;
  background:var(--card,#fff);color:var(--ink,#14181a);border-radius:16px;box-shadow:0 12px 36px rgba(0,0,0,.16);overflow:hidden;font:inherit;font-size:12px;direction:rtl;border:1px solid rgba(127,127,127,.14)}
 #vxai.open{display:flex}
+#vxai .side,#vxai .sideb{display:none}
+#vxai.full{flex-direction:column;padding-inline-start:290px}
+#vxai.full .side{display:flex;flex-direction:column;position:absolute;inset-inline-start:0;top:0;bottom:0;width:290px;background:color-mix(in srgb,var(--ink,#14181a) 4%,var(--card,#fff));border-inline-end:1px solid rgba(127,127,127,.16);padding:12px;box-sizing:border-box;gap:8px;z-index:3}
+#vxai.full .sideb{display:none}
+#vxai .side .nw{display:flex;gap:8px;align-items:center;justify-content:center;padding:10px;border-radius:12px;border:1px solid rgba(127,127,127,.25);background:var(--card,#fff);color:inherit;font:inherit;font-weight:700;cursor:pointer}
+#vxai .side .nw:hover{background:rgba(127,127,127,.08)}
+#vxai .side input{padding:8px 10px;border-radius:10px;border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;font:inherit;font-size:13px}
+#vxai .side .cl{flex:1;overflow:auto;display:grid;align-content:start;gap:2px;margin-top:4px}
+#vxai .side .gp{font-size:11px;color:var(--muted,#888);margin:10px 6px 4px}
+#vxai .side .it{display:flex;align-items:center;gap:4px;border-radius:10px;padding:2px 4px 2px 2px}
+#vxai .side .it>button.t{flex:1;min-width:0;text-align:start;border:0;background:none;color:inherit;font:inherit;font-size:13px;padding:8px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+#vxai .side .it.on,#vxai .side .it:hover{background:rgba(127,127,127,.12)}
+#vxai .side .it .ac{display:none;gap:2px}#vxai .side .it:hover .ac,#vxai .side .it.on .ac{display:flex}
+#vxai .side .it .ac{flex-direction:row!important;flex:0 0 auto}#vxai .side .it .ac button{border:0;background:none;cursor:pointer;font-size:12px;padding:4px!important;border-radius:6px;color:inherit;opacity:.7;width:auto!important;height:auto!important;min-width:0!important}#vxai .side .it>button.t{flex:1 1 0!important;min-width:0!important;width:auto!important;height:auto!important}#vxai .side .it{overflow:hidden}
+#vxai .side .ft{font-size:11px;color:var(--muted,#888);border-top:1px solid rgba(127,127,127,.15);padding-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+#vxai .side .ft button{border:0;background:none;color:inherit;cursor:pointer;font:inherit;text-decoration:underline}
+#vxai.full .log{display:flex;flex-direction:column}#vxai.full .log .m{max-width:760px}#vxai.full .log .m.a{align-self:stretch;max-width:760px;width:100%;margin-inline:auto}
+#vxai.full .log .m.a{background:transparent;border:0;padding-inline:0;font-size:14.5px;line-height:1.9}
+#vxai .m.a pre{background:rgba(127,127,127,.1);padding:10px;border-radius:10px;overflow:auto;direction:ltr;text-align:left;white-space:pre}
+#vxai .m.a code{background:rgba(127,127,127,.12);padding:1px 5px;border-radius:5px;font-size:.92em}
+#vxai .m.a table{border-collapse:collapse;margin:6px 0}#vxai .m.a td,#vxai .m.a th{border:1px solid rgba(127,127,127,.3);padding:4px 8px}
+#vxai .m.a ul,#vxai .m.a ol{margin:4px 0;padding-inline-start:20px}#vxai .m.a h3,#vxai .m.a h4{margin:8px 0 4px}
+#vxai .tools{display:flex;gap:4px;margin:-2px 0 6px}#vxai .tools button{border:0;background:none;cursor:pointer;font-size:12px;opacity:.6;padding:3px 6px;border-radius:6px;color:inherit}#vxai .tools button:hover{opacity:1;background:rgba(127,127,127,.12)}
+#vxai .welcome{display:none}
+#vxai.full .welcome{display:grid;gap:14px;justify-items:center;margin:auto;padding:40px 10px;text-align:center}
+#vxai.full .welcome h2{margin:0;font-size:26px;font-weight:600}
+#vxai.full .welcome .cards{display:grid;grid-template-columns:repeat(2,minmax(0,260px));gap:10px}
+#vxai.full .welcome .cards button{text-align:start;border:1px solid rgba(127,127,127,.25);background:var(--card,#fff);color:inherit;border-radius:14px;padding:12px;font:inherit;font-size:13px;cursor:pointer;line-height:1.7}
+#vxai.full .welcome .cards button:hover{background:rgba(127,127,127,.07)}
+#vxai.full.has .welcome{display:none}
+#vxai.full .chips{display:none}
+@media (max-width:820px){#vxai.full{padding-inline-start:0}#vxai.full .sideb{display:inline-block;border:0;background:none;font-size:18px;cursor:pointer;color:inherit}#vxai.full .side{transform:translateX(100%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.25);width:min(290px,85vw)}#vxai.full.sopen .side{transform:none}#vxai.full .welcome .cards{grid-template-columns:1fr}}
+
 #vxai.full{left:0!important;right:0!important;top:0!important;bottom:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;border-radius:0!important;font-size:14px;z-index:10000}#vxai.full .log{padding:18px max(18px,calc((100vw - 860px)/2))}#vxai.full form{padding-inline:max(12px,calc((100vw - 860px)/2))}#vxai.full .chips{padding-inline:max(12px,calc((100vw - 860px)/2))}
 
 #vxai header{display:flex;align-items:center;gap:7px;padding:9px 11px;border-bottom:1px solid rgba(127,127,127,.12)}
@@ -50,7 +83,7 @@
   document.body.appendChild(fab);
 
   const box = document.createElement('div'); box.id = 'vxai';
-  box.innerHTML = `<header>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="full" title="صفحه‌ی کامل دستیار" aria-label="صفحه‌ی کامل">⤢</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
+  box.innerHTML = `<aside class="side" id="vxaiSide"></aside><header><button type="button" data-x="side" class="sideb" title="گفتگوها" aria-label="گفتگوها">☰</button>${ICON.replace('<svg', '<svg style="width:17px;height:17px"')}<div><b>دستیار VERTEX</b><small id="vxaiSt"></small></div><div class="hb"><button type="button" data-x="set" title="تنظیمات" hidden>⚙</button><button type="button" data-x="full" title="صفحه‌ی کامل دستیار" aria-label="صفحه‌ی کامل">⤢</button><button type="button" data-x="tts" title="خواندن پاسخ با صدا" aria-label="خواندن پاسخ با صدا">🔈</button><button type="button" data-x="clear" title="پاک کردن گفتگو" aria-label="پاک کردن">↺</button><button type="button" data-x="close" title="بستن" aria-label="بستن">✕</button></div></header>
 <div class="set" id="vxaiSet" hidden><label>موتور <select data-k="mode"><option value="coarena">آنلاین · Coarena (رایگان، قوی)</option><option value="local">محلی · Qwen 0.5B (بدون اینترنت)</option></select></label>
 <div class="on1 kst" id="vxaiKst">کلید API: …</div>
 <label class="on1 adm" hidden>کلید جدید (مدیر) <input data-k="key" type="password" placeholder="coa_…" autocomplete="off"><button type="button" data-x="savekey">ذخیره روی سرور</button></label>
@@ -64,7 +97,7 @@
   function addRail() {
     const rail = document.querySelector('.rail'); if (!rail || rail.querySelector('.vxai')) return;
     const b = document.createElement('button'); b.type = 'button'; b.className = 'vxai'; b.title = 'دستیار هوش مصنوعی'; b.setAttribute('aria-label', 'دستیار هوش مصنوعی'); b.innerHTML = ICON;
-    b.addEventListener('click', toggle);
+    b.addEventListener('click', () => { if (window.VXAI && VXAI.full) VXAI.full(true); else toggle(); });
     const plus = rail.querySelector('.plus'); plus ? plus.after(b) : rail.prepend(b);
   }
   addRail(); setTimeout(addRail, 1500);
@@ -244,7 +277,7 @@
   }
   async function markQA(id, o) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) Object.assign(x, o) }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
   async function flagQA(id) { try { const CL = await needCloud(); const j = await CL.getDoc('ai-log'); if (!j) return; (j.items || []).forEach(x => { if (x.id === id) x.na = 2 }); await CL.putDoc('ai-log', { t: Date.now(), items: j.items }, j.t || 0) } catch (e) { } }
-  function postAnswer(el) { if (!el || !el.textContent) return; let t = el.textContent, na = /^\s*\[\?\]/.test(t); if (na) { t = t.replace(/^\s*\[\?\]\s*/, ''); el.textContent = t; const n = document.createElement('div'); n.className = 'm sys'; n.textContent = 'این پرسش برای بررسی به مدیر سیستم فرستاده شد.'; el.after(n); }
+  function postAnswer(el) { if (!el || !el.textContent) return; let t = el.textContent, na = /^\s*\[\?\]/.test(t); if (na) t = t.replace(/^\s*\[\?\]\s*/, ''); if (window.__vxChat) { __vxChat.add('a', t); el.innerHTML = __vxChat.md(t); __vxChat.tools(el, t) } else el.textContent = t; if (na) { const n = document.createElement('div'); n.className = 'm sys'; n.textContent = 'این پرسش برای بررسی به مدیر سیستم فرستاده شد.'; el.after(n); }
     logQA(lastQ, t, na).then(id => { if (id) el.dataset.qa = id; }); }
   function finish() { if (cur && cur.textContent) { postAnswer(cur); hist.push({ role: 'assistant', content: cur.textContent }); if (window.__vxSay) window.__vxSay(cur.textContent); } cur = null; gen = false; ctl = null; fab.classList.remove('busy'); btn.textContent = '↑'; }
   function rateBar(el, id) {
@@ -262,14 +295,14 @@
   }
 
   const btn = box.querySelector('form button[type=submit]');
-  function send(q) {
+  function send(q, regen) {
     q = (q || '').trim(); if (!q) return; lastQ = q;
     if (gen) return;
     const isOn = cfg.mode !== 'local';
     if (isOn && !SRV.k && !VIAHUB) { setEl.hidden = false; loadModels(); kst(); sys('دستیار هنوز راه‌اندازی نشده: مدیر باید در کنترل پنل ← «هوش مصنوعی» کلید Coarena را وارد کند.'); return; }
     const quick = !isOn && facts(q); if (quick) { msg('u', q); msg('a', quick); if (window.__vxSay) window.__vxSay(quick); return; }
     if (!isOn) ensureWorker();
-    msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4);
+    msg('u', q); hist.push({ role: 'user', content: q }); hist = hist.slice(-4); if (window.__vxChat && !regen) __vxChat.add('u', q);
     cur = msg('a', ''); gen = true; fab.classList.add('busy'); btn.textContent = '■';
     const msgs = [{ role: 'system', content: context(q) }].concat(hist); window.VXAI.last = msgs;
     if (isOn) online(msgs); else worker.postMessage({ t: 'chat', messages: msgs });
@@ -385,5 +418,53 @@
     const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status);
     return String(((j.choices || [{}])[0].message || {}).content || '').replace(/^\s*\[\?\]\s*/, '');
   }
+  // ── ChatGPT-like page: conversations archive (this device + online per user), new chat, search, rename, pin, delete, export, markdown, copy, regenerate
+  const side = box.querySelector('#vxaiSide');
+  const who = () => { try { return (JSON.parse(localStorage.getItem('vxSess') || 'null') || {}).u || 'guest' } catch (e) { return 'guest' } };
+  const CK = () => 'vxaiChats.' + who(), DOCN = () => 'ai-chats-' + String(who()).toLowerCase().replace(/[^a-z0-9._-]/g, '_').slice(0, 40);
+  let CH = { list: [], cur: '' }, chSaveT = 0, chQ = '';
+  try { CH.list = JSON.parse(localStorage.getItem(CK()) || '[]') } catch (e) { }
+  const nid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  function chCur() { return CH.list.find(c => c.id === CH.cur) }
+  function chSave() { try { localStorage.setItem(CK(), JSON.stringify(CH.list.slice(0, 300))) } catch (e) { } clearTimeout(chSaveT); chSaveT = setTimeout(async () => { try { const CL = await needCloud(); if (CL && CL.on) await CL.putDoc(DOCN(), { t: Date.now(), list: CH.list.slice(0, 300) }) } catch (e) { } }, 2000) }
+  async function chPull() { try { const CL = await needCloud(); if (!CL || !CL.on) return; const j = await CL.getDoc(DOCN()); if (!j || !j.list) return; const by = {}; CH.list.concat(j.list).forEach(c => { if (!by[c.id] || (c.t || 0) > (by[c.id].t || 0)) by[c.id] = c }); CH.list = Object.values(by).filter(c => !c.del).sort((a, b) => b.t - a.t); try { localStorage.setItem(CK(), JSON.stringify(CH.list.slice(0, 300))) } catch (e) { } chSide() } catch (e) { } }
+  function chAdd(r, c) { let ch = chCur(); if (!ch) { ch = { id: nid(), title: '', t: Date.now(), m: [] }; CH.list.unshift(ch); CH.cur = ch.id } ch.m.push({ r, c, t: Date.now() }); ch.t = Date.now(); if (!ch.title && r === 'u') ch.title = c.replace(/\s+/g, ' ').slice(0, 48); CH.list.sort((a, b) => (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || b.t - a.t); box.classList.add('has'); chSave(); chSide() }
+  function esc2(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])) }
+  function md(t) {
+    const blocks = []; t = String(t).replace(/```[\w-]*\n?([\s\S]*?)```/g, (m, c) => { blocks.push('<pre><code>' + esc2(c) + '</code></pre>'); return '\u0000' + (blocks.length - 1) + '\u0000' });
+    let h = esc2(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/(^|\s)\*([^*\n]+)\*/g, '$1<i>$2</i>');
+    const L = h.split('\n'), out = []; let ul = 0, ol = 0, tb = [];
+    const flushT = () => { if (!tb.length) return; const rows = tb.filter(r => !/^\s*\|?\s*:?-{2,}/.test(r)); out.push('<table>' + rows.map((r, i) => '<tr>' + r.replace(/^\s*\||\|\s*$/g, '').split('|').map(c => (i ? '<td>' : '<th>') + c.trim() + (i ? '</td>' : '</th>')).join('') + '</tr>').join('') + '</table>'); tb = [] };
+    const close = () => { if (ul) { out.push('</ul>'); ul = 0 } if (ol) { out.push('</ol>'); ol = 0 } };
+    L.forEach(l => { if (/^\s*\|.*\|\s*$/.test(l)) { close(); tb.push(l); return } flushT();
+      let m; if ((m = l.match(/^\s*[-*•]\s+(.*)/))) { if (!ul) { close(); out.push('<ul>'); ul = 1 } out.push('<li>' + m[1] + '</li>'); return }
+      if ((m = l.match(/^\s*[\d۰-۹]+[.)]\s+(.*)/))) { if (!ol) { close(); out.push('<ol>'); ol = 1 } out.push('<li>' + m[1] + '</li>'); return }
+      close(); if ((m = l.match(/^#{1,4}\s+(.*)/))) { out.push('<h4>' + m[1] + '</h4>'); return } out.push(l.trim() ? l + '<br>' : '<br>') });
+    flushT(); close(); return out.join('').replace(/\u0000(\d+)\u0000/g, (m, i) => blocks[+i]).replace(/(<br>)+$/, '');
+  }
+  function tools(el, text) { if (el.nextElementSibling && el.nextElementSibling.classList.contains('tools')) return; const d = document.createElement('div'); d.className = 'tools';
+    d.innerHTML = '<button type="button" data-t="copy" title="کپی">⧉ کپی</button><button type="button" data-t="regen" title="پاسخ دوباره">↻ دوباره</button>';
+    d.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; if (b.dataset.t === 'copy') { try { navigator.clipboard.writeText(text); b.textContent = '✓ کپی شد'; setTimeout(() => b.textContent = '⧉ کپی', 1200) } catch (x) { } } else { const ch = chCur(); const lastU = ch && ch.m.slice().reverse().find(x => x.r === 'u'); if (lastU && !gen) { if (ch.m.length && ch.m[ch.m.length - 1].r === 'a') ch.m.pop(); hist = hist.filter((x, i, a) => !(i === a.length - 1 && x.role === 'assistant')); if (hist.length && hist[hist.length - 1].role === 'user') hist.pop(); el.remove(); d.remove(); const um = [...log.querySelectorAll('.m.u')].pop(); if (um) um.remove(); send(lastU.c, 1) } } });
+    el.after(d) }
+  function chShow(id) { CH.cur = id; const ch = chCur(); log.querySelectorAll('.m,.rate,.tools').forEach(x => x.remove()); hist = []; if (ch) { ch.m.forEach(x => { const d = msg(x.r === 'u' ? 'u' : 'a', x.c); if (x.r === 'a') { d.innerHTML = md(x.c); tools(d, x.c) } }); hist = ch.m.slice(-4).map(x => ({ role: x.r === 'u' ? 'user' : 'assistant', content: x.c })) } box.classList.toggle('has', !!(ch && ch.m.length)); box.classList.remove('sopen'); chSide(); log.scrollTop = log.scrollHeight }
+  function chNew() { CH.cur = ''; chShow(''); ta.focus() }
+  function grp(t) { const d0 = new Date(); d0.setHours(0, 0, 0, 0); const D = 864e5; return t >= +d0 ? 'امروز' : t >= +d0 - D ? 'دیروز' : t >= +d0 - 7 * D ? '۷ روز گذشته' : t >= +d0 - 30 * D ? '۳۰ روز گذشته' : 'قدیمی‌تر' }
+  function chSide() { if (!side) return; const q = chQ.trim(); const L = CH.list.filter(c => !q || (c.title + ' ' + c.m.map(x => x.c).join(' ')).indexOf(q) >= 0); let g0 = '', h = '';
+    L.forEach(c => { const g = c.pin ? '📌 سنجاق‌شده' : grp(c.t); if (g !== g0) { h += '<div class="gp">' + g + '</div>'; g0 = g } h += '<div class="it' + (c.id === CH.cur ? ' on' : '') + '" data-c="' + c.id + '"><button type="button" class="t" data-a="open" title="' + esc2(c.title || 'گفتگو') + '">' + esc2(c.title || 'گفتگوی بی‌نام') + '</button><span class="ac"><button type="button" data-a="pin" title="' + (c.pin ? 'برداشتن سنجاق' : 'سنجاق') + '">📌</button><button type="button" data-a="ren" title="تغییر نام">✎</button><button type="button" data-a="exp" title="دانلود">⤓</button><button type="button" data-a="del" title="حذف">🗑</button></span></div>' });
+    side.innerHTML = '<button type="button" class="nw" data-a="new">＋ گفتگوی تازه</button><input type="search" placeholder="جست‌وجو در گفتگوها" value="' + esc2(chQ) + '" data-a="q"><div class="cl">' + (h || '<div class="gp">' + (q ? 'گفتگویی پیدا نشد' : 'هنوز گفتگویی نیست') + '</div>') + '</div><div class="ft"><span>' + CH.list.length + ' گفتگو · روی همه‌ی دستگاه‌های شما</span><button type="button" data-a="delall">پاک کردن همه</button></div>' }
+  side.addEventListener('click', e => { const b = e.target.closest('[data-a]'); if (!b) return; const it = b.closest('[data-c]'), id = it && it.dataset.c, ch = CH.list.find(c => c.id === id), a = b.dataset.a;
+    if (a === 'new') return chNew(); if (a === 'open') return chShow(id);
+    if (a === 'pin') { ch.pin = !ch.pin; ch.t = Date.now(); CH.list.sort((x, y) => (y.pin ? 1 : 0) - (x.pin ? 1 : 0) || y.t - x.t); chSave(); return chSide() }
+    if (a === 'ren') { const n = prompt('نام گفتگو:', ch.title || ''); if (n != null) { ch.title = n.trim().slice(0, 60); ch.t = Date.now(); chSave(); chSide() } return }
+    if (a === 'exp') { const t = '# ' + (ch.title || 'گفتگو') + '\n\n' + ch.m.map(x => (x.r === 'u' ? '**شما:** ' : '**دستیار:** ') + x.c).join('\n\n'); const bl = new Blob([t], { type: 'text/markdown' }), u = URL.createObjectURL(bl), l = document.createElement('a'); l.href = u; l.download = (ch.title || 'chat').replace(/[\\/:*?"<>|]/g, '_') + '.md'; document.body.appendChild(l); l.click(); setTimeout(() => { URL.revokeObjectURL(u); l.remove() }, 1000); return }
+    if (a === 'del') { if (!confirm('این گفتگو حذف شود؟')) return; CH.list = CH.list.filter(c => c.id !== id); if (CH.cur === id) chNew(); chSave(); return chSide() }
+    if (a === 'delall') { if (!confirm('همه‌ی گفتگوها حذف شوند؟')) return; CH.list = []; chNew(); chSave(); chSide() } });
+  side.addEventListener('input', e => { if (e.target.dataset.a === 'q') { chQ = e.target.value; clearTimeout(side.t); side.t = setTimeout(() => { chSide(); const i = side.querySelector('input'); i.focus(); i.setSelectionRange(i.value.length, i.value.length) }, 200) } });
+  box.querySelector('[data-x=side]').addEventListener('click', () => box.classList.toggle('sopen'));
+  const wel = document.createElement('div'); wel.className = 'welcome'; wel.innerHTML = '<h2>چطور می‌توانم کمک کنم؟</h2><div class="cards"><button type="button">خلاصه‌ی وضعیت همه‌ی پروژه‌ها را بده</button><button type="button">کدام پروژه بیشترین تأخیر را دارد و چرا؟</button><button type="button">بتن‌ریزی‌های ۷ روز آینده کدام‌اند؟</button><button type="button">فعالیت‌های بحرانی عقب‌افتاده را فهرست کن</button></div>';
+  log.appendChild(wel); wel.addEventListener('click', e => { const b = e.target.closest('button'); if (b) send(b.textContent) });
+  box.querySelector('[data-x=clear]').addEventListener('click', chNew);
+  chSide(); chPull();
+  window.__vxChat = { add: chAdd, md, tools };
   window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, full: (on) => { setFull(on !== false); if (!box.classList.contains('open')) toggle(); }, send, ask, ready: () => !!(cfg && (VIAHUB || (cfg.mode !== 'local' && SRV.k))) };
 })();
