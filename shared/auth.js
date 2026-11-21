@@ -71,5 +71,7 @@
   var s0 = session(); if (s0) window.VX_USER = s0;
   // company account without an active subscription: only the purchase page in the control panel
   if (STATIC && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
+  // VERTEX core dashboard (msp-bi) is private to the platform admin for now; company users get the app home
+  if (STATIC && s0 && s0.role !== 'admin' && /\/msp-bi(-next)?\//.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
   var need = document.currentScript.getAttribute('data-require'); if (need) require(need);
 })();

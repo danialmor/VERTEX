@@ -109,7 +109,7 @@
   var active = function (t) { var s = sub(t.id); return t.status === 'active' && !!s && (!s.ends || s.ends > now()) };
   var usr = function (id) { return D.users.filter(function (u) { return u.id === id })[0] };
   var nextId = function (a) { return a.reduce(function (m, x) { return Math.max(m, x.id) }, 0) + 1 };
-  function home(u) { if (u.role === 'admin' && !u.tenant_id || u.role === 'owner') return B.base + 'admin/'; var p = B.platform(u.home); return p && p.href ? p.href : B.base }
+  function home(u) { if (u.role === 'admin' && !u.tenant_id) return B.base + 'admin/'; if (u.tenant_id) return B.base + 'app/'; var p = B.platform(u.home); return p && p.href ? p.href : B.base }
   function sess(u, tok) {
     var t = u.tenant_id ? tn(u.tenant_id) : null, s = t ? sub(t.id) : null;
     var r = { user: { id: u.id, code: u.code, name: u.name, role: u.role }, tenant: t ? { id: t.id, code: t.code, name: t.name } : null, ucode: u.ucode || '', home: home(u), panel: (u.role === 'admin' && !t) || u.role === 'owner', must_change: !!u.must_change, profile: u.profile || {}, modules: t ? (u.role === 'owner' ? (s ? s.modules : []) : u.mods) : null, grants: u.grants || (t ? { 'msp-bi': 'member' } : {}) };
@@ -117,9 +117,9 @@
     if (tok) r.token = tok; return r;
   }
   function me(h) { var m = /demo-(\d+)/.exec(h || ''); var u = m && usr(+m[1]); if (!u || !u.active) E(401, 'unauthorized'); return u }
-  function tenantRow(t) { var o = D.users.filter(function (u) { return u.tenant_id === t.id && u.role === 'owner' })[0]; return { id: t.id, code: t.code, name: t.name, status: t.status, active: active(t), sub: sub(t.id), owner: o ? { name: o.name, code: o.code } : null, users: D.users.filter(function (u) { return u.tenant_id === t.id && u.active }).length } }
-  function pub(u) { return { id: u.id, ucode: u.ucode, name: u.name, code: u.code, role: u.role, level: u.level, mods: u.mods || [], home: u.home, parent_id: u.parent_id || null, last_login: u.last_login || 0, active: u.active } }
-  function newSub(tid, b) { var t = now(); D.subs.push({ id: nextId(D.subs), tenant_id: tid, plan: b.plan || '', modules: b.modules && b.modules.length ? b.modules : ['project-control'], seats: Math.max(1, +b.seats || 1), max_levels: Math.min(10, Math.max(1, +b.max_levels || 1)), max_projects: +b.max_projects || 0, starts: t, ends: +b.months ? t + b.months * 30 * 86400 : 0, price: b.price || '', note: b.note || '', created: t }) }
+  function tenantRow(t) { var o = D.users.filter(function (u) { return u.tenant_id === t.id && u.role === 'owner' })[0]; return { id: t.id, code: t.code, name: t.name, status: t.status, active: active(t), sub: sub(t.id), owner: o ? { name: o.name, code: o.code } : null, users: D.users.filter(function (u) { return u.tenant_id === t.id && u.active }).length, leaders: D.users.filter(function (u) { return u.tenant_id === t.id && u.active && u.leader }).length } }
+  function pub(u) { return { id: u.id, leader: !!u.leader, ucode: u.ucode, name: u.name, code: u.code, role: u.role, level: u.level, mods: u.mods || [], home: u.home, parent_id: u.parent_id || null, last_login: u.last_login || 0, active: u.active } }
+  function newSub(tid, b) { var t = now(); D.subs.push({ id: nextId(D.subs), tenant_id: tid, plan: b.plan || '', modules: b.modules && b.modules.length ? b.modules : ['project-control'], seats: Math.max(1, +b.seats || 1), max_levels: Math.min(10, Math.max(1, +b.max_levels || 1)), max_projects: +b.max_projects || 0, users: b.users != null ? +b.users : null, leaders: b.leaders != null ? +b.leaders : null, starts: t, ends: +b.months ? t + b.months * 30 * 86400 : 0, price: b.price || '', note: b.note || '', created: t }) }
   function codeTaken(c) { c = String(c || '').toLowerCase(); return D.users.some(function (u) { return u.code.toLowerCase() === c || (u.ucode || '').toLowerCase() === c }) }
   function nextU(t) { var n = D.users.filter(function (u) { return u.tenant_id === t.id }).length + 1; return t.code + '-' + ('000' + n).slice(-4) }
 
@@ -194,7 +194,7 @@
     if (p === '/admin/orders' && m === 'GET') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); return { items: D.orders.map(function (o) { var t = tn(o.tenant_id); return Object.assign({ tenant: t ? t.name : '', tcode: t ? t.code : '' }, o) }) } }
     if ((x = /^\/admin\/orders\/(\d+)$/.exec(p))) { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); var o = D.orders.filter(function (z) { return z.id === +x[1] })[0]; if (!o) E(404, 'not-found'); if (o.status !== 'pending') E(409, 'done');
       o.status = b.status === 'ok' ? 'ok' : 'rejected'; o.done = now(); o.by = U.code;
-      if (o.status === 'ok') { var pl2 = D.plans.filter(function (z) { return z.id === o.plan_id })[0] || { modules: ['project-control'], seats: 1, max_levels: 1 }; var cur0 = sub(o.tenant_id), base = cur0 && cur0.ends > now() ? cur0.ends : now(); newSub(o.tenant_id, { plan: o.plan, modules: pl2.modules, seats: pl2.flat ? 9999 : o.users != null ? (+o.users + +o.managers + 1) : pl2.seats, max_levels: pl2.max_levels, months: o.months, max_projects: pl2.flat ? 9999 : (+o.projects || 1), price: String(o.amount), note: 'سفارش #' + o.id + ' · پیگیری ' + o.ref }); var ns = sub(o.tenant_id); ns.ends = base + o.months * 30 * 86400 }
+      if (o.status === 'ok') { var pl2 = D.plans.filter(function (z) { return z.id === o.plan_id })[0] || { modules: ['project-control'], seats: 1, max_levels: 1 }; var cur0 = sub(o.tenant_id), base = cur0 && cur0.ends > now() ? cur0.ends : now(); newSub(o.tenant_id, { plan: o.plan, modules: pl2.modules, seats: pl2.flat ? 9999 : o.users != null ? (+o.users + +o.managers + 1) : pl2.seats, max_levels: pl2.max_levels, months: o.months, max_projects: pl2.flat ? 9999 : (+o.projects || 1), users: pl2.flat ? 9999 : o.users, leaders: pl2.flat ? 9999 : o.managers, price: String(o.amount), note: 'سفارش #' + o.id + ' · پیگیری ' + o.ref }); var ns = sub(o.tenant_id); ns.ends = base + o.months * 30 * 86400 }
       log(U, 'order.' + o.status, '#' + o.id); return { ok: true } }
     if (p.indexOf('/admin/') === 0) {
       if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden');
@@ -226,7 +226,7 @@
     if (p.indexOf('/panel/') === 0) {
       if (U.role !== 'owner') E(403, 'forbidden'); var t2 = tn(U.tenant_id), s2 = sub(t2.id) || { modules: [], seats: 0, max_levels: 1 };
       var inT = function (u) { return u.tenant_id === t2.id };
-      if (p === '/panel/overview') return { tenant: { name: t2.name, code: t2.code, levels: t2.levels }, sub: s2, used: D.users.filter(function (u) { return inT(u) && u.active }).length, active: active(t2), modules: D.modules.filter(function (md) { return s2.modules.indexOf(md.slug) >= 0 }) };
+      if (p === '/panel/overview') return { tenant: { name: t2.name, code: t2.code, levels: t2.levels }, sub: s2, used: D.users.filter(function (u) { return inT(u) && u.active }).length, used_leaders: D.users.filter(function (u) { return inT(u) && u.active && u.leader }).length, used_users: D.users.filter(function (u) { return inT(u) && u.active && !u.leader && u.role !== 'owner' }).length, active: active(t2), modules: D.modules.filter(function (md) { return s2.modules.indexOf(md.slug) >= 0 }) };
       if (p === '/panel/users' && m === 'GET') return { users: D.users.filter(inT).map(pub) };
       if (p === '/panel/activity') { var cs = D.users.filter(inT).map(function (u) { return u.code }); return { items: D.audit.filter(function (a) { return cs.indexOf(a.user) >= 0 }).slice(0, 150) } }
       if (p === '/panel/perms') {
@@ -237,15 +237,16 @@
       }
       if (p === '/panel/levels') { t2.levels = (b.names || []).slice(0, s2.max_levels); return { ok: true } }
       var chk = function () { if (!b.mods || !b.mods.length) E(400, 'no-modules'); if (b.level < 1 || b.level > s2.max_levels) E(400, 'level-out-of-range'); b.mods = b.mods.filter(function (s) { return s2.modules.indexOf(s) >= 0 }) };
+      var cap = function (lead, self) { if (s2.users == null) return; var n0 = D.users.filter(function (u) { return inT(u) && u.active && u.role !== 'owner' && u !== self && !!u.leader === !!lead }).length; if (lead && n0 >= s2.leaders) E(409, 'no-leaders'); if (!lead && n0 >= s2.users) E(409, 'no-seats') };
       if (p === '/panel/users' && m === 'POST') {
-        chk(); if (D.users.filter(function (u) { return inT(u) && u.active }).length >= s2.seats) E(409, 'no-seats'); if (!b.username) E(400, 'invalid'); if (codeTaken(b.username)) E(409, 'code-exists');
-        var pw2 = b.password || PIN, n = { id: nextId(D.users), code: b.username, name: b.name, role: b.readonly ? 'viewer' : 'member', tenant_id: t2.id, ucode: nextU(t2), level: b.level, parent_id: b.parent_id, mods: b.mods, home: b.home || b.mods[0], pin: pw2, must_change: true, active: true, profile: {} }; D.users.push(n);
+        chk(); cap(b.leader); if (D.users.filter(function (u) { return inT(u) && u.active }).length >= s2.seats) E(409, 'no-seats'); if (!b.username) E(400, 'invalid'); if (codeTaken(b.username)) E(409, 'code-exists');
+        var pw2 = b.password || PIN, n = { id: nextId(D.users), code: b.username, name: b.name, role: b.readonly ? 'viewer' : 'member', tenant_id: t2.id, ucode: nextU(t2), level: b.level, parent_id: b.parent_id, mods: b.mods, home: b.home || b.mods[0], pin: pw2, must_change: true, active: true, profile: {}, leader: !!b.leader }; D.users.push(n);
         log(U, 'panel.user.create', n.ucode); return { ucode: n.ucode, username: n.code, password: pw2 };
       }
       if ((x = /^\/panel\/users\/(\d+)(\/reset)?$/.exec(p))) {
         var W = usr(+x[1]); if (!W || W.tenant_id !== t2.id) E(404, 'not-found'); if (W.role === 'owner') E(403, 'owner-locked');
         if (x[2]) { W.pin = PIN; W.must_change = true; return { password: PIN } }
-        chk(); W.name = b.name; W.level = b.level; W.mods = b.mods; W.home = b.home; W.parent_id = b.parent_id; W.role = b.readonly ? 'viewer' : 'member'; if ('active' in b) W.active = !!b.active; return { ok: true };
+        chk(); if ((('active' in b) ? b.active : W.active) && (!!b.leader !== !!W.leader || !W.active)) cap(b.leader, W); W.leader = !!b.leader; W.name = b.name; W.level = b.level; W.mods = b.mods; W.home = b.home; W.parent_id = b.parent_id; W.role = b.readonly ? 'viewer' : 'member'; if ('active' in b) W.active = !!b.active; return { ok: true };
       }
     }
     E(404, 'not-found');

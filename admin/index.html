@@ -9,9 +9,9 @@
 <title>{brand} · IV — کنترل پنل کاربران</title>
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=401"></script>
-<script src="../shared/demo.js?v=401"></script>
-<script src="../shared/auth.js?v=401"></script>
+<script src="../shared/cloud.js?v=402"></script>
+<script src="../shared/demo.js?v=402"></script>
+<script src="../shared/auth.js?v=402"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -83,7 +83,7 @@ var API='/api/v1',T='',S=null,MODS=[],VIEW='';
 var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function api(m,p,b){return fetch(API+p,{method:m,headers:Object.assign({'Content-Type':'application/json'},T?{Authorization:'Bearer '+T}:{}),body:b===undefined?undefined:JSON.stringify(b),cache:'no-store'}).then(function(r){return r.json().catch(function(){return{}}).then(function(j){if(!r.ok){var e=new Error(j.error||('http-'+r.status));e.status=r.status;e.body=j;throw e}return j})})}
-var ERR={'bad-credentials':'نام کاربری یا رمز درست نیست.','locked':'به‌خاطر تلاش‌های ناموفق، ۱۰ دقیقه صبر کنید.','subscription-inactive':'اشتراک شما فعال نیست؛ با مدیر اشتراک تماس بگیرید.','code-exists':'این نام کاربری قبلاً گرفته شده است.','no-seats':'ظرفیت کاربران این اشتراک پر است.','level-out-of-range':'این سطح در اشتراک شما تعریف نشده است.','weak-pin':'رمز ضعیف است؛ دست‌کم ۸ نویسه و غیر از رمز قبلی.','invalid':'برخی فیلدها درست پر نشده‌اند.','no-modules':'دست‌کم یک بخش را انتخاب کنید.','owner-locked':'مدیر اشتراک را نمی‌شود غیرفعال یا جابه‌جا کرد.','forbidden':'اجازه‌ی این کار را ندارید.','rate-limited':'درخواست‌ها زیاد بود؛ کمی بعد دوباره تلاش کنید.'};
+var ERR={'no-leaders':'ظرفیت لیدرهای طرح شما پر است؛ از صفحه‌ی اشتراک لیدر اضافه کنید.','bad-credentials':'نام کاربری یا رمز درست نیست.','locked':'به‌خاطر تلاش‌های ناموفق، ۱۰ دقیقه صبر کنید.','subscription-inactive':'اشتراک شما فعال نیست؛ با مدیر اشتراک تماس بگیرید.','code-exists':'این نام کاربری قبلاً گرفته شده است.','no-seats':'ظرفیت کاربران این اشتراک پر است.','level-out-of-range':'این سطح در اشتراک شما تعریف نشده است.','weak-pin':'رمز ضعیف است؛ دست‌کم ۸ نویسه و غیر از رمز قبلی.','invalid':'برخی فیلدها درست پر نشده‌اند.','no-modules':'دست‌کم یک بخش را انتخاب کنید.','owner-locked':'مدیر اشتراک را نمی‌شود غیرفعال یا جابه‌جا کرد.','forbidden':'اجازه‌ی این کار را ندارید.','rate-limited':'درخواست‌ها زیاد بود؛ کمی بعد دوباره تلاش کنید.'};
 function emsg(e){return ERR[e&&e.message]||(e&&e.status?'خطای سرور ('+e.message+')':'ارتباط با سرور برقرار نشد.')}
 function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},3200)}
 var fmtD=function(ts){if(!ts)return 'نامحدود';try{return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ts*1000))}catch(e){return new Date(ts*1000).toLocaleDateString()}};
@@ -158,7 +158,7 @@ var A={
  profile:function(){return profile()}
 };
 function tenantTable(list){if(!list.length)return '<div class="card empty">هنوز اشتراکی ساخته نشده است. «اشتراک جدید» را بزنید.</div>';
- return '<div class="tw"><table class="tbl"><thead><tr><th>کد</th><th>شرکت</th><th>مدیر اشتراک</th><th>بسته</th><th>بخش‌ها</th><th>کاربران</th><th>سطوح</th><th>پایان</th><th>وضعیت</th></tr></thead><tbody>'+list.map(function(t){var s=t.sub||{},d=daysLeft(s.ends);return '<tr class="cl" tabindex="0" data-t="'+t.id+'"><td class="mono">'+esc(t.code)+'</td><td><b>'+esc(t.name)+'</b></td><td>'+(t.owner?esc(t.owner.name)+'<br><small class="mono" style="color:var(--muted)">'+esc(t.owner.code)+'</small>':'—')+'</td><td>'+esc(s.plan||'—')+'</td><td style="white-space:normal;min-width:160px">'+chipsMods(s.modules)+'</td><td>'+fa(t.users)+' از '+fa(s.seats)+'</td><td>'+fa(s.max_levels)+'</td><td>'+fmtD(s.ends)+(d!==null&&d<=30&&d>=0?' <span class="chip warn">'+fa(d)+' روز</span>':'')+'</td><td>'+stChip(t.active,t.status)+'</td></tr>'}).join('')+'</tbody></table></div>'}
+ return '<div class="tw"><table class="tbl"><thead><tr><th>کد</th><th>شرکت</th><th>مدیر اشتراک</th><th>بسته</th><th>بخش‌ها</th><th>کاربران</th><th>سطوح</th><th>پایان</th><th>وضعیت</th></tr></thead><tbody>'+list.map(function(t){var s=t.sub||{},d=daysLeft(s.ends);return '<tr class="cl" tabindex="0" data-t="'+t.id+'"><td class="mono">'+esc(t.code)+'</td><td><b>'+esc(t.name)+'</b></td><td>'+(t.owner?esc(t.owner.name)+'<br><small class="mono" style="color:var(--muted)">'+esc(t.owner.code)+'</small>':'—')+'</td><td>'+esc(s.plan||'—')+'</td><td style="white-space:normal;min-width:160px">'+chipsMods(s.modules)+'</td><td>'+(s.users!=null&&s.users<9999?fa(t.leaders||0)+'/'+fa(s.leaders)+' لیدر<br>'+fa(Math.max(0,t.users-1-(t.leaders||0)))+'/'+fa(s.users)+' کاربر'+(s.max_projects?'<br><small style="color:var(--muted)">'+fa(s.max_projects)+' پروژه</small>':''):s.users>=9999?'نامحدود':fa(t.users)+' از '+fa(s.seats))+'</td><td>'+fa(s.max_levels)+'</td><td>'+fmtD(s.ends)+(d!==null&&d<=30&&d>=0?' <span class="chip warn">'+fa(d)+' روز</span>':'')+'</td><td>'+stChip(t.active,t.status)+'</td></tr>'}).join('')+'</tbody></table></div>'}
 function bindTenantRows(){$$('tr[data-t]').forEach(function(tr){var f=function(){tenantDetail(+tr.dataset.t)};tr.onclick=f;tr.onkeydown=function(e){if(e.key==='Enter')f()}})}
 function subFields(s){s=s||{};return '<div class="grid g2"><label class="f">نام بسته<input name="plan" value="'+esc(s.plan||'')+'" placeholder="مثلاً حرفه‌ای"></label><label class="f">مدت (ماه)<input name="months" type="number" min="0" max="120" value="12" inputmode="numeric"></label><label class="f">تعداد کاربر (صندلی)<input name="seats" type="number" min="1" value="'+(s.seats||10)+'" inputmode="numeric"></label><label class="f">تعداد سطوح کاربری (۱ تا ۱۰)<input name="max_levels" type="number" min="1" max="10" value="'+(s.max_levels||3)+'" inputmode="numeric"></label><label class="f">مبلغ<input name="price" value="'+esc(s.price||'')+'"></label><label class="f">یادداشت<input name="note" value="'+esc(s.note||'')+'"></label></div><div class="f">بخش‌های اشتراک'+modChecks('mods',null,s.modules||['project-control'])+'</div>'}
 function subBody(f){return {plan:f.plan.value,months:+f.months.value,seats:+f.seats.value,max_levels:+f.max_levels.value,price:f.price.value,note:f.note.value,modules:picked(f,'mods')}}
@@ -198,9 +198,9 @@ var O={
 function userForm(u,us){var o=OV,mx=o.sub.max_levels,allowed=o.modules.map(function(m){return m.slug}),lv='';for(var i=1;i<=mx;i++)lv+='<option value="'+i+'"'+(u&&u.level===i?' selected':'')+'>'+fa(i)+' · '+esc(lvName(i))+'</option>';
  var par='<option value="">—</option>'+us.filter(function(x){return !u||x.id!==u.id}).map(function(x){return '<option value="'+x.id+'"'+(u&&u.parent_id===x.id?' selected':'')+'>'+esc(x.name)+' ('+esc(x.ucode)+')</option>'}).join('');
  openDlg('<form><h2>'+(u?'ویرایش '+esc(u.name)+' <span class="mono" style="font-size:13px;color:var(--muted)">'+esc(u.ucode)+'</span>':'کاربر جدید')+'</h2><div class="grid g2"><label class="f">نام و نام خانوادگی<input name="name" value="'+esc(u?u.name:'')+'" required></label>'+(u?'':'<label class="f">نام کاربری<input name="username" class="ltr" autocapitalize="off" required></label><label class="f">رمز اولیه (خالی = پیش‌فرض)<input name="password" class="ltr"></label>')+'<label class="f">سطح<select name="level">'+lv+'</select></label><label class="f">زیرمجموعه‌ی<select name="parent">'+par+'</select></label></div>'+
- '<div class="f">بخش‌هایی که می‌تواند استفاده کند'+modChecks('mods',allowed,u?u.mods:allowed.slice(0,1))+'</div><label class="f">پس از ورود به کدام بخش برود؟<select name="home"></select></label><label class="check"><input type="checkbox" name="ro"'+(u&&u.role==='viewer'?' checked':'')+'> فقط مشاهده (بدون ثبت و ویرایش)</label>'+(u?'<label class="check"><input type="checkbox" name="active"'+(u.active?' checked':'')+'> حساب فعال است</label>':'')+'<div class="err" role="alert"></div><div class="row"><button class="btn p">'+(u?'ذخیره':'ساخت کاربر')+'</button><button class="btn" type="button" data-close>انصراف</button></div></form>',function(f){
+ '<div class="f">بخش‌هایی که می‌تواند استفاده کند'+modChecks('mods',allowed,u?u.mods:allowed.slice(0,1))+'</div><label class="f">پس از ورود به کدام بخش برود؟<select name="home"></select></label><label class="check"><input type="checkbox" name="ro"'+(u&&u.role==='viewer'?' checked':'')+'> فقط مشاهده (بدون ثبت و ویرایش)</label><label class="f" style="flex-direction:row;gap:8px;align-items:center"><input type="checkbox" name="lead"'+(u&&u.leader?' checked':'')+'> لیدر (سرپرست تیم)</label>'+(u?'<label class="check"><input type="checkbox" name="active"'+(u.active?' checked':'')+'> حساب فعال است</label>':'')+'<div class="err" role="alert"></div><div class="row"><button class="btn p">'+(u?'ذخیره':'ساخت کاربر')+'</button><button class="btn" type="button" data-close>انصراف</button></div></form>',function(f){
  function homes(){var cur=f.home.value||(u&&u.home),p=picked(f,'mods');f.home.innerHTML=p.map(function(s){return '<option value="'+s+'"'+(s===cur?' selected':'')+'>'+esc(modName(s))+'</option>'}).join('')}homes();$$('input[name=mods]',f).forEach(function(i){i.onchange=homes});
- f.onsubmit=function(e){e.preventDefault();var b={name:f.name.value,level:+f.level.value,mods:picked(f,'mods'),home:f.home.value,parent_id:f.parent.value?+f.parent.value:null,readonly:f.ro.checked},er=f.querySelector('.err');if(!b.mods.length){er.textContent=ERR['no-modules'];return}
+ f.onsubmit=function(e){e.preventDefault();var b={name:f.name.value,level:+f.level.value,mods:picked(f,'mods'),home:f.home.value,parent_id:f.parent.value?+f.parent.value:null,readonly:f.ro.checked,leader:!!(f.lead&&f.lead.checked)},er=f.querySelector('.err');if(!b.mods.length){er.textContent=ERR['no-modules'];return}
   if(u){b.active=f.active.checked;api('PATCH','/panel/users/'+u.id,b).then(function(){closeDlg();toast('ذخیره شد.');go('users')}).catch(function(x){er.textContent=emsg(x)});return}
   b.username=f.username.value.trim();b.password=f.password.value||undefined;api('POST','/panel/users',b).then(function(x){$('#dlg').innerHTML='<div class="dl"><h2>کاربر ساخته شد</h2>'+secretBox([['کد اختصاصی',x.ucode],['نام کاربری',x.username],['رمز اولیه',x.password],['نشانی ورود',BRAND.base+'admin/']])+'<button class="btn" data-close>بستن</button></div>';$('#dlg [data-close]').onclick=function(){closeDlg();go('users')}}).catch(function(x){er.textContent=emsg(x)})}})}
 
@@ -228,22 +228,22 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
-<script src="extras.js?v=401"></script>
-<script src="sitemap.js?v=401"></script>
-<script src="filemap.js?v=401"></script>
-<script src="eco.js?v=401"></script>
-<script src="sim.js?v=401"></script>
-<script src="github.js?v=401"></script>
-<script src="aiset.js?v=401"></script>
-<script src="billing.js?v=401"></script>
-<script src="scores.js?v=401"></script>
-<script src="aiq.js?v=401"></script>
-<script src="fx.js?v=401"></script>
-<script src="shell.js?v=401"></script>
+<script src="extras.js?v=402"></script>
+<script src="sitemap.js?v=402"></script>
+<script src="filemap.js?v=402"></script>
+<script src="eco.js?v=402"></script>
+<script src="sim.js?v=402"></script>
+<script src="github.js?v=402"></script>
+<script src="aiset.js?v=402"></script>
+<script src="billing.js?v=402"></script>
+<script src="scores.js?v=402"></script>
+<script src="aiq.js?v=402"></script>
+<script src="fx.js?v=402"></script>
+<script src="shell.js?v=402"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();</script>
-<script src="../shared/ai/ai.js?v=401" defer></script>
+<script src="../shared/ai/ai.js?v=402" defer></script>
 </body>
 </html>

@@ -1,162 +1,484 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex, nofollow">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#07060d">
-<title>{brand} · Twelve Platforms, One Ecosystem</title>
-<link rel="icon" data-brand="favicon" href="data:,">
-<script src="shared/brand.js"></script>
-<script src="shared/track.js" data-site="site"></script>
-<script src="shared/auth.js?v=401"></script>
+<meta name="theme-color" content="#0a0d14">
+<title>VERTEX — پلتفرم هوشمند کنترل پروژه</title>
+<script>(function(){try{if(/[?&]home\b/.test(location.search))return;var s=JSON.parse(localStorage.getItem("vxSess")||"null");if(!s)return;if(s.role==="admin")location.replace("msp-bi/");else if(s.paid===false)location.replace("admin/#buy");else location.replace("app/")}catch(e){}})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Vazirmatn:wght@400;500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07060d;--bg2:#0f0c1c;--ink:#f4f1ff;--muted:#a49dc0;--vi:#8b5cf6;--mg:#d946ef;--pk:#f0abfc;--lime:#c6f432;--line:rgba(167,139,250,.18);--line2:rgba(167,139,250,.34);--card:rgba(255,255,255,.035);
- --disp:Syncopate,"Segoe UI",system-ui,sans-serif;--body:"Segoe UI",system-ui,-apple-system,Vazirmatn,sans-serif;box-sizing:border-box}
-*,*::before,*::after{box-sizing:inherit}
-html{background:var(--bg);color:var(--ink);scroll-behavior:smooth}
-body{margin:0;min-height:100vh;font:15px/1.65 var(--body);overflow-x:hidden;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
- background:radial-gradient(70vmax 50vmax at 50% -12%,rgba(139,92,246,.26),transparent 62%),radial-gradient(60vmax 44vmax at 50% 58%,rgba(217,70,239,.10),transparent 65%),var(--bg)}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.55) 1px,transparent 1.3px),radial-gradient(rgba(240,171,252,.5) 1px,transparent 1.3px);background-size:190px 170px,260px 230px;background-position:20px 30px,120px 90px;-webkit-mask-image:linear-gradient(#000,transparent 70%);mask-image:linear-gradient(#000,transparent 70%)}
-a{color:inherit}
-:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:8px}
-.top{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1180px;margin:0 auto;padding:18px clamp(16px,4vw,32px)}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none}.brand img{width:38px;height:38px;border-radius:50%}.brand b{font:700 15px var(--disp);letter-spacing:.28em}
-.signin{font:700 12px var(--disp);letter-spacing:.14em;text-decoration:none;color:#141a05;background:var(--lime);padding:11px 18px;border-radius:999px;box-shadow:0 0 24px rgba(198,244,50,.35)}
-.signin:hover{filter:brightness(1.08)}
-.wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,32px) 48px}
-/* ── hero ── */
-.hero{display:grid;justify-items:center;padding:clamp(34px,7vh,70px) 0 30px}
-.stage{position:relative;width:min(100%,560px);margin-inline:auto}
-.tri{position:relative;width:100%;aspect-ratio:600/520}
-.tri svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.tri .glow{fill:none;stroke:var(--mg);stroke-width:14;stroke-linejoin:round;filter:blur(13px);opacity:.75}
-.tri .edge{fill:none;stroke:url(#vg);stroke-width:5;stroke-linejoin:round}
-.tri .in{fill:none;stroke:var(--line);stroke-width:1}
-.tri .run{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-dasharray:46 1400;animation:run 7s linear infinite;filter:drop-shadow(0 0 6px #fff)}
-.tri .pt{fill:var(--lime)}.tri .halo{fill:var(--lime);opacity:.35;transform-origin:300px 490px;animation:halo 2.6s ease-in-out infinite}
-@keyframes run{to{stroke-dashoffset:-1446}}@keyframes halo{50%{transform:scale(1.9);opacity:.08}}
-.word{position:absolute;left:50%;top:15%;transform:translateX(-50%);text-align:center;width:62%}
-.word h1{margin:0;font:700 clamp(24px,6.2vw,44px)/1 var(--disp);letter-spacing:.2em;margin-inline-start:.2em;background:linear-gradient(180deg,#fff,#e9d5ff 55%,var(--pk));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 34px rgba(217,70,239,.45)}
-.word p{margin:10px 0 0;font:400 clamp(7px,1.5vw,10px) var(--disp);letter-spacing:.3em;color:var(--muted)}
-.cap{position:absolute;left:50%;top:43%;transform:translateX(-50%);width:38%;text-align:center;min-height:96px;display:grid;justify-items:center;gap:3px;align-content:start}
-.cap i{font:700 13px Georgia,"Times New Roman",serif;font-style:normal;color:#fff;background:var(--c,#8b5cf6);border-radius:9px;padding:3px 10px;letter-spacing:.05em}
-.cap b{font-size:15px;line-height:1.35}.cap small{font-size:12px;color:var(--muted);line-height:1.45}.cap em{font-style:normal;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}.cap em.off{color:var(--muted)}
-.nd{position:absolute;transform:translate(-50%,-50%);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;text-decoration:none;cursor:pointer;background:var(--bg2);border:2px solid var(--c);color:#fff;font:700 11px Georgia,"Times New Roman",serif;box-shadow:0 0 0 4px var(--bg),0 0 18px color-mix(in srgb,var(--c) 55%,transparent);transition:transform .2s,background .2s}
-.nd:hover,.nd:focus-visible,.nd.on{background:var(--c);transform:translate(-50%,-50%) scale(1.18);outline-offset:6px}
-.nd .lb{position:absolute;font:500 11.5px/1.3 var(--body);color:var(--muted);white-space:nowrap;pointer-events:none;transition:color .2s}
-.nd.on .lb,.nd:hover .lb{color:#fff}
-.nd.s-top .lb{bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);white-space:normal;width:104px;text-align:center}
-.nd.s-right .lb{left:calc(100% + 14px);top:50%;transform:translateY(-50%)}
-.nd.s-left .lb{right:calc(100% + 14px);top:50%;transform:translateY(-50%);text-align:right}
-.cta{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:34px}
-.btn{font:700 12px var(--disp);letter-spacing:.12em;text-decoration:none;padding:14px 22px;border-radius:999px;border:1px solid var(--line2);background:var(--card)}
-.btn.go{background:var(--lime);color:#141a05;border-color:transparent;box-shadow:0 0 28px rgba(198,244,50,.3)}.btn:hover{border-color:var(--pk)}.btn.go:hover{filter:brightness(1.08)}
-/* ── sections ── */
-h2{font:700 13px var(--disp);letter-spacing:.3em;margin:0 0 6px;text-align:center}
-.lead{margin:0 auto 22px;text-align:center;color:var(--muted);max-width:560px}
-.vx{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:34px 0 56px}
-.vx article{border:1px solid var(--line);background:var(--card);border-radius:22px;padding:20px}
-.vx svg{width:34px;height:30px;display:block;margin-bottom:12px}.vx svg path{fill:none;stroke:var(--line2);stroke-width:2;stroke-linejoin:round}.vx svg circle{fill:var(--lime);filter:drop-shadow(0 0 5px var(--lime))}
-.vx h3{margin:0 0 4px;font:700 12px var(--disp);letter-spacing:.2em}.vx p{margin:0;color:var(--muted);font-size:14px}
-.grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:12px}
-.pc{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;align-items:start;height:100%;text-decoration:none;border:1px solid var(--line);background:var(--card);border-radius:20px;padding:16px;transition:border-color .2s,transform .2s,background .2s}
-a.pc:hover,a.pc:focus-visible{border-color:var(--c);transform:translateY(-2px);background:color-mix(in srgb,var(--c) 9%,transparent)}
-.pc .ic{grid-row:span 3;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 20%,transparent);border:1px solid color-mix(in srgb,var(--c) 55%,transparent)}
-.pc .ic svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.pc b{font-size:15px;line-height:1.35}.pc b i{font:700 12px Georgia,"Times New Roman",serif;font-style:normal;color:var(--c);filter:brightness(1.5)}
-.pc small{color:var(--muted);font-size:12.5px;line-height:1.45}
-.pc .ft{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
-.pc .fa{font:500 12px Vazirmatn,Tahoma,sans-serif;color:var(--muted);direction:rtl}
-.pc .st{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;border-radius:99px;padding:2px 9px;border:1px solid var(--line2);color:var(--muted);white-space:nowrap}
-.pc .st.live{color:#141a05;background:var(--lime);border-color:transparent}
-footer{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font:400 10px var(--disp);letter-spacing:.26em;line-height:2.4}
-@media (max-width:900px){.nd .lb{display:none}.stage{width:min(100%,460px)}.vx{grid-template-columns:1fr}.cap{width:44%}}
-@media (max-width:560px){.cap{position:static;transform:none;width:100%;margin-top:14px;min-height:92px}.word{top:17%;width:70%}.nd{width:30px;height:30px;font-size:9px;box-shadow:0 0 0 3px var(--bg),0 0 12px color-mix(in srgb,var(--c) 55%,transparent)}.brand b{letter-spacing:.2em}.signin{padding:10px 14px}}
-@media (prefers-reduced-motion:reduce){.tri .run,.tri .halo{animation:none}.tri .run{display:none}html{scroll-behavior:auto}.nd,.pc{transition:none}}
+body{margin:0;background:#0a0d14}
+a{color:#7fb6ff}a:hover{color:#b9d6ff}
+@keyframes vxSpin{to{transform:rotate(360deg)}}
+@keyframes vxRise{from{transform:scaleY(.15)}to{transform:scaleY(1)}}
+@keyframes vxFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes vxDash{to{stroke-dashoffset:0}}
+@keyframes vxPulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes vxSlide{from{transform:translateX(0)}to{transform:translateX(50%)}}
+@keyframes vxType{0%,100%{width:0}40%,80%{width:100%}}
+.vx-orbit{transform-origin:50% 50%;animation:vxSpin 14s linear infinite}
+.vx-bar{transform-origin:bottom;animation:vxRise 1.6s cubic-bezier(.2,.8,.2,1) both}
+.vx-float{animation:vxFloat 6s ease-in-out infinite}
+.vx-line{stroke-dasharray:600;stroke-dashoffset:600;animation:vxDash 2.6s ease-out forwards}
+.vx-pulse{animation:vxPulse 2s ease-in-out infinite}
+.vx-ticker{animation:vxSlide 30s linear infinite}
+.vx-type{overflow:hidden;white-space:nowrap;animation:vxType 6s steps(40) infinite}
+.vx-card{transition:transform .25s,border-color .25s}
+.vx-card:hover{transform:translateY(-4px);border-color:rgba(127,182,255,.5)}
+@media (max-width:760px){.vx-hero{grid-template-columns:1fr !important}.vx-h1{font-size:40px !important}}
 </style>
 </head>
 <body>
-<header class="top"><a class="brand" href="./" aria-label="Home"><img data-brand="logo" alt=""><b data-brand="name">VERTEX</b></a><a class="signin" href="admin/">Sign in</a></header>
-<main class="wrap">
- <section class="hero" aria-label="The ecosystem">
-  <div class="stage">
-   <div class="tri" id="tri">
-    <svg viewBox="0 0 600 520" aria-hidden="true">
-     <defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset=".55" stop-color="#d946ef"/><stop offset="1" stop-color="#f0abfc"/></linearGradient></defs>
-     <path class="in" d="M120 86h360L300 398z"/><path class="in" d="M190 126h220L300 316z"/>
-     <path class="glow" d="M40 40h520L300 490z"/><path class="edge" d="M40 40h520L300 490z"/><path class="run" d="M40 40h520L300 490z"/>
-     <circle class="halo" cx="300" cy="490" r="13"/><circle class="pt" cx="300" cy="490" r="9"/>
+<div style="min-height:100vh;background:#0a0d14;color:#e8edf6;font-family:Vazirmatn,system-ui,sans-serif;line-height:1.8;overflow:hidden">
+
+<!-- NAV -->
+<header style="position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:20px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px">
+  <a href="#top" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff" aria-label="VERTEX">
+    <svg width="44" height="44" viewBox="0 0 64 64" aria-hidden="true">
+      <defs><linearGradient id="vg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fb6ff"></stop><stop offset="1" stop-color="#2f78c4"></stop></linearGradient></defs>
+      <rect x="2" y="2" width="60" height="60" rx="16" fill="#111827" stroke="url(#vg)" stroke-width="2"></rect>
+      <path d="M14 18 L32 48 L50 18" fill="none" stroke="url(#vg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+      <path d="M23 18 L32 33 L41 18" fill="none" stroke="#e8edf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".85"></path>
+      <circle cx="32" cy="48" r="4" fill="#f0a53a"></circle>
     </svg>
-    <div class="word"><h1 data-brand="name">VERTEX</h1><p data-brand="tagline-en" style="text-transform:uppercase">TWELVE PLATFORMS · ONE ECOSYSTEM</p></div>
-   </div>
-   <div class="cap" id="cap" aria-live="polite"></div>
+    <span style="display:grid;line-height:1.1"><b style="font-family:'Space Grotesk',sans-serif;font-size:22px;letter-spacing:4px">VERTEX</b><small style="font-size:11px;color:#9aa7bd;letter-spacing:.5px">کنترل هوشمند پروژه</small></span>
+  </a>
+  <nav style="display:flex;flex-wrap:wrap;gap:6px 22px;font-size:15px" aria-label="بخش‌ها">
+    <a href="#features" style="color:#c7d2e4;text-decoration:none">قابلیت‌ها</a>
+    <a href="#ai" style="color:#c7d2e4;text-decoration:none">هوش مصنوعی</a>
+    <a href="#panel" style="color:#c7d2e4;text-decoration:none">کنترل پنل</a>
+    <a href="#services" style="color:#c7d2e4;text-decoration:none">خدمات مهندسی</a>
+    <a href="#pricing" style="color:#c7d2e4;text-decoration:none">قیمت‌ها</a>
+    <a href="#faq" style="color:#c7d2e4;text-decoration:none">پرسش‌ها</a>
+  </nav>
+  <a href="./admin/" style="background:#2f78c4;color:#fff;text-decoration:none;padding:10px 22px;border-radius:12px;font-weight:700;min-height:44px;box-sizing:border-box;display:inline-flex;align-items:center">ورود / شروع رایگان</a>
+</header>
+
+<!-- HERO -->
+<section id="top" class="vx-hero" style="position:relative;max-width:1200px;margin:0 auto;padding:56px 24px 80px;display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center">
+  <div style="position:absolute;inset:-200px -300px auto auto;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(47,120,196,.28),transparent 65%);pointer-events:none" aria-hidden="true"></div>
+  <div style="position:relative;display:flex;flex-direction:column;gap:22px">
+    <span style="align-self:flex-start;border:1px solid rgba(127,182,255,.35);color:#9cc6ff;border-radius:999px;padding:4px 14px;font-size:13px"><span class="vx-pulse" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3fb37f;margin-inline-end:8px"></span>نسخه‌ی ۴ — با دستیار هوش مصنوعی</span>
+    <h1 class="vx-h1" style="margin:0;font-size:56px;line-height:1.25;font-weight:900">پروژه‌هایتان را<br><span style="color:#7fb6ff">زنده</span> ببینید،<br>قبل از اینکه دیر شود.</h1>
+    <p style="margin:0;font-size:19px;color:#b3bfd3;max-width:540px">VERTEX برنامه‌ی MSP و اکسل پروژه‌ها را به داشبورد مدیریتی زنده تبدیل می‌کند: تأخیرها، SPI، راندمان، ۳۰ روز آینده و گزارش PDF — همه در یک صفحه، روی آیپد، گوشی و کامپیوتر.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <a href="#pricing" style="background:#2f78c4;color:#fff;text-decoration:none;padding:14px 28px;border-radius:14px;font-weight:800;font-size:17px">مشاهده‌ی طرح‌ها</a>
+      <a href="#features" style="border:1px solid rgba(255,255,255,.2);color:#e8edf6;text-decoration:none;padding:14px 28px;border-radius:14px;font-weight:600;font-size:17px">چه کارهایی می‌کند؟</a>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:8px;color:#9aa7bd;font-size:14px">
+      <span><b style="color:#fff;font-size:22px">۱۲</b> ماژول در یک اشتراک</span>
+      <span><b style="color:#fff;font-size:22px">۳</b> طرح، از یک پروژه تا کل شرکت</span>
+      <span><b style="color:#fff;font-size:22px">۰</b> نصب — فقط مرورگر</span>
+    </div>
   </div>
-  <div class="cta"><a class="btn go" href="admin/">SIGN IN</a><a class="btn" href="#platforms">THE TWELVE PLATFORMS</a></div>
- </section>
 
- <h2>THREE VERTICES · ONE POINT</h2>
- <p class="lead">Every platform stands on the same three corners, so everything you do meets in one place.</p>
- <section class="vx" aria-label="The three vertices">
-  <article><svg viewBox="0 0 34 30" aria-hidden="true"><path d="M3 3h28L17 27z"/><circle cx="3" cy="3" r="3"/></svg><h3>ONE IDENTITY</h3><p>One sign-in and one personal code for every person, with levels and permissions set by each company.</p></article>
-  <article><svg viewBox="0 0 34 30" aria-hidden="true"><path d="M3 3h28L17 27z"/><circle cx="31" cy="3" r="3"/></svg><h3>ONE DATA CORE</h3><p>All data lives on your own server, kept apart for each subscription and backed up every night.</p></article>
-  <article><svg viewBox="0 0 34 30" aria-hidden="true"><path d="M3 3h28L17 27z"/><circle cx="17" cy="27" r="3"/></svg><h3>ONE FLOW</h3><p>The integration layer carries events between platforms, so a delay, a letter and a file stay linked.</p></article>
- </section>
+  <!-- animated dashboard mock -->
+  <div class="vx-float" style="position:relative;background:linear-gradient(160deg,#141b2b,#0f1420);border:1px solid rgba(127,182,255,.2);border-radius:22px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.55)" role="img" aria-label="نمای داشبورد VERTEX با نمودار پیشرفت، SPI و تأخیرها">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px" aria-hidden="true">
+      <span style="width:10px;height:10px;border-radius:50%;background:#e5534b"></span><span style="width:10px;height:10px;border-radius:50%;background:#f0a53a"></span><span style="width:10px;height:10px;border-radius:50%;background:#3fb37f"></span>
+      <span style="margin-inline-start:auto;font-size:12px;color:#9aa7bd;background:#1b2335;border-radius:8px;padding:2px 10px">پروژه: حمزه ▾</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px" aria-hidden="true">
+      <div style="background:#182033;border-radius:12px;padding:10px"><small style="color:#9aa7bd">پیشرفت</small><div style="font-size:24px;font-weight:800">۶۸٪</div></div>
+      <div style="background:#182033;border-radius:12px;padding:10px"><small style="color:#9aa7bd">SPI</small><div style="font-size:24px;font-weight:800;color:#3fb37f">۰٫۹۶</div></div>
+      <div style="background:#182033;border-radius:12px;padding:10px"><small style="color:#9aa7bd">تأخیر</small><div style="font-size:24px;font-weight:800;color:#f0a53a">۱۲ روز</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px" aria-hidden="true">
+      <div style="background:#182033;border-radius:12px;padding:12px;height:170px;display:flex;align-items:flex-end;gap:8px">
+        <span class="vx-bar" style="flex:1;height:40%;background:#2f78c4;border-radius:6px 6px 2px 2px;animation-delay:.1s"></span>
+        <span class="vx-bar" style="flex:1;height:58%;background:#2f78c4;border-radius:6px 6px 2px 2px;animation-delay:.2s"></span>
+        <span class="vx-bar" style="flex:1;height:52%;background:#2f78c4;border-radius:6px 6px 2px 2px;animation-delay:.3s"></span>
+        <span class="vx-bar" style="flex:1;height:74%;background:#7fb6ff;border-radius:6px 6px 2px 2px;animation-delay:.4s"></span>
+        <span class="vx-bar" style="flex:1;height:66%;background:#2f78c4;border-radius:6px 6px 2px 2px;animation-delay:.5s"></span>
+        <span class="vx-bar" style="flex:1;height:88%;background:#f0a53a;border-radius:6px 6px 2px 2px;animation-delay:.6s"></span>
+        <span class="vx-bar" style="flex:1;height:80%;background:#2f78c4;border-radius:6px 6px 2px 2px;animation-delay:.7s"></span>
+      </div>
+      <div style="background:#182033;border-radius:12px;padding:12px;display:grid;place-items:center">
+        <svg width="130" height="130" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="48" fill="none" stroke="#24304a" stroke-width="12"></circle>
+          <circle class="vx-line" cx="60" cy="60" r="48" fill="none" stroke="#3fb37f" stroke-width="12" stroke-linecap="round" transform="rotate(-90 60 60)" style="stroke-dasharray:302;stroke-dashoffset:302;animation:vxDash 2.4s ease-out forwards;--x:0" pathLength="302"></circle>
+          <text x="60" y="66" text-anchor="middle" fill="#e8edf6" font-size="22" font-weight="800">۶۸٪</text>
+        </svg>
+      </div>
+    </div>
+    <svg viewBox="0 0 400 70" width="100%" height="70" style="margin-top:10px;background:#182033;border-radius:12px" aria-hidden="true">
+      <path d="M10 55 C60 50,90 30,140 34 S230 18,270 24 S350 8,390 10" fill="none" stroke="#24304a" stroke-width="3" stroke-dasharray="6 6"></path>
+      <path class="vx-line" d="M10 58 C60 56,90 42,140 44 S230 34,270 38 S350 26,390 28" fill="none" stroke="#7fb6ff" stroke-width="3"></path>
+    </svg>
+    <div style="position:absolute;inset-inline-start:-26px;bottom:-24px;background:#111827;border:1px solid rgba(127,182,255,.35);border-radius:14px;padding:10px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px rgba(0,0,0,.5);max-width:270px" aria-hidden="true">
+      <span style="width:32px;height:32px;border-radius:10px;background:#2f78c4;display:grid;place-items:center;flex:none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3l1.8 4.7L18 9.5l-4.2 1.8L12 16l-1.8-4.7L6 9.5l4.2-1.8z"></path></svg>
+      </span>
+      <span style="font-size:13px"><b>دستیار:</b> <span class="vx-type" style="display:inline-block;vertical-align:bottom;max-width:180px">بتن‌ریزی فردا مناسب است ☁︎ ۱۸°</span></span>
+    </div>
+  </div>
+</section>
 
- <h2 id="platforms">THE TWELVE PLATFORMS</h2>
- <p class="lead">Live platforms open after sign-in. The others are planned and join the same core.</p>
- <ul class="grid" id="mods"></ul>
- <footer><span data-brand="motto" style="text-transform:uppercase">WHERE EVERY LINE MEETS</span><br><span data-brand="name">VERTEX</span> © <span id="yr"></span></footer>
-</main>
+<!-- TICKER -->
+<div style="border-block:1px solid rgba(255,255,255,.06);background:#0d1220;overflow:hidden;padding:14px 0" aria-hidden="true">
+  <div class="vx-ticker" style="display:flex;gap:56px;width:max-content;color:#7f8ba3;font-size:15px;white-space:nowrap">
+    <span>داشبورد مدیریتی</span><span>•</span><span>برنامه‌ی زمان‌بندی</span><span>•</span><span>بارگذاری MPP و اکسل</span><span>•</span><span>دستیار هوش مصنوعی</span><span>•</span><span>پیام‌رسان</span><span>•</span><span>نامه‌نگاری</span><span>•</span><span>فایل منیجر</span><span>•</span><span>میز مدیرعامل</span><span>•</span><span>خروجی PDF</span><span>•</span>
+    <span>داشبورد مدیریتی</span><span>•</span><span>برنامه‌ی زمان‌بندی</span><span>•</span><span>بارگذاری MPP و اکسل</span><span>•</span><span>دستیار هوش مصنوعی</span><span>•</span><span>پیام‌رسان</span><span>•</span><span>نامه‌نگاری</span><span>•</span><span>فایل منیجر</span><span>•</span><span>میز مدیرعامل</span><span>•</span><span>خروجی PDF</span><span>•</span>
+  </div>
+</div>
+
+<!-- PROBLEM / FLOW -->
+<section style="max-width:1200px;margin:0 auto;padding:90px 24px 40px;display:flex;flex-direction:column;gap:40px">
+  <div style="text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
+    <h2 style="margin:0;font-size:38px;font-weight:900">از فایل پراکنده تا تصمیم درست، در سه قدم</h2>
+    <p style="margin:0;color:#9aa7bd;font-size:17px;max-width:680px">دیگر لازم نیست ده فایل اکسل را باز کنید تا بفهمید کدام پروژه عقب است.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px">
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Space Grotesk';font-size:40px;color:#2f78c4;font-weight:700">01</span>
+      <h3 style="margin:0;font-size:21px">فایل را بارگذاری کنید</h3>
+      <p style="margin:0;color:#9aa7bd">فایل MSP یا اکسل برنامه را بدهید. ربات رایگان، MPP را خودکار به داده تبدیل می‌کند و بیس‌لاین حفظ می‌شود.</p>
+    </div>
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Space Grotesk';font-size:40px;color:#7fb6ff;font-weight:700">02</span>
+      <h3 style="margin:0;font-size:21px">داشبورد خودش ساخته می‌شود</h3>
+      <p style="margin:0;color:#9aa7bd">نمای کلی پورتفولیو، راندمان، SPI، زمان و تأخیرها با کاشی‌هایی که خودشان اندازه‌ی مناسب را می‌گیرند.</p>
+    </div>
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Space Grotesk';font-size:40px;color:#f0a53a;font-weight:700">03</span>
+      <h3 style="margin:0;font-size:21px">تصمیم بگیرید و گزارش بدهید</h3>
+      <p style="margin:0;color:#9aa7bd">یک کلیک تا PDF تمام‌صفحه برای جلسه؛ دستیار هوشمند هم دلیل تأخیر و قدم بعدی را پیشنهاد می‌کند.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="max-width:1200px;margin:0 auto;padding:60px 24px;display:flex;flex-direction:column;gap:36px">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="color:#7fb6ff;font-weight:700">قابلیت‌ها</span>
+    <h2 style="margin:0;font-size:38px;font-weight:900">هرچه یک مدیر پروژه لازم دارد، در یک پلتفرم</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px">
+
+    <article class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:170px;background:linear-gradient(160deg,#16213a,#0f1626);padding:18px;display:flex;gap:10px;align-items:flex-end" aria-hidden="true">
+        <span class="vx-bar" style="flex:1;height:30%;background:#24304a;border-radius:6px"></span><span class="vx-bar" style="flex:1;height:55%;background:#2f78c4;border-radius:6px;animation-delay:.15s"></span><span class="vx-bar" style="flex:1;height:85%;background:#7fb6ff;border-radius:6px;animation-delay:.3s;box-shadow:0 0 0 2px #fff"></span><span class="vx-bar" style="flex:1;height:45%;background:#2f78c4;border-radius:6px;animation-delay:.45s"></span><span class="vx-bar" style="flex:1;height:65%;background:#2f78c4;border-radius:6px;animation-delay:.6s"></span>
+      </div>
+      <div style="padding:22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font-size:20px">داشبورد مدیریتی پورتفولیو</h3>
+        <p style="margin:0;color:#9aa7bd">همه‌ی پروژه‌ها کنار هم؛ با انتخاب یک پروژه از نوار بالا، همان پروژه برجسته می‌شود بی‌آنکه مقایسه از دست برود. راندمان، SPI، عملکرد و زمان.</p>
+      </div>
+    </article>
+
+    <article class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:170px;background:linear-gradient(160deg,#16213a,#0f1626);padding:18px 22px;display:flex;flex-direction:column;gap:10px;justify-content:center" aria-hidden="true">
+        <div style="display:flex;gap:8px;align-items:center"><small style="width:70px;color:#9aa7bd">فونداسیون</small><span class="vx-bar" style="height:14px;width:55%;background:#3fb37f;border-radius:7px;transform-origin:right;animation-name:vxRise"></span></div>
+        <div style="display:flex;gap:8px;align-items:center"><small style="width:70px;color:#9aa7bd">اسکلت</small><span style="height:14px;width:30%;margin-inline-start:20%;background:#2f78c4;border-radius:7px"></span></div>
+        <div style="display:flex;gap:8px;align-items:center"><small style="width:70px;color:#9aa7bd">سفت‌کاری</small><span style="height:14px;width:36%;margin-inline-start:40%;background:#f0a53a;border-radius:7px"></span></div>
+        <div style="display:flex;gap:8px;align-items:center"><small style="width:70px;color:#9aa7bd">نازک‌کاری</small><span class="vx-pulse" style="height:14px;width:20%;margin-inline-start:62%;background:#7fb6ff;border-radius:7px"></span></div>
+      </div>
+      <div style="padding:22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font-size:20px">برنامه‌ی زمان‌بندی آنلاین</h3>
+        <p style="margin:0;color:#9aa7bd">ساخت و ویرایش برنامه مثل MSP ولی در مرورگر: ستون‌ها و نماهای دلخواه، پیش‌نیازها، منابع، بیس‌لاین، ویرایش گروهی و افزودن سریع فعالیت.</p>
+      </div>
+    </article>
+
+    <article class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:170px;background:linear-gradient(160deg,#16213a,#0f1626);display:grid;place-items:center;position:relative" aria-hidden="true">
+        <svg width="150" height="150" viewBox="0 0 150 150">
+          <circle cx="75" cy="75" r="60" fill="none" stroke="#24304a" stroke-width="1" stroke-dasharray="4 6"></circle>
+          <g class="vx-orbit"><circle cx="75" cy="15" r="7" fill="#7fb6ff"></circle><circle cx="135" cy="75" r="5" fill="#f0a53a"></circle><circle cx="23" cy="105" r="6" fill="#3fb37f"></circle></g>
+          <circle cx="75" cy="75" r="28" fill="#2f78c4"></circle>
+          <path d="M75 60l3.6 9.4L88 73l-9.4 3.6L75 86l-3.6-9.4L62 73l9.4-3.6z" fill="#fff"></path>
+        </svg>
+      </div>
+      <div style="padding:22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font-size:20px">دستیار هوش مصنوعی</h3>
+        <p style="margin:0;color:#9aa7bd">صفحه‌ی گفت‌وگوی کامل با بایگانی چت‌ها؛ از داده‌ی پروژه‌ی خودتان جواب می‌دهد. پرسش‌های خوب، به کاشی‌های زنده‌ی صفحه‌ی خانه تبدیل می‌شوند.</p>
+      </div>
+    </article>
+
+    <article class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:170px;background:linear-gradient(160deg,#16213a,#0f1626);padding:16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px" aria-hidden="true">
+        <div style="background:#1b2640;border-radius:12px;padding:10px;display:flex;flex-direction:column;justify-content:space-between"><small style="color:#9aa7bd">تهران</small><b style="font-size:26px">۱۸°</b><small style="color:#3fb37f">بتن‌ریزی: مناسب</small></div>
+        <div style="background:#1b2640;border-radius:12px;padding:10px;position:relative;overflow:hidden"><small style="color:#9aa7bd">نقشه‌ی پروژه‌ها</small><span class="vx-pulse" style="position:absolute;top:55%;right:40%;width:12px;height:12px;border-radius:50%;background:#f0a53a"></span><span class="vx-pulse" style="position:absolute;top:35%;right:20%;width:10px;height:10px;border-radius:50%;background:#7fb6ff;animation-delay:.7s"></span></div>
+        <div style="grid-column:1 / -1;background:#1b2640;border-radius:12px;padding:8px 10px;font-size:12px;color:#c7d2e4;white-space:nowrap;overflow:hidden">📰 اخبار صنعت ساختمان، به‌روز</div>
+      </div>
+      <div style="padding:22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font-size:20px">صفحه‌ی هوشمند کارگاه</h3>
+        <p style="margin:0;color:#9aa7bd">ساعت و آب‌وهوای محل پروژه، امتیاز مناسب بودن برای بتن‌ریزی، نقشه‌ی همه‌ی پروژه‌ها و اخبار صنعت — هر صبح، یک نگاه.</p>
+      </div>
+    </article>
+
+    <article class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:170px;background:linear-gradient(160deg,#16213a,#0f1626);padding:18px;display:flex;flex-direction:column;gap:8px;justify-content:center" aria-hidden="true">
+        <span style="align-self:flex-start;background:#1b2640;border-radius:14px 14px 14px 4px;padding:8px 12px;font-size:13px">بتن طبقه‌ی ۳ امروز رسید؟</span>
+        <span style="align-self:flex-end;background:#2f78c4;border-radius:14px 14px 4px 14px;padding:8px 12px;font-size:13px">بله، ساعت ۱۰ — عکسش در فایل‌هاست ✓✓</span>
+        <span class="vx-pulse" style="align-self:flex-start;background:#1b2640;border-radius:14px;padding:6px 14px;font-size:13px;color:#9aa7bd">در حال نوشتن…</span>
+      </div>
+      <div style="padding:22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font-size:20px">پیام‌رسان، نامه‌نگاری و فایل</h3>
+        <p style="margin:0;color:#9aa7bd">گفت‌وگوی تیمی، نامه‌های رسمی با شماره و پیگیری، و فایل منیجر ابری برای نقشه‌ها و عکس‌های کارگاه — بدون تلگرام و ایمیل پراکنده.</p>
+      </div>
+    </article>
+
+    <article class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:22px;overflow:hidden;display:flex;flex-direction:column">
+      <div style="height:170px;background:linear-gradient(160deg,#16213a,#0f1626);display:flex;align-items:center;justify-content:center;gap:18px" aria-hidden="true">
+        <div style="width:70px;height:130px;border:2px solid #7fb6ff;border-radius:16px;padding:6px;box-sizing:border-box;display:flex;flex-direction:column;gap:5px"><span style="height:24px;background:#2f78c4;border-radius:5px"></span><span style="height:12px;background:#24304a;border-radius:4px"></span><span style="height:12px;background:#24304a;border-radius:4px"></span></div>
+        <div class="vx-float" style="width:120px;height:90px;border:2px solid #9aa7bd;border-radius:12px;padding:6px;box-sizing:border-box;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px"><span style="background:#2f78c4;border-radius:4px"></span><span style="background:#24304a;border-radius:4px"></span><span style="background:#24304a;border-radius:4px"></span><span style="background:#f0a53a;border-radius:4px"></span></div>
+        <div style="width:54px;height:70px;background:#fff;border-radius:6px;color:#c0392b;font-weight:900;display:grid;place-items:center;font-family:'Space Grotesk'">PDF</div>
+      </div>
+      <div style="padding:22px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="margin:0;font-size:20px">روی هر صفحه‌ای، با گزارش آماده</h3>
+        <p style="margin:0;color:#9aa7bd">آیپد، گوشی یا کامپیوتر — بدون نصب. خروجی PDF تمام‌صفحه برای جلسه، حالت تمام‌صفحه و فیلتر و مرتب‌سازی روی همه‌ی جدول‌ها.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- AI SPOTLIGHT -->
+<section id="ai" style="max-width:1200px;margin:0 auto;padding:40px 24px 80px">
+  <div style="background:linear-gradient(135deg,#132447,#0f1626 60%);border:1px solid rgba(127,182,255,.25);border-radius:28px;padding:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:36px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <span style="color:#7fb6ff;font-weight:700">هوش مصنوعی‌ای که پروژه‌ی شما را می‌شناسد</span>
+      <h2 style="margin:0;font-size:34px;font-weight:900;line-height:1.4">بپرسید «چرا حمزه عقب است؟»<br>و جواب دقیق بگیرید.</h2>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;color:#c7d2e4">
+        <li>✓ تحلیل تأخیر و انحراف از روی برنامه و بیس‌لاین</li>
+        <li>✓ کتابخانه‌ی بینش‌ها: پرسش‌های خوب با کد، روی کاشی‌های خانه</li>
+        <li>✓ پرسش‌های بی‌جواب به پنل مدیر می‌رود تا پاسخ بگیرد و دستیار یاد بگیرد</li>
+      </ul>
+    </div>
+    <div style="background:#0b111d;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px;font-size:14px" role="img" aria-label="نمونه گفت‌وگو با دستیار">
+      <div style="align-self:flex-start;background:#1b2640;border-radius:14px;padding:10px 14px">کدام فعالیت‌ها هفته‌ی آینده بحرانی‌اند؟</div>
+      <div style="align-self:flex-end;background:#16305a;border-radius:14px;padding:12px 14px;max-width:85%;display:flex;flex-direction:column;gap:6px">
+        <b>۳ فعالیت روی مسیر بحرانی:</b>
+        <span>۱. قالب‌بندی سقف طبقه‌ی ۴ — ۲ روز تأخیر</span>
+        <span>۲. لوله‌کشی رایزرها — شروع ۵ آذر</span>
+        <span>۳. سفارش آهن‌آلات — موعد ۳ آذر</span>
+        <small style="color:#9cc6ff">پیشنهاد: سفارش آهن را امروز قطعی کنید.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PANEL DEMO -->
+<section id="panel" style="max-width:1200px;margin:0 auto;padding:30px 24px 80px;display:flex;flex-direction:column;gap:26px">
+  <div style="text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center">
+    <span style="color:#7fb6ff;font-weight:700">دموی زنده — امتحان کنید</span>
+    <h2 style="margin:0;font-size:36px;font-weight:900">کنترل پنل: همه‌چیز شرکت در دست شما</h2>
+    <p style="margin:0;color:#9aa7bd">روی تب‌ها بزنید تا ببینید مدیر شرکت در پنل چه می‌بیند.</p>
+  </div>
+  <div style="background:#0f1420;border:1px solid rgba(127,182,255,.22);border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);display:flex;flex-wrap:wrap">
+    <nav aria-label="منوی پنل" style="flex:1 1 200px;background:#111827;padding:18px 12px;display:flex;flex-direction:column;gap:6px;border-inline-end:1px solid rgba(255,255,255,.06)">
+      <div style="display:flex;align-items:center;gap:10px;padding:4px 8px 14px"><span style="width:36px;height:36px;border-radius:10px;background:#2f78c4;display:grid;place-items:center;font-weight:800">ش</span><span style="line-height:1.3"><b style="font-size:14px">شرکت نمونه</b><br><small style="color:#9aa7bd">مالک · پرو کاستوم</small></span></div>
+      <div data-for="tabs" style="display:contents"><template>
+        <button type="button" data-act="t.go" data-sty="t.st"><span data-v="t.label"></span></button>
+      </template></div>
+    </nav>
+    <div style="flex:999 1 520px;min-width:0;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:380px">
+      <div data-if="isUsers" style="display:contents">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px"><h3 style="margin:0;font-size:22px">کاربران</h3><span style="background:#2f78c4;border-radius:10px;padding:8px 16px;font-weight:700;font-size:14px">+ کاربر جدید</span></div>
+        <div style="overflow-x:auto;background:#111827;border-radius:14px"><table style="width:100%;border-collapse:collapse;font-size:14px;min-width:480px"><thead><tr style="color:#9aa7bd;text-align:start"><th style="padding:12px;text-align:start">نام</th><th style="padding:12px;text-align:start">نقش</th><th style="padding:12px;text-align:start">دسترسی</th><th style="padding:12px;text-align:start">وضعیت</th></tr></thead><tbody>
+          <tr style="border-top:1px solid #1e2738"><td style="padding:12px">مهندس رضایی</td><td style="padding:12px">لیدر</td><td style="padding:12px">کنترل پروژه، فایل</td><td style="padding:12px;color:#3fb37f">فعال</td></tr>
+          <tr style="border-top:1px solid #1e2738"><td style="padding:12px">سرپرست کارگاه</td><td style="padding:12px">کاربر</td><td style="padding:12px">برنامه، پیام‌رسان</td><td style="padding:12px;color:#3fb37f">فعال</td></tr>
+          <tr style="border-top:1px solid #1e2738"><td style="padding:12px">حسابدار</td><td style="padding:12px">کاربر</td><td style="padding:12px">نامه‌نگاری</td><td style="padding:12px;color:#f0a53a">دعوت شده</td></tr>
+        </tbody></table></div>
+        <p style="margin:0;color:#9aa7bd;font-size:14px">برای هر نفر نقش، سطح سازمانی و بخش‌های مجاز را تعیین کنید؛ هر کس فقط همان را می‌بیند که لازم دارد.</p>
+      </div>
+      <div data-if="isSub" style="display:contents">
+        <h3 style="margin:0;font-size:22px">اشتراک</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+          <div style="background:#111827;border-radius:14px;padding:16px"><small style="color:#9aa7bd">طرح فعلی</small><div style="font-size:22px;font-weight:800">پرو کاستوم</div></div>
+          <div style="background:#111827;border-radius:14px;padding:16px"><small style="color:#9aa7bd">نفرات</small><div style="font-size:22px;font-weight:800">۳ لیدر · ۱۵ کاربر</div></div>
+          <div style="background:#111827;border-radius:14px;padding:16px"><small style="color:#9aa7bd">اعتبار تا</small><div style="font-size:22px;font-weight:800">۲ دی ۱۴۰۵</div></div>
+        </div>
+        <div style="background:#111827;border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center"><span>مبلغ تمدید همیشه به‌روز و به ریال نمایش داده می‌شود.</span><span style="background:#2f78c4;border-radius:10px;padding:8px 16px;font-weight:700;font-size:14px">تمدید یا افزودن نفر</span></div>
+      </div>
+      <div data-if="isLevels" style="display:contents">
+        <h3 style="margin:0;font-size:22px">سطوح سازمانی</h3>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;border-inline-start:4px solid #f0a53a">سطح ۱ — مدیرعامل</div>
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;margin-inline-start:28px;border-inline-start:4px solid #7fb6ff">سطح ۲ — مدیر پروژه</div>
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;margin-inline-start:56px;border-inline-start:4px solid #2f78c4">سطح ۳ — مهندس کارگاه</div>
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;margin-inline-start:84px;border-inline-start:4px solid #3fb37f">سطح ۴ — سرپرست</div>
+        </div>
+      </div>
+      <div data-if="isAi" style="display:contents">
+        <h3 style="margin:0;font-size:22px">پرسش‌های دستیار</h3>
+        <div style="background:#111827;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px"><small style="color:#f0a53a">بی‌پاسخ · از مهندس رضایی</small><b>زمان مناسب سفارش آسانسور برای حمزه کی است؟</b><span style="color:#9aa7bd;font-size:14px">پاسخ شما در دانش دستیار ذخیره می‌شود و دفعه‌ی بعد خودش جواب می‌دهد.</span></div>
+        <div style="background:#111827;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px"><small style="color:#3fb37f">پاسخ داده شد ✓</small><b>تأخیر مجاز اسکلت طبقه‌ی ۵ چند روز است؟</b></div>
+      </div>
+      <div data-if="isLog" style="display:contents">
+        <h3 style="margin:0;font-size:22px">گزارش فعالیت</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;gap:10px"><span>سرپرست کارگاه فایل «بتن طبقه‌ی ۳» را بارگذاری کرد</span><small style="color:#9aa7bd">۱۰:۱۲</small></div>
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;gap:10px"><span>مهندس رضایی برنامه‌ی حمزه را به‌روز کرد</span><small style="color:#9aa7bd">۰۹:۴۰</small></div>
+          <div style="background:#111827;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;gap:10px"><span>حسابدار وارد شد</span><small style="color:#9aa7bd">۰۸:۰۵</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES: our engineers -->
+<section id="services" style="max-width:1200px;margin:0 auto;padding:40px 24px 90px;display:flex;flex-direction:column;gap:34px">
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:30px;align-items:end">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="color:#f0a53a;font-weight:700">فقط نرم‌افزار نیست — تیم مهندسی هم هست</span>
+      <h2 style="margin:0;font-size:38px;font-weight:900;line-height:1.4">مهندسین ما پروژه‌ی شما را برنامه‌ریزی می‌کنند<br>و بهترین راهکارها را پیش روی شما می‌گذارند.</h2>
+    </div>
+    <p style="margin:0;color:#b3bfd3;font-size:17px">از روز اول کنار شما هستیم: برنامه را می‌سازیم، هزینه و مصالح را برآورد می‌کنیم، آینده‌ی مالی شرکت را پیش‌بینی می‌کنیم و برای هر تأخیر، راه جبران پیشنهاد می‌دهیم — و همه‌اش مستقیم در داشبورد VERTEX شما زنده می‌شود.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px">
+      <span style="width:48px;height:48px;border-radius:14px;background:rgba(47,120,196,.18);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7fb6ff" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M3 9h18M8 2v4M16 2v4M7 13h5M7 17h9"></path></svg></span>
+      <h3 style="margin:0;font-size:19px">طراحی برنامه‌ی زمان‌بندی</h3>
+      <p style="margin:0;color:#9aa7bd;font-size:15px">ساخت WBS، توالی فعالیت‌ها، مسیر بحرانی و بیس‌لاین واقع‌بینانه بر اساس نقشه‌ها و منابع شما.</p>
+    </div>
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px">
+      <span style="width:48px;height:48px;border-radius:14px;background:rgba(63,179,127,.16);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3fb37f" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.3 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6v2M12 16v2"></path></svg></span>
+      <h3 style="margin:0;font-size:19px">برآورد مالی پروژه</h3>
+      <p style="margin:0;color:#9aa7bd;font-size:15px">برآورد هزینه‌ی هر فاز و فعالیت، جریان نقدینگی ماه‌به‌ماه و مقایسه‌ی بودجه با هزینه‌ی واقعی.</p>
+    </div>
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px">
+      <span style="width:48px;height:48px;border-radius:14px;background:rgba(240,165,58,.16);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f0a53a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"></path><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"></path></svg></span>
+      <h3 style="margin:0;font-size:19px">برآورد مصالح و متره</h3>
+      <p style="margin:0;color:#9aa7bd;font-size:15px">متره‌ی بتن، آرماتور، بنایی و نازک‌کاری از روی نقشه‌ها، و زمان‌بندی خرید تا مصالح دقیقاً به‌موقع برسد.</p>
+    </div>
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px">
+      <span style="width:48px;height:48px;border-radius:14px;background:rgba(127,182,255,.16);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9cc6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18"></path><path d="M4 16l5-5 4 3 7-8"></path><path d="M15 6h5v5"></path></svg></span>
+      <h3 style="margin:0;font-size:19px">پیش‌بینی آینده‌ی مالی شرکت</h3>
+      <p style="margin:0;color:#9aa7bd;font-size:15px">با در نظر گرفتن همه‌ی پروژه‌ها، تورم و نرخ ارز، می‌بینید شرکت در ماه‌های آینده کجا کم یا زیاد پول خواهد داشت.</p>
+    </div>
+    <div class="vx-card" style="background:linear-gradient(180deg,#2a1d0c,#111827);border:1px solid rgba(240,165,58,.45);border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:12px">
+      <span style="width:48px;height:48px;border-radius:14px;background:rgba(240,165,58,.22);display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f6c27a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2.5 2.5M9 2h6"></path></svg></span>
+      <h3 style="margin:0;font-size:19px;color:#f6c27a">از بین بردن تأخیرات</h3>
+      <p style="margin:0;color:#c7d2e4;font-size:15px">ریشه‌یابی هر تأخیر و نقشه‌ی جبران: فشرده‌سازی مسیر بحرانی، کارهای موازی، تقویت منابع و برنامه‌ی تأمین — با اثر هر گزینه روی زمان و هزینه.</p>
+    </div>
+  </div>
+  <div style="background:#0f1626;border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">۱. جلسه‌ی آشنایی</b><small style="color:#9aa7bd">نقشه‌ها، قرارداد و وضعیت فعلی را بررسی می‌کنیم.</small></div>
+    <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">۲. برنامه و برآورد</b><small style="color:#9aa7bd">برنامه‌ی زمان‌بندی، برآورد مالی و مصالح آماده می‌شود.</small></div>
+    <div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:18px">۳. پایش و راهکار</b><small style="color:#9aa7bd">هر هفته پیشرفت را می‌سنجیم و راه جبران تأخیر می‌دهیم.</small></div>
+    <a href="./admin/" style="background:#f0a53a;color:#0a0d14;text-decoration:none;text-align:center;padding:14px 20px;border-radius:14px;font-weight:800">درخواست مشاوره‌ی مهندسی</a>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="max-width:1200px;margin:0 auto;padding:40px 24px 80px;display:flex;flex-direction:column;gap:28px;align-items:center">
+  <div style="text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
+    <h2 style="margin:0;font-size:38px;font-weight:900">طرحی که با تیم شما رشد می‌کند</h2>
+    <p style="margin:0;color:#9aa7bd">همه‌ی قیمت‌ها به ریال. هر وقت لازم شد کاربر، لیدر یا پروژه اضافه کنید.</p>
+    <div style="display:inline-flex;background:#151c2b;border-radius:999px;padding:4px;gap:4px;margin-top:8px">
+      <button type="button" data-act="setMonth" data-sty="mBtn">ماهانه</button>
+      <button type="button" data-act="setYear" data-sty="yBtn">سالانه <small style="color:#3fb37f">۱۷٪ تخفیف</small></button>
+    </div>
+  </div>
+  <div style="width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px">
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:14px;position:relative">
+      
+      <h3 style="margin:0;font-size:24px;"><span data-v="nBase"></span></h3>
+      <p style="margin:0;color:#9aa7bd;font-size:14px">برای شروع: یک پروژه و تیم کوچک</p>
+      <div style="font-size:34px;font-weight:900;line-height:1.2"><span data-v="pBase"></span> <small style="font-size:14px;font-weight:400;color:#9aa7bd">ریال / <span data-v="per"></span></small></div>
+      <small style="color:#9aa7bd"><span data-v="iBase"></span></small>
+      <a href="./admin/#buy" style="background:#e8edf6;color:#0a0d14;text-decoration:none;text-align:center;padding:13px;border-radius:12px;font-weight:800">شروع با پایه</a>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:#c7d2e4"><li>✓ داشبورد مدیریتی و کنترل پروژه</li><li>✓ برنامه‌ی زمان‌بندی و بارگذاری MPP</li><li>✓ دستیار هوش مصنوعی</li><li>✓ خروجی PDF</li></ul>
+    </div>
+    <div class="vx-card" style="background:linear-gradient(180deg,#14233f,#111827);border:2px solid #2f78c4;border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:14px;position:relative">
+      <span style="position:absolute;top:-13px;inset-inline-end:22px;background:#2f78c4;color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:3px 12px">پیشنهاد ما</span>
+      <h3 style="margin:0;font-size:24px;"><span data-v="nPro"></span></h3>
+      <p style="margin:0;color:#9aa7bd;font-size:14px">برای چند پروژه و تیم کارگاهی</p>
+      <div style="font-size:34px;font-weight:900;line-height:1.2"><span data-v="pPro"></span> <small style="font-size:14px;font-weight:400;color:#9aa7bd">ریال / <span data-v="per"></span></small></div>
+      <small style="color:#9aa7bd"><span data-v="iPro"></span></small>
+      <a href="./admin/#buy" style="background:#2f78c4;color:#fff;text-decoration:none;text-align:center;padding:13px;border-radius:12px;font-weight:800">شروع با پرو</a>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:#c7d2e4"><li>✓ همه‌ی امکانات پایه</li><li>✓ پیام‌رسان، نامه‌نگاری و فایل منیجر</li><li>✓ تا ۴ سطح سازمانی</li><li>✓ ۳ پروژه‌ی همزمان</li></ul>
+    </div>
+    <div class="vx-card" style="background:#111827;border:1px solid rgba(240,165,58,.45);border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:14px;position:relative">
+      
+      <h3 style="margin:0;font-size:24px;color:#f6c27a"><span data-v="nMax"></span></h3>
+      <p style="margin:0;color:#9aa7bd;font-size:14px">برای کل شرکت، بدون سقف</p>
+      <div style="font-size:34px;font-weight:900;line-height:1.2"><span data-v="pMax"></span> <small style="font-size:14px;font-weight:400;color:#9aa7bd">ریال / <span data-v="per"></span></small></div>
+      <small style="color:#9aa7bd"><span data-v="iMax"></span></small>
+      <a href="./admin/#buy" style="background:#f0a53a;color:#0a0d14;text-decoration:none;text-align:center;padding:13px;border-radius:12px;font-weight:800">دریافت پرو مکس</a>
+      <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px;color:#c7d2e4"><li>✓ همه‌ی ماژول‌ها: میز مدیرعامل، تریدینگ، امتیازها</li><li>✓ تا ۱۰ سطح سازمانی</li><li>✓ کاربر، لیدر و پروژه‌ی نامحدود</li><li>✓ پشتیبانی در اولویت</li></ul>
+    </div>
+  </div>
+  <div style="width:100%;box-sizing:border-box;background:#111827;border:1px solid rgba(127,182,255,.2);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center"><b style="font-size:18px">ظرفیت بیشتر لازم دارید؟ به پایه یا پرو اضافه کنید</b><small style="color:#9aa7bd">طرح شما «کاستوم» می‌شود و قیمت بالا خودکار به‌روز می‌شود</small></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0e1524;border-radius:12px;padding:10px 14px"><span style="font-size:15px">کاربر اضافه<br><small style="color:#9aa7bd"><span data-v="uU"></span> ریال در ماه</small></span><span style="display:flex;align-items:center;gap:6px"><button type="button" data-act="uDec" aria-label="کم کردن کاربر اضافه" style="width:44px;height:44px;border-radius:50%;border:1px solid #33405c;background:none;color:#fff;font-size:18px">−</button><b style="min-width:28px;text-align:center"><span data-v="xu"></span></b><button type="button" data-act="uInc" aria-label="افزودن کاربر اضافه" style="width:44px;height:44px;border-radius:50%;border:1px solid #33405c;background:none;color:#fff;font-size:18px">+</button></span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0e1524;border-radius:12px;padding:10px 14px"><span style="font-size:15px">لیدر اضافه<br><small style="color:#9aa7bd"><span data-v="uM"></span> ریال در ماه</small></span><span style="display:flex;align-items:center;gap:6px"><button type="button" data-act="mDec" aria-label="کم کردن لیدر اضافه" style="width:44px;height:44px;border-radius:50%;border:1px solid #33405c;background:none;color:#fff;font-size:18px">−</button><b style="min-width:28px;text-align:center"><span data-v="xm"></span></b><button type="button" data-act="mInc" aria-label="افزودن لیدر اضافه" style="width:44px;height:44px;border-radius:50%;border:1px solid #33405c;background:none;color:#fff;font-size:18px">+</button></span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0e1524;border-radius:12px;padding:10px 14px"><span style="font-size:15px">پروژه‌ی اضافه<br><small style="color:#9aa7bd"><span data-v="uP"></span> ریال در ماه</small></span><span style="display:flex;align-items:center;gap:6px"><button type="button" data-act="pDec" aria-label="کم کردن پروژه‌ی اضافه" style="width:44px;height:44px;border-radius:50%;border:1px solid #33405c;background:none;color:#fff;font-size:18px">−</button><b style="min-width:28px;text-align:center"><span data-v="xp"></span></b><button type="button" data-act="pInc" aria-label="افزودن پروژه‌ی اضافه" style="width:44px;height:44px;border-radius:50%;border:1px solid #33405c;background:none;color:#fff;font-size:18px">+</button></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="max-width:860px;margin:0 auto;padding:20px 24px 80px;display:flex;flex-direction:column;gap:12px">
+  <h2 style="margin:0 0 10px;font-size:32px;font-weight:900;text-align:center">پرسش‌های رایج</h2>
+  <details style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px"><summary style="cursor:pointer;font-weight:700">باید چیزی نصب کنم؟</summary><p style="margin:10px 0 0;color:#9aa7bd">نه. VERTEX کاملاً در مرورگر کار می‌کند؛ روی آیپد، گوشی و کامپیوتر.</p></details>
+  <details style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px"><summary style="cursor:pointer;font-weight:700">فایل‌های MSP و اکسل فعلی‌ام چه می‌شوند؟</summary><p style="margin:10px 0 0;color:#9aa7bd">همان‌ها را بارگذاری کنید؛ فایل MPP خودکار تبدیل می‌شود و بیس‌لاین اکسل حفظ می‌شود تا تأخیرها درست بمانند.</p></details>
+  <details style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px"><summary style="cursor:pointer;font-weight:700">پرداخت چطور است؟</summary><p style="margin:10px 0 0;color:#9aa7bd">مبلغ به ریال نمایش داده می‌شود؛ کارت‌به‌کارت کنید و کد پیگیری را وارد کنید. بعد از تأیید، اشتراک فعال می‌شود.</p></details>
+  <details style="background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 20px"><summary style="cursor:pointer;font-weight:700">بعداً می‌توانم نفر اضافه کنم؟</summary><p style="margin:10px 0 0;color:#9aa7bd">بله. کاربر، لیدر یا پروژه‌ی اضافه را هر زمان به طرح پایه یا پرو اضافه کنید؛ طرح شما خودکار کاستوم می‌شود.</p></details>
+</section>
+
+<!-- CTA -->
+<section style="max-width:1200px;margin:0 auto;padding:0 24px 60px">
+  <div style="text-align:center;background:radial-gradient(circle at 50% 0,rgba(47,120,196,.4),transparent 70%),#0f1626;border:1px solid rgba(127,182,255,.25);border-radius:28px;padding:56px 24px;display:flex;flex-direction:column;gap:18px;align-items:center">
+    <h2 style="margin:0;font-size:40px;font-weight:900">پروژه‌ی بعدی را با چشم باز بسازید.</h2>
+    <p style="margin:0;color:#b3bfd3;font-size:18px">حساب شرکت را در یک دقیقه بسازید و اولین برنامه را بارگذاری کنید.</p>
+    <a href="./admin/" style="background:#2f78c4;color:#fff;text-decoration:none;padding:16px 36px;border-radius:14px;font-weight:800;font-size:18px">ساخت حساب شرکت</a>
+  </div>
+</section>
+
+<footer style="border-top:1px solid rgba(255,255,255,.06);padding:24px;text-align:center;color:#7f8ba3;font-size:13px">VERTEX · پلتفرم هوشمند کنترل پروژه‌های ساختمانی</footer>
+</div>
 <script>
-(function(){
- var I={
-  crane:'<path d="M6 21V4M3 21h6M6 4h14M6 4 3 7M10 4v2M18 4v6M16.5 10h3v2.5h-3zM12 21v-7h8v7M14 17h1M17 17h1"/>',
-  chat:'<path d="M4 5h11v8H9l-4 3v-3H4zM15 9h5v8h-1v3l-3-3h-5v-2"/>',
-  tie:'<circle cx="12" cy="7" r="3.2"/><path d="M5 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2M12 14l-1.4 2.4L12 21l1.4-4.6z"/>',
-  folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM8 15v-3M12 15v-5M16 15v-2"/>',
-  cursor:'<path d="M5 4l13 6-5.5 1.8L10.7 18z"/><path d="M13 13l5 5"/>',
-  hand:'<path d="M2 12l4-4 4 2 3-2 3 1 4-1 2 4M2 12l5 5 2-1 2 2 2-1 2 1 3-3 2-4M9 13l2 2M12 12l2 2"/>',
-  cap:'<path d="M2 9l10-4 10 4-10 4zM6 11v4c0 1.6 2.7 3 6 3s6-1.4 6-3v-4M22 9v5"/>',
-  users:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20a6 6 0 0 1 12 0M14.5 15a4.5 4.5 0 0 1 6.5 4"/>',
-  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
-  chart:'<path d="M4 20V14M9 20V10M14 20v-6M19 20V7M4 10l5-4 5 3 6-5"/>',
-  pal:'<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-1 1.4-2-.5-1.2.3-2.5 1.6-2.5H17a4 4 0 0 0 4-4c0-5-4-9.5-9-9.5z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/>',
-  bld:'<path d="M4 21V7l7-3v17M11 21h9V10l-9-3M7 9v.01M7 12v.01M7 15v.01M14 12h3M14 15h3M14 18h3"/>'
- };
- /* the twelve platforms come from the brand root (shared/brand.js) */
- var P=BRAND.platforms,A=[40,40],B=[560,40],C=[300,490],T=[.14,.38,.62,.86],tri=document.getElementById('tri'),cap=document.getElementById('cap'),nodes=[],cur=-1,held=false;
- function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
- function at(a,b,t){return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]}
- function show(i){if(i===cur)return;cur=i;var p=P[i];nodes.forEach(function(n,k){n.classList.toggle('on',k===i)});
-  cap.style.setProperty('--c',p.color);cap.innerHTML='<i>'+p.n+'</i><b>'+esc(p.en)+'</b><small>'+esc(p.desc_en)+'</small><em'+(p.href?'':' class="off"')+'>'+(p.href?'Live':'Planned')+'</em>'}
- P.forEach(function(p,i){var side=Math.floor(i/4),t=(side===0?T:side===1?[.18,.4,.62,.82]:[.18,.38,.6,.82])[i%4],xy=side===0?at(A,B,t):side===1?at(B,C,t):at(C,A,t),el=document.createElement(p.href?'a':'button');
-  if(p.href)el.href=p.href;else el.type='button';el.className='nd '+['s-top','s-right','s-left'][side];el.style.cssText='left:'+(xy[0]/6)+'%;top:'+(xy[1]/5.2)+'%;--c:'+p.color;
-  el.setAttribute('aria-label',p.n+' — '+p.en+': '+p.desc_en+(p.href?'':' (planned)'));el.innerHTML=p.n+'<span class="lb">'+esc(p.en)+'</span>';
-  el.addEventListener('mouseenter',function(){held=true;show(i)});el.addEventListener('focus',function(){held=true;show(i)});el.addEventListener('mouseleave',function(){held=false});el.addEventListener('blur',function(){held=false});
-  if(!p.href)el.addEventListener('click',function(){held=true;show(i)});tri.appendChild(el);nodes.push(el)});
- show(0);
- if(!matchMedia('(prefers-reduced-motion: reduce)').matches)setInterval(function(){if(!held&&!document.hidden)show((cur+1)%P.length)},3200);
- document.getElementById('mods').innerHTML=P.map(function(p){var tag=p.href?'a':'div';return '<li><'+tag+' class="pc"'+(p.href?' href="'+esc(p.href)+'"':'')+' style="--c:'+p.color+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+(I[p.icon]||'')+'</svg></span><b><i>'+p.n+'</i> — '+esc(p.en)+'</b><small>'+esc(p.desc_en)+'</small><span class="ft"><span class="fa" lang="fa">'+esc(p.fa)+'</span><span class="st'+(p.href?' live':'')+'">'+(p.href?'Live':'Planned')+'</span></span></'+tag+'></li>'}).join('');
- document.getElementById('yr').textContent=new Date().getFullYear();
- /* sign-in aware: signed-in users see only the platforms they may open; others go through the sign-in page */
- var AU=window.VX_AUTH,ss=AU&&AU.STATIC?AU.session():null;
- if(AU&&AU.STATIC){
-  var slugOf=function(el){var h=el.getAttribute('href')||'';var m=P.filter(function(p){return p.href&&(h===p.href||el.href===new URL(p.href,location.href).href)})[0];return m?m.slug:''};
-  [].slice.call(document.querySelectorAll('#mods a.pc,#tri a.nd')).forEach(function(el){var sl=slugOf(el);if(!sl)return;
-   if(!ss){el.href='admin/?next='+encodeURIComponent(el.href);return}
-   if(!AU.allowed(sl,ss)){el.removeAttribute('href');el.classList.add('vxno');el.title='دسترسی ندارید';el.setAttribute('aria-disabled','true')}else el.classList.add('vxok')});
-  var si=document.querySelector('.top .signin'),go=document.querySelector('.cta .btn.go');
-  if(ss){if(si){si.textContent=ss.u+' · Sign out';si.href='#';si.onclick=function(e){e.preventDefault();AU.logout()}}if(go){go.textContent='MY PLATFORMS';go.href='#platforms'}
-   var dn=(location.search.match(/[?&]denied=([^&]+)/)||[])[1];var msg=dn?'You do not have access to that platform. · به آن بخش دسترسی ندارید.':'Signed in as '+ss.u+(ss.role==='admin'?' (admin) — all platforms':' — '+(ss.sites||[]).length+' platform(s)');
-   var w=document.querySelector('#platforms');if(w)w.insertAdjacentHTML('afterend','<p class="lead vxwho'+(dn?' dn':'')+'">'+esc(msg)+'</p>');}
-  var st=document.createElement('style');st.textContent='.vxno{opacity:.38;filter:grayscale(1);cursor:not-allowed!important}.vxno::after{content:"🔒";position:absolute;top:8px;inset-inline-end:10px;font-size:13px}.pc{position:relative}.vxwho{font-weight:600}.vxwho.dn{color:#e11d48}';document.head.appendChild(st);
- }
+/* tiny renderer for pages converted from the VERTEX designs: data-v / data-sty / data-act / data-if / data-for */
+function vxMount(vals) {
+  function get(ctx, k) { var p = k.split('.'), v = p.length > 1 ? ctx[p[0]] : ctx.$[p[0]]; for (var i = 1; i < p.length; i++) v = v == null ? v : v[p[i]]; return v }
+  function bind(root, ctx) {
+    root.querySelectorAll('[data-for]').forEach(function (box) {
+      if (box.closest('template')) return; var tp = box.querySelector(':scope > template'); [].slice.call(box.children).forEach(function (c) { if (c !== tp) c.remove() });
+      (get(ctx, box.dataset.for) || []).forEach(function (it) { var fr = tp.content.cloneNode(true), c2 = Object.create(ctx); var nm = (tp.innerHTML.match(/data-(?:v|act|sty)="(\w+)\./) || [])[1] || 'it'; c2[nm] = it; bind(fr, c2); box.appendChild(fr) });
+    });
+    root.querySelectorAll('[data-v]').forEach(function (e) { if (e.closest('template')) return; var v = get(ctx, e.dataset.v); e.textContent = v == null ? '' : v });
+    root.querySelectorAll('[data-sty]').forEach(function (e) { if (e.closest('template')) return; e.setAttribute('style', get(ctx, e.dataset.sty) || '') });
+    root.querySelectorAll('[data-act]').forEach(function (e) { if (e.closest('template')) return; e.onclick = get(ctx, e.dataset.act) });
+    root.querySelectorAll('[data-if]').forEach(function (e) { if (e.closest('template')) return; e.style.display = get(ctx, e.dataset.if) ? 'contents' : 'none' });
+    [].forEach.call(root.querySelectorAll('*'), function (e) { if (e.closest && e.closest('template')) return; [].forEach.call(e.attributes || [], function (a) { if (a.name.indexOf('data-attr-') === 0) e.setAttribute(a.name.slice(10), a.value.replace(/\{\{ ?([\w.]+) ?\}\}/g, function (_, k) { var v = get(ctx, k); return v == null ? '' : v })) }) });
+  }
+  function render() { bind(document, { $: vals() }) }
+  render(); return render;
+}
+(function () {
+  var S = { yr: false, xm: 0, xu: 0, xp: 0, tab: 'users' }, rate = 2689600, re;
+  try { var c = JSON.parse(localStorage.getItem('vxFx') || 'null'); if (c && c.rate) rate = c.rate } catch (e) {}
+  function set(o) { for (var k in o) S[k] = o[k]; re() }
+  function vals() {
+    var s = S, f = s.yr ? 12 * 0.83 : 1, add = s.xu + s.xm * 2 + s.xp * 10, ext = add > 0;
+    var R = function (usd) { return (Math.round(usd * rate / 1000) * 1000).toLocaleString('fa-IR') }, n = function (v) { return Number(v).toLocaleString('fa-IR') };
+    var on = 'border:0;padding:8px 20px;border-radius:999px;font:inherit;cursor:pointer;min-height:44px;background:#262f44;color:#fff;font-weight:700';
+    var off = 'border:0;padding:8px 20px;border-radius:999px;font:inherit;cursor:pointer;min-height:44px;background:none;color:#9aa7bd';
+    var T = [['users', 'کاربران'], ['sub', 'اشتراک'], ['levels', 'سطوح سازمانی'], ['ai', 'پرسش‌های دستیار'], ['log', 'گزارش فعالیت']];
+    return {
+      tabs: T.map(function (t) { var a = s.tab === t[0]; return { label: t[1], go: function () { set({ tab: t[0] }) }, st: 'text-align:start;border:0;border-radius:10px;padding:10px 12px;min-height:44px;font:inherit;font-size:14px;cursor:pointer;' + (a ? 'background:#1d2a44;color:#fff;font-weight:700' : 'background:none;color:#9aa7bd') } }),
+      isUsers: s.tab === 'users', isSub: s.tab === 'sub', isLevels: s.tab === 'levels', isAi: s.tab === 'ai', isLog: s.tab === 'log',
+      per: s.yr ? 'سال' : 'ماه',
+      nBase: 'پایه' + (ext ? ' کاستوم' : ''), nPro: 'پرو' + (ext ? ' کاستوم' : ''), nMax: 'پرو مکس',
+      pBase: R((10 + add) * f), pPro: R((20 + add) * f), pMax: R(100 * f),
+      iBase: '۱ ادمین + ' + n(s.xm) + ' لیدر + ' + n(3 + s.xu) + ' کاربر · ' + n(1 + s.xp) + ' پروژه',
+      iPro: '۱ ادمین + ' + n(2 + s.xm) + ' لیدر + ' + n(6 + s.xu) + ' کاربر · ' + n(3 + s.xp) + ' پروژه',
+      iMax: 'کاربر، لیدر و پروژه‌ی نامحدود', uU: R(1), uM: R(2), uP: R(10),
+      xm: n(s.xm), xu: n(s.xu), xp: n(s.xp), mBtn: s.yr ? off : on, yBtn: s.yr ? on : off,
+      setMonth: function () { set({ yr: false }) }, setYear: function () { set({ yr: true }) },
+      mInc: function () { set({ xm: Math.min(50, s.xm + 1) }) }, mDec: function () { set({ xm: Math.max(0, s.xm - 1) }) },
+      uInc: function () { set({ xu: Math.min(500, s.xu + 1) }) }, uDec: function () { set({ xu: Math.max(0, s.xu - 1) }) },
+      pInc: function () { set({ xp: Math.min(50, s.xp + 1) }) }, pDec: function () { set({ xp: Math.max(0, s.xp - 1) }) }
+    };
+  }
+  re = vxMount(vals);
+  fetch('https://api.priceto.day/v1/latest/irr/usd').then(function (r) { return r.json() }).then(function (j) { if (j && j.price > 100000) { rate = j.price; try { localStorage.setItem('vxFx', JSON.stringify({ rate: rate, t: Date.now() })) } catch (e) {} re() } }).catch(function () {});
 })();
+
 </script>
-<script src="shared/ai/ai.js?v=401" defer></script>
 </body>
 </html>
