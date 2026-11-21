@@ -8,14 +8,14 @@
 <meta name="theme-color" content="#0a0d14">
 <title>VERTEX — خانه</title>
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=403"></script>
-<script src="../shared/demo.js?v=403"></script>
-<script src="../shared/auth.js?v=403"></script>
+<script src="../shared/cloud.js?v=404"></script>
+<script src="../shared/demo.js?v=404"></script>
+<script src="../shared/auth.js?v=404"></script>
 <script>(function(){try{var v=JSON.parse(localStorage.getItem('vxSess')||'null');if(v&&v.role==='admin'){location.replace('../home/');return}if(!localStorage.getItem('hub.token')&&!localStorage.getItem('vxSess'))location.replace('../admin/?next='+encodeURIComponent(location.href))}catch(e){}})()</script>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&amp;display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0a0d14;--card:#111827;--card2:#16213a;--line:rgba(255,255,255,.07);--mut:#9aa7bd;--txt:#e8edf6;--blue:#2f78c4;--sky:#7fb6ff;--ok:#3fb37f;--warn:#f0a53a}
-*{box-sizing:border-box}
+*{box-sizing:border-box}[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--txt);font-family:Vazirmatn,system-ui,sans-serif;line-height:1.7}
 a{color:var(--sky)}
 .wrap{min-height:100vh;display:flex}
@@ -41,6 +41,7 @@ h1{margin:0;font-size:28px;font-weight:900}
 .chip{border-radius:999px;padding:2px 12px;font-size:12px}
 .meter{height:8px;background:#24304a;border-radius:4px;overflow:hidden}.meter>span{display:block;height:100%;background:var(--sky);border-radius:4px;transition:width 1s}
 .row{display:flex;flex-wrap:wrap;gap:10px}
+.fl{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mut)}.fl input,.fl select,#lList input{background:#0e1524;border:1px solid #2a3550;border-radius:10px;color:var(--txt);font:inherit;padding:10px 12px;min-height:44px}.tb{width:100%;border-collapse:collapse;font-size:14px;min-width:620px}.tb th{color:var(--mut);font-weight:400;text-align:start;padding:12px 14px}.tb td{padding:12px 14px;border-top:1px solid #1e2738}.sb{background:none;border:1px solid #2a3550;color:var(--txt);border-radius:9px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer;min-height:36px}.mchk{display:flex;gap:6px;align-items:center;background:#16213a;border-radius:10px;padding:6px 12px;font-size:13px}
 .kpi{font-size:30px;font-weight:900;line-height:1.2}
 .list{display:flex;flex-direction:column;gap:8px;font-size:14px}
 .list>div{background:#16213a;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px}
@@ -52,15 +53,16 @@ h1{margin:0;font-size:28px;font-weight:900}
 <div class="wrap">
 <nav class="rail" aria-label="منوی اصلی">
   <svg class="logo" width="44" height="44" viewBox="0 0 64 64" role="img" aria-label="VERTEX" style="width:44px;height:44px;margin-bottom:14px"><defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fb6ff"/><stop offset="1" stop-color="#2f78c4"/></linearGradient></defs><rect x="2" y="2" width="60" height="60" rx="16" fill="#111827" stroke="url(#hg)" stroke-width="2"/><path d="M14 18 L32 48 L50 18" fill="none" stroke="url(#hg)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 18 L32 33 L41 18" fill="none" stroke="#e8edf6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/><circle cx="32" cy="48" r="4" fill="#f0a53a"/></svg>
-  <a class="on" href="./"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>خانه</a>
-  <a href="../admin/#users" data-owner><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 21c0-3-2-5-5-5.5"/></svg>تیم</a>
-  <a href="../admin/#levels" data-owner><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16M7 12h13M10 19h10"/></svg>سطوح</a>
+  <a class="on" href="#" data-nav=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>خانه</a>
+  <a href="#team" data-owner data-nav="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M17 11a3 3 0 100-6M22 21c0-3-2-5-5-5.5"/></svg>تیم</a>
+  <a href="#levels" data-owner data-nav="levels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16M7 12h13M10 19h10"/></svg>سطوح</a>
   <button type="button" id="aiBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l1.8 4.7L18 9.5l-4.2 1.8L12 16l-1.8-4.7L6 9.5l4.2-1.8z"/></svg>دستیار</button>
   <a href="../admin/#buy" data-owner><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>اشتراک</a>
   <a href="../admin/#profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>تنظیمات</a>
   <button type="button" id="outBtn" style="margin-top:auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>خروج</button>
 </nav>
 <main>
+<div id="vHome" style="display:flex;flex-direction:column;gap:22px">
   <header class="top">
     <div><h1 id="hi">خوش آمدید</h1><small class="mut" id="sub">…</small></div>
     <form class="ask" id="askF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7fb6ff" stroke-width="2" aria-hidden="true"><path d="M12 3l1.8 4.7L18 9.5l-4.2 1.8L12 16l-1.8-4.7L6 9.5l4.2-1.8z"/></svg><input id="askQ" aria-label="از دستیار بپرسید" placeholder="از دستیار بپرسید… مثلاً «برنامه‌ی هفته‌ی آینده چیست؟»"><button class="btn" style="min-height:36px;padding:6px 14px">بپرس</button></form>
@@ -73,7 +75,7 @@ h1{margin:0;font-size:28px;font-weight:900}
         <span class="chip" style="align-self:flex-start;background:rgba(240,165,58,.16);color:#f6c27a"><span class="pulse" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f0a53a;margin-inline-end:6px"></span>اشتراک شما</span>
         <h2 style="margin:0;font-size:26px" id="spT">…</h2>
         <p style="margin:0;color:#b3bfd3" id="spX"></p>
-        <div class="row"><a class="btn" href="../admin/#users" data-owner>مدیریت تیم</a><a class="btn g" href="../admin/#buy" data-owner>تمدید یا افزودن ظرفیت</a></div>
+        <div class="row"><a class="btn" href="#team" data-owner>مدیریت تیم</a><a class="btn g" href="../admin/#buy" data-owner>تمدید یا افزودن ظرفیت</a></div>
       </div>
       <svg width="160" height="160" viewBox="0 0 120 120" role="img" aria-label="روزهای باقی‌مانده"><circle cx="60" cy="60" r="48" fill="none" stroke="#24304a" stroke-width="11"/><circle id="ring" cx="60" cy="60" r="48" fill="none" stroke="#7fb6ff" stroke-width="11" stroke-linecap="round" transform="rotate(-90 60 60)" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" style="transition:stroke-dashoffset 1.4s"/><text x="60" y="58" text-anchor="middle" fill="#e8edf6" font-size="22" font-weight="800" id="ringT">—</text><text x="60" y="76" text-anchor="middle" fill="#9aa7bd" font-size="9">روز مانده</text></svg>
     </div>
@@ -83,7 +85,7 @@ h1{margin:0;font-size:28px;font-weight:900}
   <section class="grid" id="capG" data-owner>
     <div class="card"><div class="hd"><b>لیدرها</b><small class="mut" id="cLt"></small></div><div class="kpi" id="cL">—</div><div class="meter"><span id="mL" style="width:0"></span></div></div>
     <div class="card"><div class="hd"><b>کاربران</b><small class="mut" id="cUt"></small></div><div class="kpi" id="cU">—</div><div class="meter"><span id="mU" style="width:0"></span></div></div>
-    <div class="card"><div class="hd"><b>سطوح سازمانی</b><small class="mut">مجاز در طرح</small></div><div class="kpi" id="cV">—</div><a href="../admin/#levels" style="font-size:14px">نام‌گذاری سطوح ←</a></div>
+    <div class="card"><div class="hd"><b>سطوح سازمانی</b><small class="mut">مجاز در طرح</small></div><div class="kpi" id="cV">—</div><a href="#levels" style="font-size:14px">نام‌گذاری سطوح ←</a></div>
     <div class="card"><div class="hd"><b>پروژه‌ها</b><small class="mut">ظرفیت طرح</small></div><div class="kpi" id="cP">—</div><small class="mut">برنامه‌ی پروژه‌ها را تیم مهندسی ما برایتان راه‌اندازی می‌کند.</small></div>
   </section>
 
@@ -94,8 +96,31 @@ h1{margin:0;font-size:28px;font-weight:900}
       <div id="wR" style="background:#1b2640;border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between"><span>بتن‌ریزی</span><b id="wRb">—</b></div>
     </div>
     <div class="card"><div class="hd"><b>بخش‌های فعال</b><small class="mut">طبق طرح شما</small></div><div class="row" id="mods"></div></div>
-    <div class="card"><div class="hd"><b>فعالیت تیم</b><a href="../admin/#overview" style="font-size:13px" data-owner>همه</a></div><div class="list" id="act"><div class="mut">…</div></div></div>
+    <div class="card"><div class="hd"><b>فعالیت تیم</b><a href="#team" style="font-size:13px" data-owner>تیم</a></div><div class="list" id="act"><div class="mut">…</div></div></div>
   </section>
+</div>
+<div id="vTeam" hidden style="display:flex;flex-direction:column;gap:18px">
+  <div class="top"><div><h1>تیم</h1><small class="mut" id="tCap"></small></div><button class="btn" type="button" id="tNew" style="margin-inline-start:auto">+ عضو جدید</button></div>
+  <form class="card" id="tForm" hidden style="gap:14px">
+    <b id="tFormT">عضو جدید</b>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+      <label class="fl">نام و نام خانوادگی<input name="name" required></label>
+      <label class="fl" id="tUserL">نام کاربری (انگلیسی)<input name="username" dir="ltr" autocomplete="off"></label>
+      <label class="fl">سطح<select name="level" id="tLvl"></select></label>
+      <label class="fl" style="flex-direction:row;align-items:center;gap:8px;margin-top:22px"><input type="checkbox" name="leader"> لیدر (سرپرست تیم)</label>
+    </div>
+    <div><small class="mut">دسترسی به بخش‌ها</small><div class="row" id="tMods" style="margin-top:6px"></div></div>
+    <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="ro"> فقط مشاهده</label>
+    <div class="err" id="tErr" role="alert" style="color:#ff8a80"></div>
+    <div class="row"><button class="btn" id="tSave">ذخیره</button><button class="btn g" type="button" id="tCancel">انصراف</button></div>
+  </form>
+  <div class="card" id="tMsg" hidden style="border-color:rgba(63,179,127,.5)"></div>
+  <div class="card" style="padding:0;overflow-x:auto"><table class="tb"><thead><tr><th>نام</th><th>نام کاربری</th><th>نقش</th><th>سطح</th><th>وضعیت</th><th></th></tr></thead><tbody id="tRows"></tbody></table></div>
+</div>
+<div id="vLevels" hidden style="display:flex;flex-direction:column;gap:18px">
+  <div><h1>سطوح سازمانی</h1><small class="mut" id="lCap"></small></div>
+  <form class="card" id="lForm"><div id="lList" style="display:flex;flex-direction:column;gap:10px"></div><div class="row"><button class="btn">ذخیره‌ی سطوح</button><span class="mut" id="lOk"></span></div></form>
+</div>
 </main>
 </div>
 <script>
@@ -107,12 +132,45 @@ h1{margin:0;font-size:28px;font-weight:900}
   $('outBtn').onclick = function () { try { VX_AUTH.logout() } catch (e) { location.href = '../admin/' } };
   $('aiBtn').onclick = function () { if (window.VXAI && VXAI.full) VXAI.full(); else if (window.VXAI) VXAI.open() };
   $('askF').onsubmit = function (e) { e.preventDefault(); var q = $('askQ').value.trim(); if (!q) return; if (window.VXAI && VXAI.full) { VXAI.full(); setTimeout(function () { VXAI.send && VXAI.send(q) }, 300) } $('askQ').value = '' };
+  var ME = null, SUB = {}, LV = [];
+  function view() { var v = location.hash.slice(1); if (!ME || ME.user.role !== 'owner') v = ''; ['Home', 'Team', 'Levels'].forEach(function (k) { $('v' + k).hidden = (k.toLowerCase() !== (v === 'team' || v === 'levels' ? v : 'home')) });
+    [].forEach.call(document.querySelectorAll('[data-nav]'), function (a) { a.classList.toggle('on', a.dataset.nav === (v === 'team' || v === 'levels' ? v : '')) });
+    if (v === 'team') loadTeam(); if (v === 'levels') loadLevels(); scrollTo(0, 0) }
+  addEventListener('hashchange', view);
+  function send(m, p, b) { return fetch(API + p, { method: m, headers: Object.assign({ 'Content-Type': 'application/json' }, T ? { Authorization: 'Bearer ' + T } : {}), body: JSON.stringify(b || {}), cache: 'no-store' }).then(function (r) { return r.json().catch(function () { return {} }).then(function (j) { if (!r.ok) throw j; return j }) }) }
+  var EM = { 'no-seats': 'ظرفیت کاربران طرح شما پر است؛ از «اشتراک» کاربر اضافه کنید.', 'no-leaders': 'ظرفیت لیدرهای طرح شما پر است؛ از «اشتراک» لیدر اضافه کنید.', 'code-exists': 'این نام کاربری قبلاً گرفته شده است.', 'no-modules': 'حداقل یک بخش را انتخاب کنید.', 'level-out-of-range': 'سطح خارج از محدوده‌ی طرح است.', invalid: 'نام کاربری را وارد کنید.' };
+  var em = function (e) { return EM[e && e.error] || (e && e.error) || 'خطا در ذخیره' };
+  var USERS = [], EDIT = null;
+  function loadTeam() { Promise.all([api('/panel/users'), api('/panel/overview')]).then(function (R) { USERS = R[0].users || []; var o = R[1]; SUB = o.sub || {}; LV = (o.tenant && o.tenant.levels) || [];
+    var unl = SUB.users >= 9999; $('tCap').textContent = unl ? 'ظرفیت نامحدود' : SUB.users == null ? 'اعضا ' + fa(o.used) + ' از ' + fa(SUB.seats) : 'لیدر ' + fa(o.used_leaders) + ' از ' + fa(SUB.leaders) + ' · کاربر ' + fa(o.used_users) + ' از ' + fa(SUB.users != null ? SUB.users : SUB.seats);
+    var tb = $('tRows'); tb.innerHTML = ''; USERS.forEach(function (u) { var tr = document.createElement('tr'); var own = u.role === 'owner';
+      tr.innerHTML = '<td><b></b><br><small class="mut"></small></td><td dir="ltr" style="text-align:end"></td><td></td><td></td><td></td><td class="row" style="gap:6px"></td>';
+      tr.children[0].firstChild.textContent = u.name; tr.children[0].lastChild.textContent = u.ucode || ''; tr.children[1].textContent = u.code; tr.children[2].textContent = own ? 'ادمین اشتراک' : u.leader ? 'لیدر' : u.role === 'viewer' ? 'فقط مشاهده' : 'کاربر';
+      tr.children[3].textContent = (LV[(u.level || 1) - 1] || ('سطح ' + fa(u.level || 1))); tr.children[4].innerHTML = u.active === false ? '<span style="color:#f0a53a">غیرفعال</span>' : '<span style="color:#3fb37f">فعال</span>';
+      if (!own) { var a = function (t, f) { var b = document.createElement('button'); b.type = 'button'; b.className = 'sb'; b.textContent = t; b.onclick = f; tr.children[5].appendChild(b) };
+        a('ویرایش', function () { openForm(u) }); a(u.active === false ? 'فعال‌سازی' : 'غیرفعال', function () { save(u, { active: u.active === false }) });
+        a('رمز جدید', function () { if (!confirm('رمز این کاربر به رمز پیش‌فرض برگردد؟')) return; send('POST', '/panel/users/' + u.id + '/reset').then(function (r) { msg('رمز جدید ' + u.code + ': ' + r.password + ' — در اولین ورود باید عوض شود.') }) }) }
+      tb.appendChild(tr) }) }).catch(function () {}) }
+  function msg(t) { $('tMsg').hidden = false; $('tMsg').textContent = t }
+  function openForm(u) { EDIT = u || null; var f = $('tForm'); f.hidden = false; $('tErr').textContent = ''; $('tFormT').textContent = u ? 'ویرایش ' + u.name : 'عضو جدید'; f.name.value = u ? u.name : ''; f.username.value = u ? u.code : ''; $('tUserL').style.display = u ? 'none' : ''; f.leader.checked = !!(u && u.leader); f.ro.checked = !!(u && u.role === 'viewer');
+    var mx = SUB.max_levels || 1, sel = $('tLvl'); sel.innerHTML = ''; for (var i = 1; i <= mx; i++) { var o = document.createElement('option'); o.value = i; o.textContent = fa(i) + ' · ' + (LV[i - 1] || 'سطح ' + fa(i)); sel.appendChild(o) } sel.value = u ? u.level : Math.min(mx, 3);
+    var box = $('tMods'); box.innerHTML = ''; (SUB.modules || []).forEach(function (m) { var l = document.createElement('label'); l.className = 'mchk'; l.innerHTML = '<input type="checkbox" value="' + m + '"> <span></span>'; l.lastChild.textContent = MN[m] || m; l.firstChild.checked = u ? (u.mods || []).indexOf(m) >= 0 : true; box.appendChild(l) }); f.name.focus() }
+  function body(f) { var mods = [].map.call($('tMods').querySelectorAll('input:checked'), function (c) { return c.value }); return { name: f.name.value.trim(), level: +f.level.value, mods: mods, home: mods[0], parent_id: null, readonly: f.ro.checked, leader: f.leader.checked } }
+  function save(u, extra) { var b = Object.assign({ name: u.name, level: u.level, mods: u.mods, home: u.home, parent_id: u.parent_id, readonly: u.role === 'viewer', leader: !!u.leader }, extra); return send('PATCH', '/panel/users/' + u.id, b).then(loadTeam).catch(function (e) { alert(em(e)) }) }
+  $('tNew').onclick = function () { openForm(null) }; $('tCancel').onclick = function () { $('tForm').hidden = true };
+  $('tForm').onsubmit = function (e) { e.preventDefault(); var f = this, b = body(f); if (!b.mods.length) { $('tErr').textContent = EM['no-modules']; return }
+    if (EDIT) return send('PATCH', '/panel/users/' + EDIT.id, Object.assign(b, { active: EDIT.active !== false })).then(function () { f.hidden = true; loadTeam() }).catch(function (x) { $('tErr').textContent = em(x) });
+    b.username = f.username.value.trim(); send('POST', '/panel/users', b).then(function (r) { f.hidden = true; msg('ساخته شد — نام کاربری: ' + r.username + ' · رمز اولیه: ' + r.password + ' · کد: ' + r.ucode); loadTeam() }).catch(function (x) { $('tErr').textContent = em(x) }) };
+  function loadLevels() { api('/panel/overview').then(function (o) { SUB = o.sub || {}; LV = (o.tenant && o.tenant.levels) || []; var mx = SUB.max_levels || 1; $('lCap').textContent = 'طرح شما تا ' + fa(mx) + ' سطح دارد؛ برای هر سطح یک نام بگذارید (مثلاً مدیرعامل، مدیر پروژه، مهندس کارگاه).';
+    var L = $('lList'); L.innerHTML = ''; for (var i = 1; i <= mx; i++) { var w = document.createElement('label'); w.className = 'fl'; w.textContent = 'سطح ' + fa(i); var inp = document.createElement('input'); inp.value = LV[i - 1] || ''; w.appendChild(inp); L.appendChild(w) } }) }
+  $('lForm').onsubmit = function (e) { e.preventDefault(); var n = [].map.call($('lList').querySelectorAll('input'), function (x) { return x.value.trim() }); send('PUT', '/panel/levels', { names: n }).then(function () { $('lOk').textContent = '✓ ذخیره شد' }) };
   var h = new Date().getHours(); var greet = h < 12 ? 'صبح بخیر' : h < 17 ? 'روز بخیر' : 'عصر بخیر';
   api('/me').then(function (me) {
     if (me.sub_active === false) { location.replace('../admin/#buy'); return }
     var nm = (me.user && me.user.name) || ''; $('hi').textContent = greet + (nm ? '، ' + nm.split(' ')[0] : '');
     $('av').textContent = nm.charAt(0) || '؟';
     $('sub').textContent = new Date().toLocaleDateString('fa-IR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (me.tenant ? ' · ' + me.tenant.name : '');
+    ME = me; view();
     var owner = me.user && me.user.role === 'owner';
     if (!owner) [].forEach.call(document.querySelectorAll('[data-owner]'), function (e) { e.style.display = 'none' });
     $('spT').textContent = 'طرح ' + (me.plan || '—');
@@ -142,6 +200,6 @@ h1{margin:0;font-size:28px;font-weight:900}
   }).catch(function () { $('wD').textContent = 'آب‌وهوا در دسترس نیست' });
 })();
 </script>
-<script src="../shared/ai/ai.js?v=403" defer></script>
+<script src="../shared/ai/ai.js?v=404" defer></script>
 </body>
 </html>

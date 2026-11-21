@@ -69,6 +69,18 @@
   }
   window.VX_AUTH = { ROOT: ROOT, STATIC: STATIC, session: session, allowed: allowed, login: login, setup: setup, logout: logout, require: require, getUsers: getUsers, hashPw: hashPw };
   var s0 = session(); if (s0) window.VX_USER = s0;
+  // One theme for the whole ecosystem: whatever dark/light a user picks on any platform is kept on every platform.
+  (function () {
+    var KEYS = ['dsTheme', 'tsuba.theme', 'vx.fm.theme'], U = (s0 && s0.u) || '', CK = 'vx.theme' + (U ? ':' + U : ''), de = document.documentElement, busy = false;
+    var LS = window.localStorage, rawSet = Storage.prototype.setItem;
+    var put = function (k, v) { try { rawSet.call(LS, k, v) } catch (e) {} };
+    var save = function (t) { if (t !== 'dark' && t !== 'light') return; put(CK, t); put('vx.theme', t); KEYS.forEach(function (k) { put(k, t) }); try { var d = JSON.parse(LS.getItem('dsDisp2') || 'null'); if (d && d.theme !== t) { d.theme = t; put('dsDisp2', JSON.stringify(d)) } } catch (e) {} };
+    var t0 = null; try { t0 = LS.getItem(CK) || LS.getItem('vx.theme') } catch (e) {}
+    if (t0) { save(t0); de.setAttribute('data-theme', t0) }
+    Storage.prototype.setItem = function (k, v) { rawSet.call(this, k, v); if (this !== LS || busy) return; busy = true; try { if (KEYS.indexOf(k) >= 0) save(String(v)); else if (k === 'dsDisp2') { var d = JSON.parse(v || 'null'); if (d && d.theme) save(d.theme) } } catch (e) {} busy = false };
+    try { new MutationObserver(function () { var t = de.getAttribute('data-theme'); if ((t === 'dark' || t === 'light') && t !== LS.getItem(CK)) save(t) }).observe(de, { attributes: true, attributeFilter: ['data-theme'] }) } catch (e) {}
+    addEventListener('storage', function (e) { if (e.key === CK && e.newValue && de.getAttribute('data-theme') !== e.newValue) de.setAttribute('data-theme', e.newValue) });
+  })();
   // company account without an active subscription: only the purchase page in the control panel
   if (STATIC && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
   // VERTEX core dashboard (msp-bi) is private to the platform admin for now; company users get the app home
