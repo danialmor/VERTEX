@@ -347,5 +347,16 @@
   ta.addEventListener('input', () => { ta.style.height = '32px'; ta.style.height = Math.min(90, ta.scrollHeight) + 'px'; });
   function toggle() { box.classList.toggle('open'); if (box.classList.contains('open')) { if (cfg.mode === 'local') ensureWorker(); else loadModels(); ta.focus(); } }
   fab.addEventListener('click', toggle);
-  window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, send };
+  // Programmatic one-shot question (no chat UI): used by page widgets (e.g. the home spotlight). Resolves to the answer text.
+  async function ask(q, sysTxt) {
+    if (cfg.enabled === false) throw new Error('off');
+    const msgs = [{ role: 'system', content: (sysTxt || '') + '\n\n' + context(q) }, { role: 'user', content: q }];
+    if (VIAHUB) { const r = await fetch('/api/v1/ai', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ system: msgs[0].content, prompt: q, model: cfg.model }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j.text || ''; }
+    if (cfg.mode === 'local' || !SRV.k) throw new Error('no-online-ai');
+    const call = async (model) => fetch(API + '/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: msgs, max_tokens: 700 }) });
+    let r = await call(cfg.model); if (r.status === 402 && cfg.model !== 'gpt-6-luna') r = await call('gpt-6-luna');
+    const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status);
+    return ((j.choices || [{}])[0].message || {}).content || '';
+  }
+  window.VXAI = { open: () => { if (!box.classList.contains('open')) toggle(); }, send, ask, ready: () => !!(cfg && (VIAHUB || (cfg.mode !== 'local' && SRV.k))) };
 })();
