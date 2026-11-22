@@ -554,6 +554,7 @@
 #vxai.full .welcome .cards .ed{position:absolute;bottom:10px;inset-inline-end:10px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:16px;opacity:.55}
 @media (max-width:820px){#vxai.full .welcome .cards button{flex-basis:165px}}
 `; document.head.appendChild(TCSS);
+  if (!document.querySelector('link[href*="imagine.css"]')) { const IL = document.createElement('link'); IL.rel = 'stylesheet'; IL.href = new URL('../../ai/imagine.css?v=3', BASE).href; document.head.appendChild(IL) }
   // suggestion tiles: q = prompt sent; e = true → put in the box to edit first (needs the user's text)
   const TILES = [
     ['پروژه', '#1b6f52', [
