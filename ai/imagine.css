@@ -1,44 +1,49 @@
-/* Imagine template skin for the standalone AI page (ai/). Light, black CTAs, pink→violet frame. */
-html.vxai-page,html.vxai-page body{background:linear-gradient(135deg,#ffa3b8 0%,#fd9e9a 45%,#b79ce6 100%)!important;color:#1d2433}
-#vxai.full{--ik:#111;--im:#6b7280;--il:#e7e7ea;--ig:#f4f4f5}
-#vxai.full{--card:#fff;--ink:#1d2433;--muted:#6b7280;inset:14px!important;left:14px!important;right:14px!important;top:14px!important;bottom:14px!important;width:auto!important;height:auto!important;border-radius:28px!important;background:#fff!important;color:#1d2433!important;box-shadow:0 0 0 10px rgba(255,255,255,.35),0 30px 80px rgba(120,40,90,.25)!important;border:0!important;font-family:Vazirmatn,system-ui,sans-serif}
-#vxai.full .side{background:#fafafa!important;border-color:var(--il)!important;border-radius:0 28px 28px 0}
-#vxai.full .side .nw{background:#111!important;color:#fff!important;border-radius:12px!important}
-#vxai.full .side input{background:#fff;border-color:var(--il)}
-#vxai.full header{border-color:var(--il)}
-#vxai.full header button{color:#374151}
+/* Imagine template (imagine.prebuiltui.com) skin for the full-screen assistant. Values taken from the live template:
+   white bg, text gray-800 #1e2939, muted black/40-50, black CTAs radius 8px, border black/10, Geist font, tight headline. */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap');
+html.vxai-page,html.vxai-page body{background:#fff!important;color:#1e2939}
+#vxai.full{--card:#fff;--ink:#1e2939;--muted:rgba(0,0,0,.5);--il:rgba(0,0,0,.08);--ig:#f4f4f5;background:#fff!important;color:#1e2939!important;border:0!important;box-shadow:none!important;border-radius:0!important;inset:0!important;font-family:Geist,Vazirmatn,system-ui,sans-serif}
+#vxai.full .side{background:#fff!important;border-color:var(--il)!important}
+#vxai.full .side .nw{background:#000!important;color:#fff!important;border:0!important;border-radius:8px!important}
+#vxai.full .side .nw:hover{background:rgba(0,0,0,.8)!important}
+#vxai.full .side input{background:#fff;border:1px solid rgba(0,0,0,.1);border-radius:8px!important}
+#vxai.full .side .it.on,#vxai.full .side .it:hover{background:rgba(0,0,0,.04)}
+#vxai.full header{border-color:var(--il)}#vxai.full header button{color:rgba(0,0,0,.6)}#vxai.full header>svg{color:#000}
 #vxai.full form{border-color:var(--il)}
-#vxai.full textarea{background:#fff;border-color:#d4d4d8;color:#111}
-#vxai.full form button[type=submit]{background:#111!important}
-#vxai.full .welcome{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:center;gap:40px;max-width:1280px;text-align:start;padding:10px 0}
+#vxai.full textarea{background:#fff;border:1px solid rgba(0,0,0,.1)!important;border-radius:8px!important;color:#1e2939}
+#vxai.full textarea:focus{outline:none;border-color:rgba(0,0,0,.35)!important}
+#vxai.full form button{border-radius:8px!important}
+#vxai.full form button[type=submit]{background:#000!important}
+#vxai.full form .mic{background:rgba(0,0,0,.04)}
+#vxai.full .log .m.u{background:#000;color:#fff}
+/* hero: two columns, text start, device mockup bleeding off the end edge */
+#vxai.full:not(.has) .log{padding-inline:0!important;padding-inline-start:clamp(24px,5vw,96px)!important;overflow-x:hidden}
+#vxai.full .welcome{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:48px;max-width:none!important;width:100%;text-align:start;padding:0}
 #vxai.full.has .welcome{display:none!important}
-#vxai.full .welcome .vxh{justify-items:start;gap:16px;text-align:start}
-#vxai.full .welcome .trust{display:flex;align-items:center;gap:10px}
-#vxai.full .welcome .trust .orb{width:40px!important;height:40px!important;border-radius:50%!important;background:#111!important;box-shadow:none!important;animation:none!important}
-#vxai.full .welcome .trust .orb svg{width:20px!important;height:20px!important}
-#vxai.full .welcome .trust b{display:block;font-size:13px;color:#111;letter-spacing:2px}
-#vxai.full .welcome .trust small{color:var(--im);font-size:12.5px}
-#vxai.full .welcome h2{font-size:clamp(26px,2.8vw,40px);line-height:1.25;font-weight:800;letter-spacing:-.5px;color:#1d2433}
-#vxai.full .welcome .sub{font-size:15.5px;line-height:1.9;color:var(--im);max-width:460px}
-#vxai.full .welcome .cta{display:flex;gap:12px;flex-wrap:wrap}
-#vxai.full .welcome .cta button{min-height:52px;padding:0 26px;border-radius:10px;border:1px solid #111;background:#111;color:#fff;font:inherit;font-size:15.5px;font-weight:600;cursor:pointer;touch-action:manipulation}
-#vxai.full .welcome .cta .ol{background:#fff;color:#111;border-color:#d4d4d8}
-#vxai.full .welcome .chk{display:flex;gap:18px;flex-wrap:wrap;color:var(--im);font-size:13.5px}
-#vxai.full .welcome .vxf{border:10px solid #1f2937;border-radius:26px;background:#fff;padding:16px;display:grid;gap:14px;min-width:0;box-shadow:0 20px 50px rgba(0,0,0,.12)}
-#vxai.full .welcome .fbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--il);padding-bottom:12px}
-#vxai.full .welcome .fl{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:15px;direction:ltr}
+#vxai.full .welcome .vxh{justify-items:start;gap:0;text-align:start}
+#vxai.full .welcome .trust{display:flex;align-items:center;gap:12px}
+#vxai.full .welcome .trust .orb{width:36px!important;height:36px!important;border-radius:50%!important;background:#000!important;box-shadow:0 0 0 2px #fff,14px 0 0 0 #e5e7eb,28px 0 0 0 #d1d5db!important;animation:none!important;margin-inline-end:28px}
+#vxai.full .welcome .trust .orb svg{width:18px!important;height:18px!important}
+#vxai.full .welcome .trust b{display:block;font-size:12px;color:#000;letter-spacing:1px;font-weight:400}
+#vxai.full .welcome .trust small{color:rgba(0,0,0,.6);font-size:12px}
+#vxai.full .welcome h2{margin-top:16px;font-size:clamp(32px,3.4vw,52px);line-height:1.2;font-weight:500;letter-spacing:-.04em;color:#1e2939;max-width:13em}
+#vxai.full .welcome .sub{margin-top:16px;font-size:16px;line-height:1.8;color:rgba(0,0,0,.4);max-width:32rem}
+#vxai.full .welcome .cta{margin-top:40px;display:flex;gap:16px;flex-wrap:wrap}
+#vxai.full .welcome .cta button{min-height:48px;padding:0 24px;border-radius:8px;border:0;background:#000;color:#fff;font:inherit;font-size:16px;font-weight:400;cursor:pointer;transition:background .2s;touch-action:manipulation}
+#vxai.full .welcome .cta button:hover{background:rgba(0,0,0,.8)}
+#vxai.full .welcome .cta .ol{background:#fff;color:#1e2939;border:1px solid rgba(0,0,0,.1)}#vxai.full .welcome .cta .ol:hover{background:rgba(0,0,0,.03)}
+#vxai.full .welcome .chk{margin-top:48px;display:flex;gap:24px;flex-wrap:wrap;color:rgba(0,0,0,.5);font-size:15px}
+#vxai.full .welcome .vxf{border:14px solid #1e2939;border-inline-end:0;border-radius:0;border-start-start-radius:30px;border-end-start-radius:30px;background:#fff;padding:22px;display:grid;gap:16px;min-width:0;box-shadow:none}
+#vxai.full .welcome .fbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--il);padding-bottom:14px}
+#vxai.full .welcome .fl{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px;direction:ltr}
 #vxai.full .welcome .fl svg{width:18px;height:18px}
 #vxai.full .welcome .svc{justify-content:flex-end}
 #vxai.full .welcome .svc span{background:var(--ig);font-size:12px;padding:6px 12px}
 #vxai.full .welcome .cats{justify-content:flex-start;padding:0}
-#vxai.full .welcome .cats button{border-color:#d4d4d8;min-height:44px;font-size:14px}
-#vxai.full .welcome .cats button.on{background:#111;color:#fff}
+#vxai.full .welcome .cats button{border:1px solid rgba(0,0,0,.1);min-height:44px;font-size:14px;font-weight:500;border-radius:8px}
+#vxai.full .welcome .cats button.on{background:#000;color:#fff}
 #vxai.full .welcome .cards{justify-content:flex-start;padding:2px 2px 8px}
-#vxai.full .welcome .cards button{flex-basis:170px!important;min-height:150px;background:var(--ig)!important;border:1px solid var(--il);border-radius:16px;box-shadow:none;color:#1d2433}
-#vxai.full .welcome .cards .ic{background:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.06);border-radius:12px}
-#vxai.full .welcome .cards .nw{background:#111}
-#vxai.full .log .m.u{background:#111;color:#fff}
-@media (max-width:1000px){#vxai.full .welcome{grid-template-columns:1fr;gap:20px}#vxai.full .welcome h2{font-size:30px}}
-@media (max-width:820px){#vxai.full{inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;border-radius:0!important}}
-
-html:not(.vxai-page) #vxai.full{inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;border-radius:0!important;box-shadow:none!important}
+#vxai.full .welcome .cards button{flex-basis:180px!important;min-height:150px;background:var(--ig)!important;border:0;border-radius:16px;box-shadow:none;color:#1e2939}
+#vxai.full .welcome .cards .ic{background:#fff!important;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+#vxai.full .welcome .cards .nw{background:#000}
+@media (max-width:1000px){#vxai.full:not(.has) .log{padding-inline:20px!important}#vxai.full .welcome{grid-template-columns:1fr;gap:28px}#vxai.full .welcome .vxf{border-inline-end:14px solid #1e2939;border-radius:30px}#vxai.full .welcome .cta{margin-top:24px}#vxai.full .welcome .chk{margin-top:20px}}
