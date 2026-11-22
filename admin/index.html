@@ -223,7 +223,7 @@ window.TSP={enter:function(r){return enter(r)},get S(){return S},get T(){return 
 /* GitHub Pages: the original sign-in (same users and passwords as before). After sign-in → next page or the root page with the user's platforms. */
 if(window.VX_AUTH&&VX_AUTH.STATIC){
  var nx=(location.search.match(/[?&]next=([^&]+)/)||[])[1];nx=nx?decodeURIComponent(nx):'';if(nx&&nx.indexOf(VX_AUTH.ROOT)!==0)nx='';
- function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant,paid=r.sub_active!==false;var sites=eco||!paid?[]:(r.modules||[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,paid:paid,msp:!!r.msp,t:Date.now()}))}catch(e){}}window.TSP_vxMark=vxMark;
+ function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant,paid=r.sub_active!==false;var sites=eco||!paid?[]:(r.modules||[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,paid:paid,msp:!!r.msp,staff:!r.tenant&&!eco,t:Date.now()}))}catch(e){}}window.TSP_vxMark=vxMark;
  var _lsub=lf.onsubmit;lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';if(!lf.code.value.trim()||!lf.pin.value){$('#lErr').textContent='نام کاربری و رمز را وارد کنید.';return}b.disabled=true;
   api('POST','/auth/login',{code:lf.code.value.trim(),pin:lf.pin.value,device:'panel',remember:lf.remember.checked}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}lf.pin.value='';vxMark(r);if(r.must_change){enter(r);return}location.replace(nx||VX_AUTH.ROOT)}).catch(function(x){$('#lErr').textContent=emsg(x)}).then(function(){b.disabled=false})};
  var vs=VX_AUTH.session();
