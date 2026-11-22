@@ -1381,7 +1381,7 @@ html.app-mail #projSel,html.app-mail .pjsel{display:none!important}
 </section>
 <section class="view" id="v-files" aria-label="بارگذاری فایل پروژه">
 <div class="wkbar rise" style="--i:0"><h1 class="wkt">بارگذاری و مرکز داده</h1><div class="wkst" id="fiStats"></div><div class="seg2" id="fiTabs" role="group" aria-label="بخش بارگذاری"></div><span class="sp"></span><button type="button" class="btn light fiexp" id="fiExpAll" hidden>خروجی همه‌ی پروژه‌ها (HTML)</button><button type="button" class="btn dark fiexp" id="fiExp" hidden>خروجی HTML این پروژه</button></div>
-<div class="rise fi-wrap" style="--i:1;margin-top:var(--s4)" id="fiBody"></div>
+<div class="rise fi-wrap" style="--i:1;margin-top:var(--s4)" id="fiBody"></div><style>#fiBody .dtw,#fiBody .upgs{max-height:none!important;height:auto!important;overflow-y:visible!important}#fiBody .dtw{overflow-x:auto!important}</style>
 </section>
 <section class="view" id="v-info" aria-label="اطلاعات تکمیلی">
 <div class="wkbar rise" style="--i:0"><h1 class="wkt">اطلاعات تکمیلی</h1><div class="wkst" id="inStats"></div><span class="sp"></span><div class="seg" id="segI" role="group" aria-label="نمای اطلاعات"><span class="knob"></span><button type="button" aria-pressed="true" data-i="cards">کارت پروژه‌ها</button><button type="button" aria-pressed="false" data-i="map">🗺️ نقشه</button></div></div>
@@ -2032,8 +2032,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='4.20.4';
+var VERSION='4.20.5';
 var CHANGELOG=[
+{v:'4.20.5',d:'2 آذر 1405',t:'پیمایش صفحه‌ی بارگذاری',b:['صفحه‌ی بارگذاری یک‌جا پیمایش می‌شود؛ بخش‌های پایین (وضعیت پروژه‌ها و فایل‌های روی سرور) دیگر بریده نمی‌شوند']},
 {v:'4.20.4',d:'2 آذر 1405',t:'داده‌ی آنلاین برای همه‌ی کاربران',b:['اگر دریافت داده‌ی آنلاین در بار اول ناموفق باشد، داشبورد خودش چند بار دوباره تلاش می‌کند','خوشامد با نام کاربر واردشده']},
 {v:'4.20.3',d:'2 آذر 1405',t:'ورود کاربران دفتر مرکزی به داشبورد',b:['کاربران دفتر مرکزی با دسترسی msp-bi دیگر از ورودی داشبورد برگردانده نمی‌شوند']},
 {v:'4.20.2',d:'2 آذر 1405',t:'دسترسی کاربران دفتر مرکزی به داشبورد',b:['کاربران دفتر مرکزی که دسترسی msp-bi دارند دوباره وارد داشبورد و مسنجر می‌شوند']},
@@ -2199,7 +2200,7 @@ function fitBoxes(){var sel='#schedBody>.card,#schedBody>.dlg>.card:first-child,
  var pac=$('#pjActCard'),pacOn=!!(pac&&pac.offsetParent);
  $$(sel).forEach(function(c){if(!c.offsetParent)return;if(mob){c.classList.remove('fitc');c.style.height='';return}if(c.id==='pjTabCard'&&pacOn){c.classList.add('fitc');var th=Math.min(c.scrollHeight+2,Math.round((VHs()-docTop(c))*0.42));c.style.height=th+'px';c.style.setProperty('--fh',th+'px');return}c.classList.add('fitc');var fh=Math.max(VHs()<560?360:220,Math.floor(VHs()-docTop(c)-gap)-2)+'px';c.style.height=fh;c.style.setProperty('--fh',fh)});
  /* 3.54.0: صفحه‌هایی که چند قاب زیر هم دارند (تأخیرها، تقویم هفته در صفحه‌ی کوتاه، مرکز داده، میز کار) — خودِ بدنه‌ی صفحه ثابت می‌ماند و محتوا داخلش پیمایش می‌شود */
- ['#schedBody','#fiBody','#wkBody'].forEach(function(q){var c=$(q);if(!c)return;c.classList.remove('pgsc');c.style.height='';fillReset(c);if(mob||!c.offsetParent)return;var avail=Math.floor(VHs()-docTop(c)-gap)-2;if(avail>=320&&fillBody(c,avail))return;if(avail<200||c.scrollHeight<=avail+3)return;
+ ['#schedBody','#fiBody','#wkBody'].forEach(function(q){var c=$(q);if(!c)return;c.classList.remove('pgsc');c.style.height='';fillReset(c);if(mob||!c.offsetParent)return;var avail=Math.floor(VHs()-docTop(c)-gap)-2;if(q!=='#fiBody'&&avail>=320&&fillBody(c,avail))return;if(avail<200||c.scrollHeight<=avail+3)return;
   $$('.fitc',c).forEach(function(k){k.classList.remove('fitc');k.style.height='';k.style.removeProperty('--fh')});c.classList.add('pgsc');c.style.height=avail+'px'})}
 /* 3.57.0: اندازه‌کردن دوباره‌ی قاب‌ها جای پیمایش را عوض نمی‌کند (روی آیپد با جمع‌شدن نوار Safari صفحه به بالا می‌پرید) */
 var SCQ='#stage,#dashBody,#efBody,#inBody .icg,#schedBody,#fiBody,#wkBody,#comingList,#needs,#plBody,#pjAll,#v-proj .fitc,#v-sched .fitc,#v-mail .fitc,.dsc';
