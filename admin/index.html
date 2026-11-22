@@ -9,10 +9,10 @@
 <title>{brand} · IV — کنترل پنل کاربران</title>
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=408"></script>
-<script src="../shared/demo.js?v=408"></script>
-<script src="../shared/avatar.js?v=408"></script>
-<script src="../shared/auth.js?v=408"></script>
+<script src="../shared/cloud.js?v=409"></script>
+<script src="../shared/demo.js?v=409"></script>
+<script src="../shared/avatar.js?v=409"></script>
+<script src="../shared/auth.js?v=409"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=Outfit:wght@400;500;600;700&family=Vazirmatn:wght@400;500;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -173,9 +173,9 @@ function tenantDetail(id){api('GET','/admin/tenants/'+id).then(function(r){var t
  '<div class="tw"><table class="tbl"><thead><tr><th>کد</th><th>نام</th><th>سطح</th><th>بخش‌ها</th><th>وضعیت</th></tr></thead><tbody>'+r.users.map(function(u){return '<tr><td class="mono">'+esc(u.ucode)+'</td><td>'+esc(u.name)+(u.role==='owner'?' <span class="chip ok">مدیر اشتراک</span>':'')+'</td><td>'+(u.role==='owner'?'—':esc(lv[u.level-1]||('سطح '+fa(u.level))))+'</td><td>'+(u.role==='owner'?'همه':chipsMods(u.mods))+'</td><td>'+(u.active?'<span class="chip ok">فعال</span>':'<span class="chip bad">غیرفعال</span>')+'</td></tr>'}).join('')+'</tbody></table></div>'+
  '<details><summary style="cursor:pointer">تمدید یا تغییر اشتراک</summary><form id="rn" style="display:grid;gap:12px;margin-top:10px">'+subFields(s)+'<div class="err" role="alert"></div><button class="btn p">ثبت اشتراک تازه</button></form></details>'+
  '<details><summary style="cursor:pointer">سابقه‌ی اشتراک ('+fa(r.subs.length)+')</summary><div class="tw" style="margin-top:8px"><table class="tbl"><tbody>'+r.subs.map(function(x){return '<tr><td>'+fmtD(x.created)+'</td><td>'+esc(x.plan)+'</td><td>'+fa(x.seats)+' کاربر</td><td>'+fa(x.max_levels)+' سطح</td><td>تا '+fmtD(x.ends)+'</td><td>'+esc(x.price)+'</td></tr>'}).join('')+'</tbody></table></div></details>'+
- '<div class="card" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between"><span><b>دسترسی به داشبورد VERTEX</b><br><small style="color:var(--muted)">کاربرانی از این شرکت که بخش «کنترل پروژه» دارند، داشبورد کامل msp-bi را می‌بینند.</small></span><button class="btn '+(t.msp?'d':'p')+'" type="button" id="tgM">'+(t.msp?'بستن دسترسی داشبورد':'فعال‌کردن داشبورد')+'</button></div>'+'<div class="row"><button class="btn '+(t.status==='active'?'d':'')+'" type="button" id="tgS">'+(t.status==='active'?'تعلیق اشتراک':'فعال‌کردن دوباره')+'</button><button class="btn" type="button" data-close>بستن</button></div></div>',function(){
+ '<div class="card" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between"><span><b>دسترسی به داشبورد VERTEX</b><br><small style="color:var(--muted)">کاربرانی که تیک «کنترل پروژه» دارند داشبورد کامل msp-bi را می‌بینند؛ اینجا می‌توانید آن را برای کل شرکت ببندید.</small></span><button class="btn '+(t.msp!==false?'d':'p')+'" type="button" id="tgM">'+(t.msp!==false?'بستن دسترسی داشبورد':'فعال‌کردن داشبورد')+'</button></div>'+'<div class="row"><button class="btn '+(t.status==='active'?'d':'')+'" type="button" id="tgS">'+(t.status==='active'?'تعلیق اشتراک':'فعال‌کردن دوباره')+'</button><button class="btn" type="button" data-close>بستن</button></div></div>',function(){
  $('#rn').onsubmit=function(e){e.preventDefault();var f=e.target;api('POST','/admin/tenants/'+id+'/subscription',subBody(f)).then(function(){toast('اشتراک تازه ثبت شد.');closeDlg();go(VIEW)}).catch(function(x){f.querySelector('.err').textContent=emsg(x)})};
- $('#tgM').onclick=function(){api('PATCH','/admin/tenants/'+id,{msp:!t.msp}).then(function(){toast(t.msp?'دسترسی داشبورد بسته شد.':'داشبورد برای این شرکت فعال شد؛ کاربران یک‌بار خارج و دوباره وارد شوند.');closeDlg();go(VIEW)}).catch(function(x){toast(emsg(x))})};
+ $('#tgM').onclick=function(){api('PATCH','/admin/tenants/'+id,{msp:t.msp===false}).then(function(){toast(t.msp!==false?'دسترسی داشبورد بسته شد.':'داشبورد برای این شرکت فعال شد؛ کاربران یک‌بار خارج و دوباره وارد شوند.');closeDlg();go(VIEW)}).catch(function(x){toast(emsg(x))})};
  $('#tgS').onclick=function(){var st=t.status==='active'?'suspended':'active';if(st==='suspended'&&!confirm('با تعلیق، کاربران این اشتراک نمی‌توانند وارد شوند. ادامه می‌دهید؟'))return;api('PATCH','/admin/tenants/'+id,{status:st}).then(function(){closeDlg();go(VIEW)}).catch(function(x){toast(emsg(x))})}})}).catch(function(x){toast(emsg(x))})}
 
 /* ── مدیر اشتراک ── */
@@ -232,22 +232,22 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
-<script src="extras.js?v=408"></script>
-<script src="sitemap.js?v=408"></script>
-<script src="filemap.js?v=408"></script>
-<script src="eco.js?v=408"></script>
-<script src="sim.js?v=408"></script>
-<script src="github.js?v=408"></script>
-<script src="aiset.js?v=408"></script>
-<script src="billing.js?v=408"></script>
-<script src="scores.js?v=408"></script>
-<script src="aiq.js?v=408"></script>
-<script src="fx.js?v=408"></script>
-<script src="shell.js?v=408"></script>
+<script src="extras.js?v=409"></script>
+<script src="sitemap.js?v=409"></script>
+<script src="filemap.js?v=409"></script>
+<script src="eco.js?v=409"></script>
+<script src="sim.js?v=409"></script>
+<script src="github.js?v=409"></script>
+<script src="aiset.js?v=409"></script>
+<script src="billing.js?v=409"></script>
+<script src="scores.js?v=409"></script>
+<script src="aiq.js?v=409"></script>
+<script src="fx.js?v=409"></script>
+<script src="shell.js?v=409"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();</script>
-<script src="../shared/ai/ai.js?v=408" defer></script>
+<script src="../shared/ai/ai.js?v=409" defer></script>
 </body>
 </html>
