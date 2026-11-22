@@ -9,8 +9,10 @@
      PUT    /files/<site>/<name>  raw body   → {ok,name,size,sha}   (≤ 20 MB)  header X-By: user code
      GET    /files/<site>/<name>            → raw bytes
      DELETE /files/<site>/<name>            → {ok}
+     POST   /ai/v1/chat/completions          → OpenAI-compatible chat (stream or not) on Cloudflare Workers AI — binding "AI"; optional var AI_KEY (Bearer)
+     GET    /ai/v1/models                    → the allowed Workers AI models
    Names: doc [a-z0-9._-]{1,60}; site [a-z0-9-]{1,40}; file name ≤120 chars, no slashes, known extensions. */
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const DOC = /^[a-z0-9._-]{1,60}$/i, SITE = /^[a-z0-9-]{1,40}$/, FILE = /^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp|png|jpg|jpeg|webp|docx)$/i;
 const MAX_FILE = 20 * 1024 * 1024, MAX_DOC = 20 * 1024 * 1024;
 
@@ -18,7 +20,7 @@ function cors(req, env) {
   const o = req.headers.get('Origin') || '';
   const allow = (env.ORIGINS || 'https://danialmor.github.io').split(',').map(s => s.trim()).filter(Boolean);
   const ok = !o || allow.includes(o) || allow.includes('*') || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
-  return { ok, h: { 'Access-Control-Allow-Origin': ok && o ? o : allow[0], 'Access-Control-Allow-Methods': 'GET,PUT,DELETE,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type,X-By,X-Pin,X-If-T', 'Access-Control-Max-Age': '600', Vary: 'Origin' } };
+  return { ok, h: { 'Access-Control-Allow-Origin': ok && o ? o : allow[0], 'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type,X-By,X-Pin,X-If-T,Authorization', 'Access-Control-Max-Age': '600', Vary: 'Origin' } };
 }
 const json = (o, s, h) => new Response(JSON.stringify(o), { status: s || 200, headers: Object.assign({ 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, h) });
 async function sha256(buf) { const d = await crypto.subtle.digest('SHA-256', buf); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
@@ -29,6 +31,27 @@ async function ixSet(env, site, name, meta) {
   ix = ix.filter(x => x.name !== name); if (meta) ix.push(Object.assign({ name }, meta)); ix.sort((a, b) => a.name < b.name ? -1 : 1);
   await env.VX.put('fidx:' + site, JSON.stringify(ix));
 }
+// ── Workers AI behind an OpenAI-compatible endpoint, so the VERTEX assistant can use Cloudflare's models without any API token in the browser
+const AI_MODELS = ['@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', '@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/qwen/qwen2.5-coder-32b-instruct', '@cf/meta/llama-3.1-8b-instruct-fast', '@cf/mistralai/mistral-small-3.1-24b-instruct', '@cf/google/gemma-3-12b-it'];
+async function aiChat(req, env, H) {
+  if (!env.AI) return json({ error: { message: 'Workers AI binding "AI" is not added to this worker' } }, 501, H);
+  if (env.AI_KEY && (req.headers.get('Authorization') || '') !== 'Bearer ' + env.AI_KEY) return json({ error: { message: 'bad key' } }, 401, H);
+  let b; try { b = await req.json() } catch (e) { return json({ error: { message: 'bad-json' } }, 400, H) }
+  const model = AI_MODELS.includes(b.model) ? b.model : AI_MODELS[0];
+  const messages = (b.messages || []).slice(-40).map(x => ({ role: x.role === 'assistant' || x.role === 'system' ? x.role : 'user', content: String(x.content || '').slice(0, 60000) }));
+  const opt = { messages, max_tokens: Math.min(+b.max_tokens || 1500, 4000) };
+  const id = 'cf-' + Date.now().toString(36), strip = t => String(t || '').replace(/<think>[\s\S]*?<\/think>\s*/g, '');
+  if (!b.stream) { const r = await env.AI.run(model, opt); return json({ id, object: 'chat.completion', model, choices: [{ index: 0, message: { role: 'assistant', content: strip(r && r.response) }, finish_reason: 'stop' }] }, 200, H); }
+  const src = await env.AI.run(model, Object.assign({ stream: true }, opt)), te = new TextEncoder(), td = new TextDecoder();
+  let buf = '', inThink = false;
+  const out = src.pipeThrough(new TransformStream({
+    transform(ch, ctl) { buf += td.decode(ch, { stream: true }); let i;
+      while ((i = buf.indexOf('\n')) >= 0) { const ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!ln.startsWith('data:')) continue; const d = ln.slice(5).trim(); if (d === '[DONE]') continue;
+        try { let t = JSON.parse(d).response || ''; if (t.includes('<think>')) inThink = true; if (inThink) { const k = t.indexOf('</think>'); if (k < 0) continue; inThink = false; t = t.slice(k + 8) } if (t) ctl.enqueue(te.encode('data: ' + JSON.stringify({ id, object: 'chat.completion.chunk', model, choices: [{ index: 0, delta: { content: t } }] }) + '\n\n')) } catch (e) { } } },
+    flush(ctl) { ctl.enqueue(te.encode('data: [DONE]\n\n')) }
+  }));
+  return new Response(out, { headers: Object.assign({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-store' }, H) });
+}
 export default {
   async fetch(req, env) {
     const c = cors(req, env), H = c.h;
@@ -37,6 +60,7 @@ export default {
     const url = new URL(req.url), seg = url.pathname.split('/').filter(Boolean).map(decodeURIComponent), m = req.method;
     try {
       if (seg[0] === 'health') return json({ ok: true, version: VERSION, kv: !!env.VX }, 200, H);
+      if (seg[0] === 'ai' && seg[1] === 'v1') { if (seg[2] === 'models') return json({ object: 'list', data: AI_MODELS.map(id => ({ id, object: 'model' })) }, 200, H); if (seg[2] === 'chat' && seg[3] === 'completions' && m === 'POST') return aiChat(req, env, H); }
       if (!env.VX) return json({ error: 'kv-not-bound' }, 500, H);
       if (seg[0] === 'doc' && seg.length === 2) {
         const k = seg[1]; if (!DOC.test(k)) return json({ error: 'bad-name' }, 400, H);

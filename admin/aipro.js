@@ -7,7 +7,7 @@
   var $ = P.$, esc = P.esc, toast = P.toast;
   var enc = function (k) { return btoa(k.split('').reverse().join('')) };
   var fa = function (n) { return Number(n || 0).toLocaleString('fa-IR') };
-  var PRE = [['openai', 'OpenAI', 'https://api.openai.com/v1', 'gpt-4o-mini'], ['openrouter', 'OpenRouter', 'https://openrouter.ai/api/v1', 'openai/gpt-4o-mini'], ['groq', 'Groq', 'https://api.groq.com/openai/v1', 'llama-3.3-70b-versatile'], ['deepseek', 'DeepSeek', 'https://api.deepseek.com/v1', 'deepseek-chat'], ['gemini', 'Google Gemini', 'https://generativelanguage.googleapis.com/v1beta/openai', 'gemini-2.0-flash'], ['coarena2', 'Coarena (کلید دوم)', 'https://coarena.ai/api/v1', 'gemini-3-8-flash'], ['custom', 'سفارشی (سازگار با OpenAI)', 'https://', '']];
+  var PRE = [['cfai', 'Cloudflare Workers AI · DeepSeek (بدون کلید)', 'https://vertex-cloud.0tddq47ko7zqg6gdmwllyzi.workers.dev/ai/v1', '@cf/deepseek-ai/deepseek-r1-distill-qwen-32b'], ['openai', 'OpenAI', 'https://api.openai.com/v1', 'gpt-4o-mini'], ['openrouter', 'OpenRouter', 'https://openrouter.ai/api/v1', 'openai/gpt-4o-mini'], ['groq', 'Groq', 'https://api.groq.com/openai/v1', 'llama-3.3-70b-versatile'], ['deepseek', 'DeepSeek', 'https://api.deepseek.com/v1', 'deepseek-chat'], ['gemini', 'Google Gemini', 'https://generativelanguage.googleapis.com/v1beta/openai', 'gemini-2.0-flash'], ['coarena2', 'Coarena (کلید دوم)', 'https://coarena.ai/api/v1', 'gemini-3-8-flash'], ['custom', 'سفارشی (سازگار با OpenAI)', 'https://', '']];
   var COL = ['#2f78c4', '#f0a53a', '#3fb37f', '#8e5cf7', '#e5534b', '#00a99d', '#c0587e'];
   var PLN = { 'msp-bi': 'کنترل پروژه', admin: 'کنترل پنل', mail: 'نامه‌نگاری', files: 'فایل منیجر', trading: 'تریدینگ', aide: 'میز منشی', app: 'خانه‌ی مشترک', home: 'خانه', ai: 'پلتفرم هوش مصنوعی' };
   var VAGUE = /در داده(‌|\s)?ها نیامده|اطلاعاتی (در این مورد )?ندارم|نمی‌دانم|مشخص نیست|داده‌ای (موجود )?نیست|not (in|available in) the data|i don't know/i;
@@ -61,7 +61,7 @@
     // provider actions
     var f = $('#pAdd'); f.pre.onchange = function () { var x = PRE[+f.pre.value]; f.base.value = x[2]; f.model.value = x[3] };
     var saveProv = function (L, msg) { return upd('ai-config', function (j) { j.providers = L; j.t0 = j.t }, function () { return {} }).then(function () { toast(msg); P.A.aiset() }).catch(function (e) { toast('ذخیره نشد: ' + (e.message || e)) }) };
-    f.onsubmit = function (e) { e.preventDefault(); var x = PRE[+f.pre.value], b = f.base.value.trim().replace(/\/+$/, ''), m = f.model.value.trim(), k = f.key.value.trim(); if (!/^https:\/\//.test(b) || !m || !k) { toast('آدرس https، مدل و کلید لازم است.'); return }
+    f.onsubmit = function (e) { e.preventDefault(); var x = PRE[+f.pre.value], b = f.base.value.trim().replace(/\/+$/, ''), m = f.model.value.trim(), k = f.key.value.trim(); if (!k && x[0] === 'cfai') k = 'none'; if (!/^https:\/\//.test(b) || !m || !k) { toast('آدرس https، مدل و کلید لازم است.'); return }
       var L = prov.concat([{ id: x[0] + '-' + Date.now().toString(36).slice(-4), name: x[1], base: b, model: m, k: enc(k), on: true, pri: prov.length + 1 }]); saveProv(L, '✓ سرویس اضافه شد؛ همه‌ی پلتفرم‌ها از آن استفاده می‌کنند.') };
     var re = function (L) { return L.map(function (p, i) { return Object.assign({}, p, { pri: i + 1 }) }) };
     [].forEach.call(pg.querySelectorAll('[data-pu]'), function (b) { b.onclick = function () { var i = +b.dataset.pu; if (!i) return; var L = prov.slice(); var t = L[i - 1]; L[i - 1] = L[i]; L[i] = t; saveProv(re(L), '✓ ترتیب ذخیره شد.') } });
