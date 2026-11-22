@@ -236,9 +236,16 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
   var old='';try{old=localStorage.getItem('aide.tok')||''}catch(e){}
   var run=(old?call('/api/me','GET',null,old).catch(function(){return{}}):Promise.resolve({})).then(function(me){
    if(me&&me.user&&(isAdmin||me.user.username===un))return;            // already signed in to Aide as this person
+   if(isAdmin){ // the admin's own Aide account (e.g. danial.moradi) is linked once per device; its password is stored encrypted with the VERTEX password
+    try{sessionStorage.setItem('vxAideKey',pin)}catch(e){}
+    var L=null;try{L=JSON.parse(localStorage.getItem('aide.link')||'null')}catch(e){}
+    if(!L)return;
+    return vxDecrypt(L,pin).then(function(c){return call('/api/login','POST',{username:c.u,password:c.p,rememberMe:true}).then(keep)}).catch(function(){})}
    return call('/api/login','POST',{username:un,password:pw,rememberMe:true}).then(function(j){if(keep(j))return;
     if(!isAdmin&&(j._s===401||j._s===404||j._s===400))return call('/api/register','POST',{username:un,password:pw,displayName:u.name||un,rememberMe:true}).then(keep)})});
   return Promise.race([run,new Promise(function(r){setTimeout(r,7000)})]).catch(function(){})}
+ function vxKey(pin,salt){var e=new TextEncoder();return crypto.subtle.importKey('raw',e.encode(pin),'PBKDF2',false,['deriveKey']).then(function(k){return crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:150000,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['decrypt'])})}
+ function vxDecrypt(L,pin){var b=function(x){return Uint8Array.from(atob(x),function(c){return c.charCodeAt(0)})};return vxKey(pin,b(L.s)).then(function(k){return crypto.subtle.decrypt({name:'AES-GCM',iv:b(L.i)},k,b(L.c))}).then(function(t){return JSON.parse(new TextDecoder().decode(t))})}
  window.VX_aideSso=aideSso;
  var vs=VX_AUTH.session(),aideAsk=/[?&]aide=1/.test(location.search);
  if(aideAsk){$('#lErr').textContent='برای باز کردن تقویم منشی، یک بار نام کاربری و رمز VERTEX را وارد کنید.';try{if(vs&&vs.u)lf.code.value=vs.u}catch(e){}show('login')}
