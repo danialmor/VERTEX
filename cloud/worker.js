@@ -11,8 +11,9 @@
      DELETE /files/<site>/<name>            → {ok}
      POST   /ai/v1/chat/completions          → OpenAI-compatible chat (stream or not) on Cloudflare Workers AI — binding "AI"; optional var AI_KEY (Bearer)
      GET    /ai/v1/models                    → the allowed Workers AI models
+     GET|PUT|DELETE /ai/cred                 → Cloudflare API token for Workers AI, kept only inside the worker (never returned)
    Names: doc [a-z0-9._-]{1,60}; site [a-z0-9-]{1,40}; file name ≤120 chars, no slashes, known extensions. */
-const VERSION = '1.3.0';
+const VERSION = '1.4.0';
 const DOC = /^[a-z0-9._-]{1,60}$/i, SITE = /^[a-z0-9-]{1,40}$/, FILE = /^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp|png|jpg|jpeg|webp|docx)$/i;
 const MAX_FILE = 20 * 1024 * 1024, MAX_DOC = 20 * 1024 * 1024;
 
@@ -33,14 +34,37 @@ async function ixSet(env, site, name, meta) {
 }
 // ── Workers AI behind an OpenAI-compatible endpoint, so the VERTEX assistant can use Cloudflare's models without any API token in the browser
 const AI_MODELS = ['@cf/deepseek-ai/deepseek-r1-distill-qwen-32b', '@cf/meta/llama-3.3-70b-instruct-fp8-fast', '@cf/qwen/qwen2.5-coder-32b-instruct', '@cf/meta/llama-3.1-8b-instruct-fast', '@cf/mistralai/mistral-small-3.1-24b-instruct', '@cf/google/gemma-3-12b-it'];
+async function cfCred(env) { try { return env.VX ? await env.VX.get('sec:cfai', 'json') : null } catch (e) { return null } }
+async function aiCred(req, env, H, m) {
+  if (m === 'GET') { const c = await cfCred(env); return json({ set: !!c, account: c ? c.name || '' : '', t: c ? c.t : 0, binding: !!env.AI }, 200, H) }
+  if (m !== 'GET' && env.ADMIN_PIN && req.headers.get('X-Pin') !== env.ADMIN_PIN) return json({ error: 'forbidden' }, 403, H);
+  if (m === 'DELETE') { await env.VX.delete('sec:cfai'); return json({ ok: true }, 200, H) }
+  if (m !== 'PUT') return json({ error: 'method' }, 405, H);
+  let b; try { b = await req.json() } catch (e) { return json({ error: 'bad-json' }, 400, H) }
+  const tok = String(b.token || '').trim(); if (!/^[\w-]{20,}$/.test(tok)) return json({ error: 'bad-token' }, 400, H);
+  const cf = (p) => fetch('https://api.cloudflare.com/client/v4' + p, { headers: { Authorization: 'Bearer ' + tok } }).then(r => r.json()).catch(() => ({}));
+  const v = await cf('/user/tokens/verify'); if (!v.success) return json({ error: 'token-invalid', detail: ((v.errors || [])[0] || {}).message || '' }, 400, H);
+  let acc = String(b.account || '').trim(), name = '';
+  if (!acc) { const a = await cf('/accounts'); const L = a.result || []; if (!L.length) return json({ error: 'no-account', detail: 'Account ID را وارد کنید یا به توکن دسترسی Account Read بدهید' }, 400, H); acc = L[0].id; name = L[0].name || '' }
+  if (!/^[a-f0-9]{32}$/.test(acc)) return json({ error: 'bad-account' }, 400, H);
+  const probe = await fetch('https://api.cloudflare.com/client/v4/accounts/' + acc + '/ai/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: AI_MODELS[3], messages: [{ role: 'user', content: 'ok' }], max_tokens: 5 }) }).catch(() => null);
+  if (!probe || !probe.ok) { let d = ''; try { d = JSON.stringify((await probe.json()).errors || '').slice(0, 200) } catch (e) { } return json({ error: 'no-ai-permission', detail: 'توکن باید دسترسی «Workers AI: Read/Edit» داشته باشد ' + d }, 400, H) }
+  await env.VX.put('sec:cfai', JSON.stringify({ token: tok, account: acc, name: name || acc.slice(0, 6) + '…', t: Date.now() }));
+  return json({ ok: true, account: name || acc.slice(0, 6) + '…' }, 200, H);
+}
 async function aiChat(req, env, H) {
-  if (!env.AI) return json({ error: { message: 'Workers AI binding "AI" is not added to this worker' } }, 501, H);
+  const cred = env.AI ? null : await cfCred(env);
+  if (!env.AI && !cred) return json({ error: { message: 'Cloudflare AI is not connected: add the "AI" binding or save an API token in the control panel' } }, 501, H);
   if (env.AI_KEY && (req.headers.get('Authorization') || '') !== 'Bearer ' + env.AI_KEY) return json({ error: { message: 'bad key' } }, 401, H);
   let b; try { b = await req.json() } catch (e) { return json({ error: { message: 'bad-json' } }, 400, H) }
   const model = AI_MODELS.includes(b.model) ? b.model : AI_MODELS[0];
   const messages = (b.messages || []).slice(-40).map(x => ({ role: x.role === 'assistant' || x.role === 'system' ? x.role : 'user', content: String(x.content || '').slice(0, 60000) }));
   const opt = { messages, max_tokens: Math.min(+b.max_tokens || 1500, 4000) };
   const id = 'cf-' + Date.now().toString(36), strip = t => String(t || '').replace(/<think>[\s\S]*?<\/think>\s*/g, '');
+  if (cred) { // REST: Cloudflare's own OpenAI-compatible endpoint, streamed straight through
+    const r = await fetch('https://api.cloudflare.com/client/v4/accounts/' + cred.account + '/ai/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + cred.token, 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ model, stream: !!b.stream }, opt)) });
+    return new Response(r.body, { status: r.status, headers: Object.assign({ 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' }, H) });
+  }
   if (!b.stream) { const r = await env.AI.run(model, opt); return json({ id, object: 'chat.completion', model, choices: [{ index: 0, message: { role: 'assistant', content: strip(r && r.response) }, finish_reason: 'stop' }] }, 200, H); }
   const src = await env.AI.run(model, Object.assign({ stream: true }, opt)), te = new TextEncoder(), td = new TextDecoder();
   let buf = '', inThink = false;
@@ -61,6 +85,7 @@ export default {
     try {
       if (seg[0] === 'health') return json({ ok: true, version: VERSION, kv: !!env.VX }, 200, H);
       if (seg[0] === 'ai' && seg[1] === 'v1') { if (seg[2] === 'models') return json({ object: 'list', data: AI_MODELS.map(id => ({ id, object: 'model' })) }, 200, H); if (seg[2] === 'chat' && seg[3] === 'completions' && m === 'POST') return aiChat(req, env, H); }
+      if (seg[0] === 'ai' && seg[1] === 'cred') { if (!env.VX) return json({ error: 'kv-not-bound' }, 500, H); return aiCred(req, env, H, m); }
       if (!env.VX) return json({ error: 'kv-not-bound' }, 500, H);
       if (seg[0] === 'doc' && seg.length === 2) {
         const k = seg[1]; if (!DOC.test(k)) return json({ error: 'bad-name' }, 400, H);
