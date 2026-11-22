@@ -521,18 +521,18 @@
 #vxai.full form .mic svg{width:22px;height:22px}
 #vxai.full .tools button{font-size:15px;padding:10px 14px;min-height:44px;border-radius:12px;opacity:.75}
 #vxai.full .side{padding:14px;gap:10px}
-#vxai.full .side .nw{min-height:56px;font-size:15px;border-radius:16px;background:linear-gradient(135deg,#1b6f52,#2f78c4);color:#fff;border:0}
-#vxai.full .side input{min-height:48px;font-size:15px;border-radius:14px}
-#vxai.full .side .it>button.t{min-height:48px;font-size:14.5px}
-#vxai.full .side .it .ac button{min-width:40px!important;min-height:40px!important;font-size:16px!important}
-#vxai.full .side .it .ac{display:flex}
-#vxai.full .side .ft button{min-height:44px;padding:0 6px}
-#vxai.full .welcome{width:min(960px,100%);box-sizing:border-box;gap:18px;padding:28px 8px}
+#vxai.full .side .nw{min-height:48px;font-size:14px;border-radius:14px;background:linear-gradient(135deg,#1b6f52,#2f78c4);color:#fff;border:0}
+#vxai.full .side input{min-height:42px;font-size:14px;border-radius:12px}
+#vxai.full .side .it>button.t{min-height:40px;font-size:13.5px}
+#vxai.full .side .it .ac button{min-width:30px!important;min-height:30px!important;font-size:13px!important}
+#vxai.full .side .it.on .ac{display:flex}
+#vxai.full .side .ft button{min-height:32px;padding:0 4px}
+#vxai.full .welcome{width:100%;box-sizing:border-box;gap:12px;padding:8px 0}
 #vxai.full .welcome .hero{display:grid;justify-items:center;gap:6px}
-#vxai.full .welcome .orb{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;color:#fff;background:conic-gradient(from 200deg,#1b6f52,#2f78c4,#7a5cd6,#1b6f52);box-shadow:0 12px 30px rgba(47,120,196,.3);animation:vxorb 6s ease-in-out infinite}
+#vxai.full .welcome .orb{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;color:#fff;background:conic-gradient(from 200deg,#1b6f52,#2f78c4,#7a5cd6,#1b6f52);box-shadow:0 12px 30px rgba(47,120,196,.3);animation:vxorb 6s ease-in-out infinite}
 #vxai.full .welcome .orb svg{width:36px;height:36px}
 @keyframes vxorb{50%{transform:translateY(-4px) rotate(4deg)}}
-#vxai.full .welcome h2{font-size:28px}
+#vxai.full .welcome h2{font-size:24px}
 #vxai.full .welcome .sub{color:var(--muted,#7a8380);font-size:14px}
 #vxai.full .welcome .svc{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 #vxai.full .welcome .svc span{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;font-size:13px;background:rgba(127,127,127,.09)}
@@ -541,15 +541,16 @@
 #vxai.full .welcome .cats{display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:2px 4px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #vxai.full .welcome .cats button{flex:none;min-height:48px;padding:0 20px;border-radius:99px;border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 #vxai.full .welcome .cats button.on{background:var(--ink,#14181a);color:var(--card,#fff);border-color:transparent}
-#vxai.full .welcome .cards{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;width:100%}
-#vxai.full .welcome .cards button{position:relative;display:grid;grid-template-rows:auto 1fr;gap:10px;min-height:128px;padding:18px;border-radius:22px;font-size:15px;line-height:1.7;border:1px solid rgba(127,127,127,.18);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,var(--card,#fff)),var(--card,#fff) 70%);box-shadow:0 2px 10px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#vxai.full .welcome .cards{display:flex!important;gap:12px;width:100%;overflow-x:auto;padding:4px 4px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin;justify-content:safe center}
+#vxai.full .welcome .cards button{flex:0 0 190px;scroll-snap-align:start}
+#vxai.full .welcome .cards button{position:relative;display:grid;grid-template-rows:auto 1fr;gap:10px;min-height:150px;padding:16px;border-radius:22px;font-size:15px;line-height:1.7;border:1px solid rgba(127,127,127,.18);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,var(--card,#fff)),var(--card,#fff) 70%);box-shadow:0 2px 10px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #vxai.full .welcome .cards button:active{transform:scale(.97)}
 @media (hover:hover){#vxai.full .welcome .cards button:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.09)}}
 #vxai.full .welcome .cards .ic{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:color-mix(in srgb,var(--c) 22%,transparent)}
 #vxai.full .welcome .cards b{display:block;font-size:15.5px}#vxai.full .welcome .cards small{display:block;color:var(--muted,#7a8380);font-size:13px;font-weight:400}
 #vxai.full .welcome .cards .nw{position:absolute;top:12px;inset-inline-end:12px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;background:#7a5cd6;color:#fff}
 #vxai.full .welcome .cards .ed{position:absolute;bottom:10px;inset-inline-end:10px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:16px;opacity:.55}
-@media (max-width:820px){#vxai.full .welcome .cards{grid-template-columns:1fr 1fr}#vxai.full .welcome .cards button{min-height:118px;padding:14px}}
+@media (max-width:820px){#vxai.full .welcome .cards button{flex-basis:165px}}
 `; document.head.appendChild(TCSS);
   // suggestion tiles: q = prompt sent; e = true → put in the box to edit first (needs the user's text)
   const TILES = [
