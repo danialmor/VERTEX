@@ -1,0 +1,16 @@
+﻿دسته‌بندی,نام API,کاربرد پیشنهادی,سطح رایگان / قیمت,احراز هویت,لینک مستندات
+مدل زبانی,Google Gemini API,چت‌بات، خلاصه‌سازی، تحلیل متن و بینایی ماشین,سطح رایگان بدون نیاز به کارت بانکی,API Key,https://ai.google.dev/gemini-api/docs
+مدل زبانی,OpenAI API,GPT برای چت، تولید محتوا، کدنویسی و Tool Calling,اعتبار اولیه؛ سپس پرداخت به ازای توکن,API Key,https://platform.openai.com/docs
+مدل زبانی,Anthropic Claude API,تحلیل متن طولانی، کدنویسی و دستیار هوشمند,اعتبار اولیه؛ سپس پرداخت به ازای توکن,API Key,https://docs.anthropic.com/
+مدل زبانی,Mistral AI,مدل‌های باز و سریع اروپایی,سطح رایگان بدون کارت بانکی,API Key,https://docs.mistral.ai/
+مدل زبانی,Groq,استنتاج فوق‌سریع برای چت و پردازش متن,سطح رایگان با محدودیت روزانه,API Key,https://console.groq.com/docs
+مدل زبانی,Cohere,تولید متن، Embedding و RAG,سطح رایگان ماهانه (غیرتجاری),API Key,https://docs.cohere.com/
+مدل زبانی,OpenRouter,دسترسی به صدها مدل با یک API,مدل‌های رایگان با محدودیت روزانه,API Key,https://openrouter.ai/docs
+مدل زبانی,Hugging Face Inference,اجرای مدل‌های متن‌باز و تخصصی,اعتبار ماهانه کوچک,API Token,https://huggingface.co/docs/api-inference
+تصویرسازی,Stability AI,تولید تصویر با Stable Diffusion,اعتبار اولیه؛ سپس پرداخت به ازای مصرف,API Key,https://platform.stability.ai/docs
+تصویرسازی,Replicate,اجرای مدل‌های تصویر و ویدیو,پرداخت به ازای مصرف,API Token,https://replicate.com/docs
+صدا و گفتار,ElevenLabs,تبدیل متن به گفتار و کلون صدا,سطح رایگان ماهانه,API Key,https://elevenlabs.io/docs
+صدا و گفتار,Deepgram,تبدیل گفتار به متن و تحلیل صدا,اعتبار اولیه رایگان,API Key,https://developers.deepgram.com/
+صدا و گفتار,AssemblyAI,رونویسی، خلاصه‌سازی و تشخیص گوینده,اعتبار رایگان اولیه,API Key,https://www.assemblyai.com/docs
+جستجوی وب برای AI,Tavily,جستجوی وب و استخراج محتوا برای RAG,۱٬۰۰۰ اعتبار رایگان ماهانه,API Key,https://docs.tavily.com/
+جستجوی وب برای AI,Exa,جستجوی معنایی و پژوهشی برای ایجنت‌ها,۱۰ دلار اعتبار رایگان ماهانه,API Key,https://docs.exa.ai/

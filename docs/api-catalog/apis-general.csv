@@ -1,0 +1,21 @@
+﻿دسته‌بندی,نام API,کاربرد پیشنهادی,سطح رایگان / قیمت,احراز هویت,لینک مستندات
+پرداخت آنلاین,Stripe,دریافت پرداخت، اشتراک و صورتحساب,بدون هزینه راه‌اندازی؛ کارمزد به ازای هر تراکنش,API Key,https://stripe.com/docs/api
+پرداخت آنلاین,PayPal,پرداخت بین‌المللی و کیف پول,کارمزد به ازای تراکنش,OAuth 2.0,https://developer.paypal.com/api/rest/
+نقشه و مسیریابی,Mapbox,نقشه سفارشی، مسیریابی و Geocoding,سطح رایگان ماهانه برای بیشتر محصولات,Access Token,https://docs.mapbox.com/
+نقشه و مسیریابی,Google Maps Platform,نقشه، Places و Directions,اعتبار ماهانه رایگان (نیازمند billing),API Key,https://developers.google.com/maps/documentation
+آب‌وهوا,OpenWeather,آب‌وهوای فعلی و پیش‌بینی,تا ۱٬۰۰۰٬۰۰۰ فراخوان در ماه,API Key,https://openweathermap.org/api
+آب‌وهوا,Open-Meteo,پیش‌بینی آب‌وهوا و داده اقلیمی,رایگان برای استفاده غیرتجاری,بدون کلید,https://open-meteo.com/en/docs
+ایمیل تراکنشی,Resend,ارسال ایمیل ثبت‌نام، بازیابی رمز و اطلاع‌رسانی,سطح رایگان ماهانه,API Key,https://resend.com/docs
+ایمیل تراکنشی,SendGrid,ارسال ایمیل و کمپین,سطح رایگان روزانه/ماهانه,API Key,https://docs.sendgrid.com/
+پیامک,Twilio,پیامک، تماس صوتی و WhatsApp,اعتبار آزمایشی؛ پرداخت به ازای مصرف,Account SID + Auth Token,https://www.twilio.com/docs
+احراز هویت,Auth0,ورود، ثبت‌نام، SSO و مدیریت کاربر,سطح رایگان برای پروژه‌های کوچک,OAuth 2.0 / SDK,https://auth0.com/docs
+احراز هویت,Clerk,احراز هویت آماده برای React/Next.js,سطح رایگان ماهانه,API Key,https://clerk.com/docs
+مدیریت فایل و تصویر,Cloudinary,آپلود، بهینه‌سازی و تحویل تصویر/ویدیو,سطح رایگان ماهانه,API Key + Secret,https://cloudinary.com/documentation
+جستجو,Algolia,جستجوی سریع محصولات و محتوا,سطح رایگان ماهانه,API Key,https://www.algolia.com/doc/
+ترجمه,DeepL,ترجمه ماشینی با کیفیت بالا,سطح رایگان محدود ماهانه,API Key,https://developers.deepl.com/docs
+نرخ ارز,ExchangeRate-API,تبدیل ارز و نرخ لحظه‌ای,سطح رایگان با به‌روزرسانی روزانه,API Key,https://www.exchangerate-api.com/docs
+اخبار,NewsAPI,جستجو و نمایش اخبار از منابع مختلف,سطح رایگان محدود برای توسعه,API Key,https://newsapi.org/docs
+پیام‌رسان,Telegram Bot API,ربات تلگرام و اطلاع‌رسانی,رایگان,Bot Token,https://core.telegram.org/bots/api
+QR Code,QR Server,ساخت QR Code برای لینک و متن,رایگان,بدون کلید,https://goqr.me/api/
+تولید PDF,PDFShift,تبدیل HTML به PDF,سطح رایگان محدود,API Key,https://docs.pdfshift.io/
+ذخیره‌سازی ابری,Cloudflare R2,ذخیره فایل و تصویر با خروجی بدون هزینه,سطح رایگان ماهانه,API Token,https://developers.cloudflare.com/r2/
