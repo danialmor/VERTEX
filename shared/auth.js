@@ -34,7 +34,7 @@
     return undefined;
   }
   function session() { var s = null; try { s = JSON.parse(localStorage.getItem(SK) || sessionStorage.getItem(SK) || 'null'); } catch (e) {} return s && s.u && Date.now() - s.t < DAYS * 864e5 ? s : null; }
-  function allowed(slug, s) { s = s || session(); if (!s) return false; if (s.role === 'admin') return true; return !slug || (s.sites || []).indexOf(slug) >= 0; }
+  function allowed(slug, s) { s = s || session(); if (!s) return false; if (s.role === 'admin') return true; if (slug === 'project-control' && s.msp) return true; return !slug || (s.sites || []).indexOf(slug) >= 0; }
   function save(s, remember) { try { localStorage.removeItem(SK); sessionStorage.removeItem(SK); (remember ? localStorage : sessionStorage).setItem(SK, JSON.stringify(s)); } catch (e) {} }
   async function login(u, p, remember) {
     u = String(u || '').trim().toLowerCase();
