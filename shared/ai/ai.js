@@ -173,11 +173,11 @@
   function needCloud() { if (window.VX_CLOUD) return Promise.resolve(window.VX_CLOUD); return new Promise(function (res) { var sc = document.createElement('script'); sc.src = new URL('../cloud.js', BASE).href; sc.onload = function () { res(window.VX_CLOUD || null) }; sc.onerror = function () { res(null) }; document.head.appendChild(sc) }) }
   async function loadSrv() {
     // 1) VERTEX Cloud (Cloudflare) doc "ai-config" — set in control panel → هوش مصنوعی
-    try { const CL = await needCloud(); if (CL && CL.on) { const j = await CL.getDoc('ai-config'); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000) }; return applySrv(); } } } catch (e) {}
+    try { const CL = await needCloud(); if (CL && CL.on) { const j = await CL.getDoc('ai-config'); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000), prov: (j.providers || []).filter(p => p && p.on !== false && p.base).map(p => ({ id: String(p.id || p.name), name: p.name || p.id, base: String(p.base).replace(/\/+$/, ''), k: dec(p.k), model: p.model || '', pri: +p.pri || 0 })).sort((a, b) => a.pri - b.pri) }; return applySrv(); } } } catch (e) {}
     // Settings live in the control panel (هوش مصنوعی) → shared/ai/config.json. GitHub API first (fresh), Pages copy as fallback.
     const tries = ['https://api.github.com/repos/danialmor/VERTEX/contents/shared/ai/config.json?ref=main&t=' + Date.now(), BASE + 'config.json?t=' + Date.now()];
     for (const u of tries) {
-      try { const r = await fetch(u, { cache: 'no-store', headers: u.includes('api.github') ? { Accept: 'application/vnd.github.raw+json' } : {} }); if (r.ok) { const j = await r.json(); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000) }; break; } } } catch (e) {}
+      try { const r = await fetch(u, { cache: 'no-store', headers: u.includes('api.github') ? { Accept: 'application/vnd.github.raw+json' } : {} }); if (r.ok) { const j = await r.json(); if (j && (j.k || j.model || j.mode)) { SRV = { k: dec(j.k), model: j.model || '', t: j.t || 0, mode: j.mode || 'coarena', enabled: j.enabled !== false, name: j.name || '', prompt: String(j.prompt || '').slice(0, 2000), prov: (j.providers || []).filter(p => p && p.on !== false && p.base).map(p => ({ id: String(p.id || p.name), name: p.name || p.id, base: String(p.base).replace(/\/+$/, ''), k: dec(p.k), model: p.model || '', pri: +p.pri || 0 })).sort((a, b) => a.pri - b.pri) }; break; } } } catch (e) {}
     }
     applySrv();
   }
@@ -229,8 +229,34 @@
   const API = 'https://coarena.ai/api/v1';
   // On our own server the hub holds the Coarena key (config ai_key) and proxies: /api/v1/ai/stream, /api/v1/ai/feedback.
 
+  // ── provider chain (control panel → هوش مصنوعی): Coarena first unless the admin reorders; any OpenAI-compatible API can be added; on failure the next one answers
+  function chain(model) {
+    const L = []; const P = (SRV.prov || []).filter(p => p.k);
+    const hasCo = P.some(p => /coarena\.ai/.test(p.base));
+    if (SRV.k && !hasCo) L.push({ id: 'coarena', name: 'Coarena', base: API, k: SRV.k, model: model || cfg.model, pri: -1 });
+    P.forEach(p => L.push(Object.assign({}, p, { model: p.model || (/coarena\.ai/.test(p.base) ? (model || cfg.model) : '') })));
+    return L.filter(p => p.model).sort((a, b) => a.pri - b.pri);
+  }
+  const PLAT = (() => { const m = location.pathname.match(/\/([\w-]+)\/(?:index\.html)?$/); return m ? m[1] : 'home' })();
+  const USE_K = 'vxaiUse';
+  function meter(pid, ok, ms) {
+    try { const U = JSON.parse(localStorage.getItem(USE_K) || '{}'), d = new Date().toISOString().slice(0, 10); const a = ((U[d] = U[d] || {})[pid] = U[d][pid] || { ok: 0, err: 0, ms: 0, pg: {} }); ok ? a.ok++ : a.err++; a.ms += Math.round(ms || 0); a.pg[PLAT] = (a.pg[PLAT] || 0) + 1; localStorage.setItem(USE_K, JSON.stringify(U)); } catch (e) {}
+    clearTimeout(meter.t); meter.t = setTimeout(flushUse, 20000);
+  }
+  async function flushUse() {
+    let U; try { U = JSON.parse(localStorage.getItem(USE_K) || '{}') } catch (e) { return } if (!Object.keys(U).length) return;
+    try { const CL = await needCloud(); if (!CL || !CL.on) return;
+      for (let k = 0; k < 3; k++) { const j = (await CL.getDoc('ai-usage')) || { d: {} }; j.d = j.d || {};
+        Object.keys(U).forEach(d => Object.keys(U[d]).forEach(pid => { const a = U[d][pid], b = ((j.d[d] = j.d[d] || {})[pid] = j.d[d][pid] || { ok: 0, err: 0, ms: 0, pg: {} }); b.ok += a.ok; b.err += a.err; b.ms += a.ms; Object.keys(a.pg || {}).forEach(g => { b.pg[g] = (b.pg[g] || 0) + a.pg[g] }) }));
+        Object.keys(j.d).sort().slice(0, -60).forEach(d => delete j.d[d]);
+        try { await CL.putDoc('ai-usage', { t: Date.now(), d: j.d }, j.t || 0); localStorage.removeItem(USE_K); return } catch (e) { if (!e.conflict) return } }
+    } catch (e) {}
+  }
+  addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushUse() });
+
   let ctl = null;
   async function online(msgs) {
+    if (!VIAHUB) { const C = chain(); if (C.length > 1 || (C[0] && C[0].id !== 'coarena')) return onlineChain(msgs, C); }
     ctl = new AbortController();
     let r;
     if (VIAHUB) return viaHub(msgs);
@@ -251,8 +277,25 @@
           try { const j = JSON.parse(d); id = id || j.id || ''; const x = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content; if (x && cur) { cur.textContent += x; log.scrollTop = log.scrollHeight; } } catch (e) {}
         }
       }
-      const el = cur; finish(); if (id && el) rateBar(el, id);
-    } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
+      const el = cur; finish(); meter('coarena', true, 0); if (id && el) rateBar(el, id);
+    } catch (e) { const el = cur; finish(); if (e.name === 'AbortError') return; meter('coarena', false, 0); if (el && !el.textContent) el.remove(); sys('خطا: ' + String(e.message || e).replace(/</g, '&lt;')); }
+  }
+  async function onlineChain(msgs, C) {
+    let lastErr = '';
+    for (const p of C) {
+      ctl = new AbortController(); const t0 = performance.now();
+      try {
+        const r = await fetch(p.base + '/chat/completions', { method: 'POST', signal: ctl.signal, headers: { 'Authorization': 'Bearer ' + p.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: p.model, messages: msgs, stream: true, max_tokens: 1500 }) });
+        if (!r.ok) { let t = ''; try { const j = await r.json(); t = (j.error && (j.error.message || j.error)) || '' } catch (e) {} throw new Error(r.status + ' ' + t) }
+        const rd = r.body.getReader(), td = new TextDecoder(); let buf = '', id = '', got = false;
+        for (;;) { const { value, done } = await rd.read(); if (done) break; buf += td.decode(value, { stream: true }); let i;
+          while ((i = buf.indexOf('\n')) >= 0) { const ln = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!ln.startsWith('data:')) continue; const d = ln.slice(5).trim(); if (d === '[DONE]') continue;
+            try { const j = JSON.parse(d); id = id || j.id || ''; const x = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content; if (x && cur) { got = true; cur.textContent += x; log.scrollTop = log.scrollHeight; } } catch (e) {} } }
+        if (!got) throw new Error('پاسخ خالی');
+        meter(p.id, true, performance.now() - t0); const el = cur; finish(); if (id && el && /coarena\.ai/.test(p.base)) rateBar(el, id); return;
+      } catch (e) { if (e.name === 'AbortError') { const el = cur; finish(); return } meter(p.id, false, performance.now() - t0); lastErr = p.name + ': ' + (e.message || e); if (cur) cur.textContent = ''; }
+    }
+    const el = cur; finish(); if (el && !el.textContent) el.remove(); sys('خطا: هیچ‌کدام از سرویس‌های هوش مصنوعی پاسخ ندادند — ' + String(lastErr).replace(/</g, '&lt;'));
   }
   async function viaHub(msgs) {
     try {
@@ -412,6 +455,10 @@
     if (cfg.enabled === false) throw new Error('off');
     const msgs = [{ role: 'system', content: (sysTxt || '') + '\n\n' + context(q) }, { role: 'user', content: q }];
     if (VIAHUB) { const r = await fetch('/api/v1/ai', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ system: msgs[0].content, prompt: q, model: cfg.model }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j.text || ''; }
+    const C = chain();
+    if (cfg.mode !== 'local' && C.length) { let le = '';
+      for (const p of C) { const t0 = performance.now(); try { const r = await fetch(p.base + '/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + p.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: p.model, messages: msgs, max_tokens: 700 }) }); const j = await r.json(); if (!r.ok) throw new Error((j.error && (j.error.message || j.error)) || r.status); const a = String(((j.choices || [{}])[0].message || {}).content || ''); if (!a) throw new Error('empty'); meter(p.id, true, performance.now() - t0); return a.replace(/^\s*\[\?\]\s*/, '') } catch (e) { meter(p.id, false, performance.now() - t0); le = e.message || e } }
+      throw new Error(String(le)); }
     if (cfg.mode === 'local' || !SRV.k) throw new Error('no-online-ai');
     const call = async (model) => fetch(API + '/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + SRV.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: msgs, max_tokens: 700 }) });
     let r = await call(cfg.model); if (r.status === 402 && cfg.model !== 'gpt-6-luna') r = await call('gpt-6-luna');

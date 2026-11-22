@@ -20,7 +20,7 @@
   }
   function cloud() { if (window.VX_CLOUD) return Promise.resolve(window.VX_CLOUD); return new Promise(function (res) { var sc = document.createElement('script'); sc.src = '../shared/cloud.js?v=' + Date.now(); sc.onload = function () { res(window.VX_CLOUD || null) }; sc.onerror = function () { res(null) }; document.head.appendChild(sc) }) }
   async function save(c) {
-    var CL = await cloud(); if (CL && CL.on) { await CL.putDoc('ai-config', c); return }
+    var CL = await cloud(); if (CL && CL.on) { var o0 = null; try { o0 = await CL.getDoc('ai-config') } catch (e) { } c.providers = (o0 && o0.providers) || c.providers || []; await CL.putDoc('ai-config', c); return }
     throw new Error('اتصال به فضای آنلاین برقرار نشد؛ صفحه را تازه کنید');
   }
   var row = function (label, html, note) { return '<label style="display:grid;gap:6px"><b style="font-size:13px">' + label + '</b>' + html + (note ? '<small style="color:var(--muted)">' + note + '</small>' : '') + '</label>' };
