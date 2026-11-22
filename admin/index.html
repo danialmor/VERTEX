@@ -225,10 +225,25 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
  var nx=(location.search.match(/[?&]next=([^&]+)/)||[])[1];nx=nx?decodeURIComponent(nx):'';if(nx&&nx.indexOf(VX_AUTH.ROOT)!==0)nx='';
  function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant,paid=r.sub_active!==false;var GS={'msp-bi':['project-control','messenger'],aide:['executive-desk']},sites=eco||!paid?[]:r.tenant?(r.modules||[]):Object.keys(r.grants||{}).reduce(function(a,k){return a.concat(GS[k]||[k])},[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,paid:paid,msp:!!r.msp,staff:!r.tenant&&!eco,t:Date.now()}))}catch(e){}}window.TSP_vxMark=vxMark;
  var _lsub=lf.onsubmit;lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';if(!lf.code.value.trim()||!lf.pin.value){$('#lErr').textContent='نام کاربری و رمز را وارد کنید.';return}b.disabled=true;
-  api('POST','/auth/login',{code:lf.code.value.trim(),pin:lf.pin.value,device:'panel',remember:lf.remember.checked}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}lf.pin.value='';vxMark(r);if(r.must_change){enter(r);return}location.replace(nx||VX_AUTH.ROOT)}).catch(function(x){$('#lErr').textContent=emsg(x)}).then(function(){b.disabled=false})};
- var vs=VX_AUTH.session();
- if(vs&&nx)location.replace(nx);
- else if(T)api('GET','/me').then(function(r){vxMark(r);enter(r)}).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
+  var _c=lf.code.value.trim(),_p=lf.pin.value;api('POST','/auth/login',{code:_c,pin:_p,device:'panel',remember:lf.remember.checked}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}lf.pin.value='';vxMark(r);if(r.must_change){enter(r);return}var u=r.user||{},vs2=VX_AUTH.session()||{},can=vs2.role==='admin'||(vs2.sites||[]).indexOf('executive-desk')>=0,sec=can&&vs2.role!=='admin'&&(u.home==='executive-desk'||/منشی|secretary/i.test((u.title||'')+' '+(u.role||''))||(!vs2.msp&&(vs2.sites||[]).length===1));var go=function(){location.replace(nx||(sec?VX_AUTH.ROOT+'aide/':VX_AUTH.ROOT))};if(can){$('#lErr').textContent='در حال ورود به تقویم منشی…';aideSso(u,_c,_p,vs2.role==='admin').then(go,go)}else go()}).catch(function(x){$('#lErr').textContent=emsg(x)}).then(function(){b.disabled=false})};
+ /* Aide (CEO & Secretary desk) single sign-on: the VERTEX code and password open the user's Aide account,
+    creating it on first use. The Aide session token is kept in this browser (same site), so VERTEX/aide/ opens without its own login. */
+ function aideSso(u,code,pin,isAdmin){var API='https://aide-api.0tddq47ko7zqg6gdmwllyzi.workers.dev';
+  var un=String(code||'').toLowerCase();if(!/^[a-z0-9._-]{3,32}$/.test(un))un=String(u.ucode||'').toLowerCase();if(!/^[a-z0-9._-]{3,32}$/.test(un))return Promise.resolve();
+  var pw=pin.length>=8?pin:(pin+'.vertex-aide');
+  var call=function(path,m,body,tok){var h={'Content-Type':'application/json'};if(tok)h.Authorization='Bearer '+tok;return fetch(API+path,{method:m,headers:h,credentials:'include',body:body?JSON.stringify(body):undefined}).then(function(x){return x.json().then(function(j){j._s=x.status;return j})})};
+  var keep=function(j){if(j&&j.token){try{localStorage.setItem('aide.tok',j.token);localStorage.setItem('aide.lastOnlineUser',(j.user&&j.user.username)||un)}catch(e){}return true}return false};
+  var old='';try{old=localStorage.getItem('aide.tok')||''}catch(e){}
+  var run=(old?call('/api/me','GET',null,old).catch(function(){return{}}):Promise.resolve({})).then(function(me){
+   if(me&&me.user&&(isAdmin||me.user.username===un))return;            // already signed in to Aide as this person
+   return call('/api/login','POST',{username:un,password:pw,rememberMe:true}).then(function(j){if(keep(j))return;
+    if(!isAdmin&&(j._s===401||j._s===404||j._s===400))return call('/api/register','POST',{username:un,password:pw,displayName:u.name||un,rememberMe:true}).then(keep)})});
+  return Promise.race([run,new Promise(function(r){setTimeout(r,7000)})]).catch(function(){})}
+ window.VX_aideSso=aideSso;
+ var vs=VX_AUTH.session(),aideAsk=/[?&]aide=1/.test(location.search);
+ if(aideAsk){$('#lErr').textContent='برای باز کردن تقویم منشی، یک بار نام کاربری و رمز VERTEX را وارد کنید.';try{if(vs&&vs.u)lf.code.value=vs.u}catch(e){}show('login')}
+ else if(vs&&nx)location.replace(nx);
+ else if(aideAsk){}else if(T)api('GET','/me').then(function(r){vxMark(r);enter(r)}).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 }else if(T)api('GET','/me').then(enter).catch(function(){T='';try{localStorage.removeItem('hub.token')}catch(e){}show('login')});else show('login');
 })();
 </script>
