@@ -1,0 +1,42 @@
+/* Imagine template skin for the standalone AI page (ai/). Light, black CTAs, pink→violet frame. */
+html.vxai-page,html.vxai-page body{background:linear-gradient(135deg,#ffa3b8 0%,#fd9e9a 45%,#b79ce6 100%)!important;color:#1d2433}
+html.vxai-page{--ik:#111;--im:#6b7280;--il:#e7e7ea;--ig:#f4f4f5}
+html.vxai-page #vxai.full{--card:#fff;--ink:#1d2433;--muted:#6b7280;inset:14px!important;left:14px!important;right:14px!important;top:14px!important;bottom:14px!important;width:auto!important;height:auto!important;border-radius:28px!important;background:#fff!important;color:#1d2433!important;box-shadow:0 0 0 10px rgba(255,255,255,.35),0 30px 80px rgba(120,40,90,.25)!important;border:0!important;font-family:Vazirmatn,system-ui,sans-serif}
+html.vxai-page #vxai.full .side{background:#fafafa!important;border-color:var(--il)!important;border-radius:0 28px 28px 0}
+html.vxai-page #vxai.full .side .nw{background:#111!important;color:#fff!important;border-radius:12px!important}
+html.vxai-page #vxai.full .side input{background:#fff;border-color:var(--il)}
+html.vxai-page #vxai.full header{border-color:var(--il)}
+html.vxai-page #vxai.full header button{color:#374151}
+html.vxai-page #vxai.full form{border-color:var(--il)}
+html.vxai-page #vxai.full textarea{background:#fff;border-color:#d4d4d8;color:#111}
+html.vxai-page #vxai.full form button[type=submit]{background:#111!important}
+html.vxai-page #vxai.full .welcome{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:center;gap:40px;max-width:1280px;text-align:start;padding:10px 0}
+html.vxai-page #vxai.full.has .welcome{display:none!important}
+html.vxai-page #vxai.full .welcome .vxh{justify-items:start;gap:16px;text-align:start}
+html.vxai-page .welcome .trust{display:flex;align-items:center;gap:10px}
+html.vxai-page .welcome .trust .orb{width:40px!important;height:40px!important;border-radius:50%!important;background:#111!important;box-shadow:none!important;animation:none!important}
+html.vxai-page .welcome .trust .orb svg{width:20px!important;height:20px!important}
+html.vxai-page .welcome .trust b{display:block;font-size:13px;color:#111;letter-spacing:2px}
+html.vxai-page .welcome .trust small{color:var(--im);font-size:12.5px}
+html.vxai-page #vxai.full .welcome h2{font-size:clamp(30px,3.6vw,50px);line-height:1.25;font-weight:800;letter-spacing:-.5px;color:#1d2433}
+html.vxai-page #vxai.full .welcome .sub{font-size:15.5px;line-height:1.9;color:var(--im);max-width:460px}
+html.vxai-page .welcome .cta{display:flex;gap:12px;flex-wrap:wrap}
+html.vxai-page .welcome .cta button{min-height:52px;padding:0 26px;border-radius:10px;border:1px solid #111;background:#111;color:#fff;font:inherit;font-size:15.5px;font-weight:600;cursor:pointer;touch-action:manipulation}
+html.vxai-page .welcome .cta .ol{background:#fff;color:#111;border-color:#d4d4d8}
+html.vxai-page .welcome .chk{display:flex;gap:18px;flex-wrap:wrap;color:var(--im);font-size:13.5px}
+html.vxai-page .welcome .vxf{border:10px solid #1f2937;border-radius:26px;background:#fff;padding:16px;display:grid;gap:14px;min-width:0;box-shadow:0 20px 50px rgba(0,0,0,.12)}
+html.vxai-page .welcome .fbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--il);padding-bottom:12px}
+html.vxai-page .welcome .fl{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:15px;direction:ltr}
+html.vxai-page .welcome .fl svg{width:18px;height:18px}
+html.vxai-page #vxai.full .welcome .svc{justify-content:flex-end}
+html.vxai-page #vxai.full .welcome .svc span{background:var(--ig);font-size:12px;padding:6px 12px}
+html.vxai-page #vxai.full .welcome .cats{justify-content:flex-start;padding:0}
+html.vxai-page #vxai.full .welcome .cats button{border-color:#d4d4d8;min-height:44px;font-size:14px}
+html.vxai-page #vxai.full .welcome .cats button.on{background:#111;color:#fff}
+html.vxai-page #vxai.full .welcome .cards{justify-content:flex-start;padding:2px 2px 8px}
+html.vxai-page #vxai.full .welcome .cards button{flex-basis:170px!important;min-height:150px;background:var(--ig)!important;border:1px solid var(--il);border-radius:16px;box-shadow:none;color:#1d2433}
+html.vxai-page #vxai.full .welcome .cards .ic{background:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.06);border-radius:12px}
+html.vxai-page #vxai.full .welcome .cards .nw{background:#111}
+html.vxai-page #vxai.full .log .m.u{background:#111;color:#fff}
+@media (max-width:1000px){html.vxai-page #vxai.full .welcome{grid-template-columns:1fr;gap:20px}html.vxai-page #vxai.full .welcome h2{font-size:30px}}
+@media (max-width:820px){html.vxai-page #vxai.full{inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;border-radius:0!important}}

@@ -589,14 +589,20 @@
   }
   function welDraw() {
     const nm = (window.VX_USER && VX_USER.name) || ((JSON.parse(localStorage.getItem('vxSess') || '{}') || {}).name) || '';
-    wel.innerHTML = '<div class="vxh"><div class="orb">' + ICON + '</div><h2>' + (nm ? esc(nm) + '، ' : '') + 'چطور می‌توانم کمک کنم؟</h2><div class="sub">یک کاشی را لمس کنید یا سؤالتان را بنویسید — ✎ یعنی متن شما لازم است</div></div>'
-      + '<div class="svc">' + welSvc() + '</div>'
+    const nT = TILES.reduce((n, c) => n + c[2].length, 0);
+    wel.innerHTML = '<div class="vxh"><div class="trust"><span class="orb">' + ICON + '</span><span><b>★★★★★</b><small>' + nT + ' قابلیت آماده · ' + chain().length + ' سرویس هوش مصنوعی</small></span></div>'
+      + '<h2>' + (nm ? esc(nm) + '، ' : '') + 'پروژه‌ها را<br>سریع‌تر و دقیق‌تر پیش ببرید</h2>'
+      + '<div class="sub">دستیار VERTEX داده‌های برنامه و داشبورد را می‌خواند، گزارش و نامه می‌نویسد، برآورد می‌کند و تأخیرها را تحلیل می‌کند.</div>'
+      + '<div class="cta"><button type="button" data-go="ask">شروع گفتگو</button><button type="button" data-go="demo" class="ol">دموی داشبورد</button></div>'
+      + '<div class="chk"><span>✓ با داده‌های واقعی پروژه</span><span>✓ فارسی و انگلیسی</span><span>✓ ذخیره در همه‌ی دستگاه‌ها</span></div></div>'
+      + '<div class="vxf"><div class="fbar"><span class="fl">' + ICON + ' VERTEX AI</span><div class="svc">' + welSvc() + '</div></div>'
       + '<div class="cats">' + TILES.map((c, i) => '<button type="button" data-c="' + i + '" class="' + (i === tCat ? 'on' : '') + '">' + c[0] + '</button>').join('') + '</div>'
-      + '<div class="cards">' + TILES[tCat][2].map((t, i) => '<button type="button" data-t="' + i + '" style="--c:' + TILES[tCat][1] + '"><span class="ic">' + t[0] + '</span><span><b>' + t[1] + '</b><small>' + t[2] + '</small></span>' + (t[4] ? '<span class="nw">جدید</span>' : '') + (t[5] ? '<span class="ed">✎</span>' : '') + '</button>').join('') + '</div>';
+      + '<div class="cards">' + TILES[tCat][2].map((t, i) => '<button type="button" data-t="' + i + '" style="--c:' + TILES[tCat][1] + '"><span class="ic">' + t[0] + '</span><span><b>' + t[1] + '</b><small>' + t[2] + '</small></span>' + (t[4] ? '<span class="nw">جدید</span>' : '') + (t[5] ? '<span class="ed">✎</span>' : '') + '</button>').join('') + '</div></div>';
   }
   function esc(x) { return String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]) }
   welDraw(); setTimeout(welDraw, 2500);
   log.appendChild(wel); wel.addEventListener('click', e => {
+    const g = e.target.closest('[data-go]'); if (g) { if (g.dataset.go === 'demo') { location.href = AIROOT + 'msp-bi/?demo' } else box.querySelector('textarea').focus(); return }
     const c = e.target.closest('[data-c]'); if (c) { tCat = +c.dataset.c; return welDraw() }
     const b = e.target.closest('[data-t]'); if (!b) return; const t = TILES[tCat][2][+b.dataset.t];
     if (t[5]) { const ta = box.querySelector('textarea'); ta.value = t[3]; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); ta.dispatchEvent(new Event('input')) } else send(t[3]);
