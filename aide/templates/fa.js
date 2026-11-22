@@ -14,15 +14,27 @@
     'body{margin:0!important}' +
     'code,kbd,pre,.mono,[class*=mono]{font-family:ui-monospace,Menlo,monospace!important}' +
     '.aide-wide{max-width:none!important;width:100%!important;margin-left:0!important;margin-right:0!important}' +
-    '.aide-stage{background:transparent!important;padding:0!important;min-height:0!important;height:auto!important}';
+    '.aide-stage::before,.aide-stage::after{background:none!important;opacity:0!important}.aide-stage{background:transparent!important;box-shadow:none!important;padding:0!important;min-height:0!important;height:auto!important}';
   document.head.appendChild(st);
   function fit() {
     var vw = innerWidth;
     // top-level wrappers that paint a full-page backdrop become transparent; centred content boxes get the full width
-    [].forEach.call(document.body.children, function (el) {
-      if (/^(SCRIPT|STYLE|LINK|TEMPLATE)$/.test(el.tagName)) return;
-      var cs = getComputedStyle(el); if (cs.position === 'fixed' || cs.position === 'absolute') return;
-      if (el.getBoundingClientRect().width >= vw * .9) el.classList.add('aide-stage');
+    // every page-wide backdrop layer (any depth) becomes transparent, so the AIDE page background shows through;
+    // the template's own cards (narrower than the page) keep their colours
+    var lum = function (str) { var m = /rgba?\(([^)]+)\)/.exec(str || ''); if (!m) return null; var c = m[1].split(/[ ,\/]+/).map(parseFloat); if (c.length > 3 && c[3] < .35) return null; return (.2126 * c[0] + .7152 * c[1] + .0722 * c[2]) / 255 };
+    [].forEach.call(document.querySelectorAll('body *'), function (el) {
+      if (/^(SCRIPT|STYLE|LINK|TEMPLATE|svg|path|CANVAS|IMG|BUTTON|INPUT)$/i.test(el.tagName) || el.closest('svg') || el.closest('.aide-card')) return;
+      var r = el.getBoundingClientRect(), cs = getComputedStyle(el), abs = cs.position === 'fixed' || cs.position === 'absolute';
+      // decorative glows/blobs behind the content
+      if (abs && !el.textContent.trim() && !el.querySelector('button,input,svg,canvas,img') && r.width >= vw * .25 && (cs.backgroundImage !== 'none' || cs.filter !== 'none')) { el.style.setProperty('display', 'none', 'important'); return }
+      if (r.width < vw * .9 || abs) return;
+      var painted = cs.backgroundImage !== 'none' || !/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor);
+      if (!painted) return;
+      var rad = parseFloat(cs.borderTopLeftRadius) || 0;
+      if (rad >= 8) { el.classList.add('aide-card'); return }                    // the template's own card: keep it
+      var L = lum(cs.backgroundColor); if (L == null) { var g = /rgba?\([^)]+\)/.exec(cs.backgroundImage); L = g ? lum(g[0]) : 1 }
+      if (L > .5) el.classList.add('aide-stage');                                // light backdrop: let the AIDE background show
+      else { darkStage = true; el.classList.add('aide-card'); el.style.setProperty('border-radius', '22px', 'important'); el.style.setProperty('overflow', 'hidden', 'important') } // dark backdrop is part of the design: keep it as a rounded card
     });
     var q = document.querySelectorAll('body > *, body > * > *, body > * > * > *');
     [].forEach.call(q, function (el) {
@@ -30,8 +42,57 @@
       var mw = parseFloat(getComputedStyle(el).maxWidth);
       if (mw >= 600 && mw <= 1300) el.classList.add('aide-wide');
     });
-    try { parent.postMessage({ aideTpl: 'h', h: document.documentElement.scrollHeight }, '*') } catch (e) { }
+    layout();
   }
+  /* The template's main card fills the tab (width and height); dark cards are shown in negative so they match the light site. */
+  var laidOut = false, darkStage = false;
+  function layout() {
+    if (laidOut) return; laidOut = true;
+    /* One standard for every template (same spacing as the Repeats tab):
+       12px from the menu and from the page edges, the template's own frame and shadow fully visible,
+       and the template centred vertically in the page. */
+    var vw = innerWidth, vh = innerHeight, best = null, bestA = 0;
+    [].forEach.call(document.querySelectorAll('body *'), function (el) {
+      if (el.closest('svg') || /^(SCRIPT|STYLE|BUTTON|INPUT|IMG|CANVAS|LABEL|A)$/.test(el.tagName)) return;
+      var cs = getComputedStyle(el); if (cs.position === 'fixed' || cs.position === 'absolute' || cs.display === 'none') return;
+      var painted = cs.backgroundImage !== 'none' || !/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor);
+      var framed = (parseFloat(cs.borderTopLeftRadius) || 0) >= 8 || el.classList.contains('aide-card');
+      if (!painted || !framed) return;
+      var r = el.getBoundingClientRect(), A = r.width * r.height;
+      if (A > bestA && r.width >= vw * .4 && r.height >= vh * .3) { best = el; bestA = A }
+    });
+    /* Roadmap-tab standard: 26px from the menu, about 32px from the right edge, 24px top and bottom;
+       the main card grows to fill the page height; with no card the template is centred. */
+    var SMALL = ['rueda','puntual','esfera','convite','estadia','turno'];
+    if (SMALL.indexOf(location.pathname.split('/').slice(-2)[0]) >= 0) best = null;
+    var css = 'html,body{height:auto!important;min-height:100%!important;overflow-x:hidden!important}' +
+      'body{min-height:100vh!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;align-items:stretch!important;padding-block:24px!important;padding-inline-start:26px!important;padding-inline-end:14px!important;margin:0!important;box-sizing:border-box!important}';
+    if (best) {
+      for (var p = best.parentElement; p && p !== document.body; p = p.parentElement) p.classList.add('aide-chain');
+      var inner = [].filter.call(best.querySelectorAll('*'), function (c) { var cs = getComputedStyle(c), r = c.getBoundingClientRect(), R = best.getBoundingClientRect(); return (parseFloat(cs.borderTopLeftRadius) || 0) >= 8 && !/rgba\(0, 0, 0, 0\)|transparent/.test(cs.backgroundColor) && r.width > R.width * .85 && r.height > R.height * .7 })[0];
+      if (inner) { best.style.setProperty('background', 'transparent', 'important'); best.style.setProperty('box-shadow', 'none', 'important'); best.style.setProperty('border-color', 'transparent', 'important'); best.style.setProperty('padding', '0', 'important') }
+      best.classList.add('aide-main');
+      css += '.aide-chain{width:100%!important;max-width:none!important;min-height:0!important;height:auto!important;margin:0!important;padding-left:0!important;padding-right:0!important;padding-top:0!important;padding-bottom:0!important;box-sizing:border-box!important;flex:0 0 auto!important;overflow:visible!important;background:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important;filter:none!important}' +
+        '.aide-main{width:100%!important;max-width:none!important;min-width:0!important;overflow:visible!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important;flex:0 0 auto!important}';
+      /* one card look for every template: the site's card radius, border, shadow and surface colour */
+      var cardR = '24px', cardS = '0 1px 0 rgba(255,255,255,.9) inset, 0 18px 40px -24px rgba(0,0,0,.25)', cardB = '1px solid rgba(0,0,0,.08)', cardBg = '';
+      try { var pc = parent.document.querySelector('.card, .main .panel, .page .card'); var pd = parent.getComputedStyle(parent.document.documentElement);
+        if (pc) { var q = parent.getComputedStyle(pc); cardR = q.borderTopLeftRadius || cardR; if (q.boxShadow && q.boxShadow !== 'none') cardS = q.boxShadow; if (q.borderTopStyle !== 'none') cardB = q.borderTopWidth + ' ' + q.borderTopStyle + ' ' + q.borderTopColor }
+        cardBg = pd.getPropertyValue('--t-surface').trim() } catch (e) { }
+      css += '.aide-main{border-radius:' + cardR + '!important;box-shadow:' + cardS + '!important;border:' + cardB + '!important;' + (cardBg ? 'background:' + cardBg + '!important;' : '') + 'overflow:hidden!important}' +
+        '.aide-main::before,.aide-main::after{box-shadow:none!important}';
+      setTimeout(function () { // fill the remaining height with the main card
+        var extra = document.body.scrollHeight - best.getBoundingClientRect().height, h = innerHeight - extra;
+        if (h > best.getBoundingClientRect().height) best.style.setProperty('min-height', Math.floor(h) + 'px', 'important');
+      }, 60);
+    } else {
+      css += 'body{justify-content:center!important;align-items:center!important}';
+      [].forEach.call(document.querySelectorAll('body *'), function (el) { var cs = getComputedStyle(el), r = el.getBoundingClientRect();
+        if (!el.closest('svg') && (parseFloat(cs.borderTopLeftRadius) || 0) < 8 && r.width >= innerWidth * .3 && r.height >= 60 && !el.querySelector('canvas,img,button')) { el.style.setProperty('background', 'transparent', 'important'); el.style.setProperty('box-shadow', 'none', 'important') } });
+    }
+    var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
+  }
+
   /* ---------- 2. Persian ---------- */
   var P_FA = {
     // whole strings (UI)
@@ -141,7 +202,48 @@
     for (var i = 0; i < keys.length; i++) if (keys[i].length > 6 && out.indexOf(keys[i]) >= 0) out = out.split(keys[i]).join(P[keys[i]]);
     out = out.replace(reW, function (m, pre, w) { return pre + W[w] });
     out = out.replace(/ {2,}/g, ' ').replace(/ ([,.:·])/g, '$1');
+    out = shamsi(out);
     return FA ? digits(out) : out;
+  }
+
+  /* ---------- 4. One calendar: when the desk is set to Shamsi, Gregorian dates in the template are shown in Shamsi ---------- */
+  var JAL = false; try { JAL = parent.Aide && parent.Aide.settings().calSystem === 'jalali' } catch (e) { }
+  var GM = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+  var GES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var GMS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  var JM_EN = ['Farvardin','Ordibehesht','Khordad','Tir','Mordad','Shahrivar','Mehr','Aban','Azar','Dey','Bahman','Esfand'];
+  var JM_FA = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+  function g2j(gy, gm, gd) { var g = [0,31,59,90,120,151,181,212,243,273,304,334], gy2 = gm > 2 ? gy + 1 : gy;
+    var days = 355666 + 365 * gy + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g[gm - 1];
+    var jy = -1595 + 33 * Math.floor(days / 12053); days %= 12053; jy += 4 * Math.floor(days / 1461); days %= 1461;
+    if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365 }
+    var jm = days < 186 ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30), jd = 1 + (days < 186 ? days % 31 : (days - 186) % 30); return [jy, jm, jd] }
+  function mIdx(w) { w = (w || '').toLowerCase().replace(/\.$/, ''); var i = GM.indexOf(w); if (i < 0) i = GES.indexOf(w); if (i < 0) i = GMS.indexOf(w.slice(0, 3)); if (i < 0) i = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'].indexOf(w.slice(0, 3)); return i }
+  var YEAR = new Date().getFullYear();
+  function jName(m) { return (FA ? JM_FA : JM_EN)[m - 1] }
+  function num(n) { return FA ? String(n).replace(/\d/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'[d] }) : String(n) }
+  var MW = '(January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|ene|abr|ago|dic)';
+  function shamsi(str) {
+    if (!JAL || !str) return str;
+    // 14 October 2026 / 14 Oct
+    str = str.replace(new RegExp('\\b(\\d{1,2})\\s+' + MW + '\\.?(?:\\s+(\\d{4}))?\\b', 'g'), function (m, d, mo, y) { var i = mIdx(mo); if (i < 0) return m; var j = g2j(+(y || YEAR), i + 1, +d); return num(j[2]) + ' ' + jName(j[1]) + (y ? ' ' + num(j[0]) : '') });
+    // October 14, 2026
+    str = str.replace(new RegExp('\\b' + MW + '\\.?\\s+(\\d{1,2})(?:,\\s*(\\d{4}))?\\b', 'g'), function (m, mo, d, y) { var i = mIdx(mo); if (i < 0) return m; var j = g2j(+(y || YEAR), i + 1, +d); return num(j[2]) + ' ' + jName(j[1]) + (y ? ' ' + num(j[0]) : '') });
+    // October 2026 (month header) → the two Shamsi months it spans
+    str = str.replace(new RegExp('\\b' + MW + '\\s+(\\d{4})\\b', 'g'), function (m, mo, y) { var i = mIdx(mo); if (i < 0) return m; var a = g2j(+y, i + 1, 1), b = g2j(+y, i + 1, 28); return jName(a[1]) + ' – ' + jName(b[1]) + ' ' + num(b[0]) });
+    return str;
+  }
+  // day cells: their label holds the full date, so the visible day number can be converted exactly
+  function shamsiCells(rootEl) {
+    if (!JAL) return;
+    [].forEach.call((rootEl || document).querySelectorAll('[aria-label],[title],[data-fecha],[datetime]'), function (el) {
+      if (el.dataset.jd) return;
+      var lab = el.getAttribute('data-glabel') || el.getAttribute('aria-label') || el.getAttribute('title') || el.getAttribute('data-fecha') || el.getAttribute('datetime') || '';
+      var m = new RegExp('(\\d{1,2})\\s+(?:de\\s+)?' + MW + '\\.?\\s+(?:de\\s+)?(\\d{4})', 'i').exec(lab), iso = /(\d{4})-(\d{2})-(\d{2})/.exec(lab), gy, gm, gd;
+      if (m) { gd = +m[1]; gm = mIdx(m[2]) + 1; gy = +m[3] } else if (iso) { gy = +iso[1]; gm = +iso[2]; gd = +iso[3] } else return;
+      var j = g2j(gy, gm, gd), w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n;
+      while ((n = w.nextNode())) { if (n.nodeValue.trim() === String(gd) || n.nodeValue.trim() === num(gd)) { n.nodeValue = n.nodeValue.replace(/\S+/, num(j[2])); el.dataset.jd = '1'; break } }
+    });
   }
   var busy = false;
   function walk(node) {
@@ -150,14 +252,62 @@
     ['placeholder', 'aria-label', 'title', 'alt'].forEach(function (a) { var v = node.getAttribute(a); if (v) { var n = tr(v); if (n !== v) node.setAttribute(a, n) } });
     for (var c = node.firstChild; c; c = c.nextSibling) walk(c);
   }
-  function run() { busy = true; try { walk(document.body) } finally { busy = false } }
+  function run() { busy = true; try { shamsiCells(document); walk(document.body) } finally { busy = false } }
   root.lang = LANG; if (FA) { var fst = document.createElement('style'); fst.textContent = 'body{font-family:Vazirmatn,system-ui,sans-serif!important}body *{font-family:inherit}code,kbd,pre,[class*=mono]{font-family:ui-monospace,Menlo,monospace!important}'; document.head.appendChild(fst) }
   var mo = new MutationObserver(function (ms) {
     if (busy) return; busy = true;
-    try { ms.forEach(function (m) { if (m.type === 'characterData') walk(m.target); else if (m.type === 'attributes') walk(m.target); else m.addedNodes.forEach(walk) }) } finally { busy = false }
+    try { if (JAL) shamsiCells(document); ms.forEach(function (m) { if (m.type === 'characterData') walk(m.target); else if (m.type === 'attributes') walk(m.target); else m.addedNodes.forEach(walk) }) } finally { busy = false }
   });
   function start() { run(); fit(); mo.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['placeholder', 'aria-label', 'title', 'alt'] }); setTimeout(fit, 600); addEventListener('resize', fit) }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+
+  /* ---------- 3. Theme bridge: the site's theme colours (--t-*) drive each template's own colour variables ---------- */
+  var MAP = {
+    lunario: { '--lu-noche': '--t-surface', '--lu-panel': '--t-surface2', '--lu-panel-2': '--t-bg2', '--lu-fuera': '--t-line-fine', '--lu-plata': '--t-ink', '--lu-texto-2': '--t-soft', '--lu-tenue': '--t-faint', '--lu-linea': '--t-line', '--lu-linea-2': '--t-line-strong', '--lu-ambar': '--t-accent', '--lu-ambar-tx': '--t-accent-ink', '--lu-ambar-suave': '--t-accent-soft', '--lu-ambar-medio': '--t-accent-mid', '--lu-sobre-ambar': '--t-on-accent', '--lu-o': '--t-accent', '--lu-lavanda': '--t-accent2', '--lu-t': '--t-accent2', '--lu-sobre-barra': '--t-ink', '--lu-luna-luz': '--t-ink' }
+  };
+  function rgba(str) { var m = /rgba?\(([^)]+)\)/.exec(str || ''); if (m) { var c = m[1].split(/[ ,\/]+/).filter(Boolean).map(parseFloat); return [c[0], c[1], c[2], c.length > 3 ? c[3] : 1] }
+    m = /^#([0-9a-f]{3,8})$/i.exec((str || '').trim()); if (!m) return null; var h = m[1]; if (h.length < 6) h = h.split('').map(function (x) { return x + x }).join('');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16), h.length > 6 ? parseInt(h.slice(6, 8), 16) / 255 : 1] }
+  function L(c) { return (.2126 * c[0] + .7152 * c[1] + .0722 * c[2]) / 255 }
+  function S(c) { var mx = Math.max(c[0], c[1], c[2]) / 255, mn = Math.min(c[0], c[1], c[2]) / 255; return mx - mn }
+  function themeBridge() {
+    var slug = location.pathname.split('/').slice(-2)[0], P;
+    try { P = parent.document.documentElement; if (!parent.Aide) return } catch (e) { return }
+    var pcs = getComputedStyle(P), tk = function (n) { return pcs.getPropertyValue(n).trim() }, dark = false;
+    try { dark = parent.Aide.currentTheme().mode === 'dark' } catch (e) { }
+    if (slug === 'lunario') root.setAttribute('data-tema', dark ? 'oscuro' : 'claro');
+    var css = ':root,:root[data-tema],html:root{', m = MAP[slug];
+    if (m) for (var k in m) { var v = tk(m[k]); if (v) css += k + ':' + v + '!important;' }
+    else {
+      /* generic: every colour variable of the template is re-mapped by role to the site theme */
+      var names = {}, text = '';
+      [].forEach.call(document.styleSheets, function (sh) { try { [].forEach.call(sh.cssRules, function (r) { text += r.cssText; if (r.selectorText && /:root/.test(r.selectorText)) for (var i = 0; i < r.style.length; i++) if (r.style[i].indexOf('--') === 0) names[r.style[i]] = 1 }) } catch (e) { } });
+      var rcs = getComputedStyle(root), vars = [];
+      Object.keys(names).forEach(function (n) { var c = rgba(rcs.getPropertyValue(n)); if (c) vars.push({ n: n, c: c, uses: text.split('var(' + n + ')').length - 1 }) });
+      var neutral = vars.filter(function (v) { return S(v.c) < .22 && v.c[3] > .6 }).sort(function (a, b) { return b.uses - a.uses });
+      var tdark = neutral.length ? L(neutral.filter(function (v) { return /fondo|noche|papel|crema|marfil|escritorio|blanco|panel|tarjeta|lienzo|sup|ventana/.test(v.n) })[0] ? neutral.filter(function (v) { return /fondo|noche|papel|crema|marfil|escritorio|blanco|panel|tarjeta|lienzo|sup|ventana/.test(v.n) })[0].c : neutral[0].c) < .4 : false;
+      var colored = vars.filter(function (v) { return S(v.c) >= .22 && v.c[3] > .6 }).sort(function (a, b) { return b.uses - a.uses });
+      var accent = colored[0] && colored[0].n;
+      var ink = rgba(tk('--t-ink')), acc = rgba(tk('--t-accent')), onacc = tk('--t-on-accent');
+      var withA = function (c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')' };
+      vars.forEach(function (v) {
+        var c = v.c, l = L(c), sat = S(c), out = null, bgish = tdark ? l < .35 : l > .78, inkish = tdark ? l > .7 : l < .35;
+        if (/sobre|on-|tx-on/.test(v.n)) out = onacc;
+        else if (sat < .22) {
+          if (bgish) out = c[3] < .6 ? withA(ink, (tdark ? 1 - l : l) * 0 + .06) : (l > .97 || l < .08 ? tk('--t-surface2') : tk('--t-surface'));
+          else if (inkish) out = withA(ink, c[3]);
+          else out = withA(ink, Math.max(.35, Math.min(.7, c[3] * .6)));
+        } else if (/sombra|shadow|brillo|glow|halo/.test(v.n)) out = 'rgba(0,0,0,' + Math.min(.18, c[3]) + ')';
+        // only the template's main accent follows the theme; its other colours (stickers, markers, categories) stay as designed
+        else if (v.n === accent || (colored[0] && Math.abs(c[0] - colored[0].c[0]) + Math.abs(c[1] - colored[0].c[1]) + Math.abs(c[2] - colored[0].c[2]) < 24)) out = withA(acc, c[3]);
+        if (out) css += v.n + ':' + out + '!important;';
+      });
+    }
+    var bs = document.getElementById('aide-theme') || document.head.appendChild(Object.assign(document.createElement('style'), { id: 'aide-theme' }));
+    bs.textContent = css + '}';
+  }
+  themeBridge();
+  addEventListener('message', function (e) { if ((e.data || {}).aideTheme) themeBridge() });
   // AIDE theme (dark/light) is sent by the parent tab
   addEventListener('message', function (e) { var d = e.data || {}; if (d.aideTheme) root.style.colorScheme = d.aideTheme });
 })();
