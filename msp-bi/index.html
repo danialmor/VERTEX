@@ -2032,8 +2032,9 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='4.20.3';
+var VERSION='4.20.4';
 var CHANGELOG=[
+{v:'4.20.4',d:'2 آذر 1405',t:'داده‌ی آنلاین برای همه‌ی کاربران',b:['اگر دریافت داده‌ی آنلاین در بار اول ناموفق باشد، داشبورد خودش چند بار دوباره تلاش می‌کند','خوشامد با نام کاربر واردشده']},
 {v:'4.20.3',d:'2 آذر 1405',t:'ورود کاربران دفتر مرکزی به داشبورد',b:['کاربران دفتر مرکزی با دسترسی msp-bi دیگر از ورودی داشبورد برگردانده نمی‌شوند']},
 {v:'4.20.2',d:'2 آذر 1405',t:'دسترسی کاربران دفتر مرکزی به داشبورد',b:['کاربران دفتر مرکزی که دسترسی msp-bi دارند دوباره وارد داشبورد و مسنجر می‌شوند']},
 {v:'4.20.1',d:'2 آذر 1405',t:'داشبورد با تیک کنترل پروژه',b:['تیک «کنترل پروژه» برای کاربر کافی است تا دکمه‌ی داشبورد در خانه‌اش فعال شود؛ کلید شرکت فقط برای بستن است']},
@@ -2702,7 +2703,7 @@ function storePush(why){if(window.VXDEMO)return Promise.resolve(false);if(!GHS.t
    if(n){var t=Date.now();await ghPut('index.json',{v:1,t:t,files:FILES.map(function(P){return P.code}),why:why||''});GHS.last=t;try{localStorage.setItem('ghLast',String(t))}catch(e){}await kvSet('storeT',t)}GHS.err='';if(n)toast(((typeof CLOUDF!=='undefined'&&CLOUDF)?'آنلاین ذخیره شد · ':'در مخزن GitHub ذخیره شد · ')+fa(n)+' فایل')}
   catch(e){GHS.err=e.message||String(e);toast(((typeof CLOUDF!=='undefined'&&CLOUDF)?'ذخیره‌ی آنلاین انجام نشد: ':'ذخیره در GitHub انجام نشد: ')+GHS.err)}finally{GHS.busy--;stBadge();if(cur==='files')renderDC()}});return GHS.q}
 function stBadge(){var e=$('#ghState');if(e)e.textContent=GHS.busy?'در حال ذخیره در GitHub…':(GHS.err?'خطا: '+GHS.err:(GHS.last?'آخرین ذخیره: '+jdt(GHS.last):'هنوز چیزی ذخیره نشده'))}
-async function storePull(){if(window.VXDEMO||GHS.pulled)return;GHS.pulled=true;var idx=await ghRead('index.json');if(!idx||!idx.t)return;GHS.rt=idx.t;var lt=(await kvGet('storeT'))||0;if(idx.t<=lt)return;
+async function storePull(){if(window.VXDEMO||GHS.pulled)return;GHS.pulled=true;var idx=await ghRead('index.json');if(!idx||!idx.t){GHS.pulled=false;GHS.retry=(GHS.retry||0)+1;if(GHS.retry<6)setTimeout(storePull,GHS.retry*8000);return}GHS.rt=idx.t;var lt=(await kvGet('storeT'))||0;if(idx.t<=lt)return;
  var got=await Promise.all((idx.files||[]).map(function(c){return ghRead('p-'+c+'.json')})),dim=await ghRead('dim.json'),pi=await ghRead('pinfo.json'),dl=await ghRead('delays.json');
  FILES.length=0;HIST={};got.forEach(function(x){if(!x)return;try{var P=mkProj(x.file,x.t.map(rowToT));P.code=x.code;P.snap=x.snap;HIST[P.code]=(x.hist||[]).filter(function(h){return h.d!==P.snap});FILES.push(P)}catch(e){}});
  if(!(dim&&dim.projects)){try{var d2=await (await fetch('data/store/dim.json',{cache:'no-store'})).json();if(d2&&d2.projects)dim=d2}catch(e){}}if(!(pi&&pi.rows&&Object.keys(pi.rows).length)){try{var p2=await (await fetch('data/store/pinfo.json',{cache:'no-store'})).json();if(p2&&p2.rows)pi=p2}catch(e){}}
@@ -4111,7 +4112,7 @@ function rlHome(){if(!PXREAL)return;var sig=PXSIG+'|'+((typeof MD!=='undefined'&
  var T=dToday(),W=T+7*DD,R=PX.filter(function(x){return x.real}),avg=R.length?Math.round(R.reduce(function(a,x){return a+(x.pr||0)},0)/R.length):0;
  try{if(typeof NEED0!=='undefined'){NEED0.length=0;needsBuild();renderNeeds()}}catch(e){}
  var open=(typeof needs!=='undefined'?needs:[]).filter(function(n){return n[5]==='dreq'}).length,A=rlTasks(),due=A.filter(function(o){return o.t.f>=T&&o.t.f<=W}).length;
- var hr=+new Intl.DateTimeFormat('en',{hour:'numeric',hour12:false,timeZone:'Asia/Tehran'}).format(new Date()),h1=document.querySelector('#v-home .head h1');if(h1)h1.innerHTML=(hr<12?'صبح بخیر':hr<17?'روز بخیر':'عصر بخیر')+'،<br><b>دانیال</b>';
+ var hr=+new Intl.DateTimeFormat('en',{hour:'numeric',hour12:false,timeZone:'Asia/Tehran'}).format(new Date()),h1=document.querySelector('#v-home .head h1');if(h1)h1.innerHTML=(hr<12?'صبح بخیر':hr<17?'روز بخیر':'عصر بخیر')+'،<br><b>'+(function(){try{var n=(window.VX_USER&&VX_USER.name||'').trim().split(/\s+/);return (n[0]==='مهندس'&&n[1]?n[0]+' '+n[1]:n[0])||'دانیال'}catch(e){return 'دانیال'}})()+'</b>';
  var st=document.querySelectorAll('#v-home .stats .stat');[].forEach.call(document.querySelectorAll('#v-home .stats [data-count]'),function(x){x.removeAttribute('data-count');x.removeAttribute('data-suf')});if(st.length>=3){st[0].querySelector('b').innerHTML='<span class="fa">'+fa(avg)+'%</span>';st[0].querySelector('small').textContent='میانگین پیشرفت '+fa(R.length)+' پروژه';st[1].querySelector('b').innerHTML='<span class="fa">'+fa(open)+'</span>';st[1].querySelector('small').textContent='درخواست تأخیر در انتظار پاسخ';st[2].querySelector('b').innerHTML='<span class="fa">'+fa(due)+'</span>';st[2].querySelector('small').textContent='فعالیت با مهلت در ۷ روز آینده'}
  var hz=R.slice().sort(function(a,b){return (b.dl||0)-(a.dl||0)})[0],hero=document.querySelector('#v-home .hero .tx');
  if(hz&&hero){hero.innerHTML='<div class="pj"><i>'+esc(hz.c)+'</i>'+NM(hz.n,hz.en)+'<span class="st">'+(hz.dl>0?'بیشترین تأخیر':'در مسیر')+'</span></div><small>'+esc(hz.st||'')+' · سرپرست: '+esc(hz.sub||'—')+'</small><div class="cd fa">'+(hz.dl>0?fa(hz.dl)+' روز تأخیر':fa(hz.pr)+'% پیشرفت')+'</div><p>پیشرفت واقعی '+fa(hz.pr)+'% در برابر برنامه‌ی '+fa(hz.pl)+'% · پایان برنامه '+hz.end+(hz.endD&&hz.endD!==hz.end?' · پایان پیش‌بینی '+hz.endD:'')+'</p><span id="cd" hidden></span>';var tg=hero.closest('.hero');if(tg){tg.style.cursor='pointer';tg.onclick=function(){var i=PX.indexOf(hz);var b=document.createElement('button');b.dataset.openpj=i;b.hidden=true;document.body.appendChild(b);b.click();b.remove()}}}
