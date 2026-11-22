@@ -508,8 +508,96 @@
     if (a === 'delall') { if (!confirm('همه‌ی گفتگوها حذف شوند؟')) return; CH.list = []; chNew(); chSave(); chSide() } });
   side.addEventListener('input', e => { if (e.target.dataset.a === 'q') { chQ = e.target.value; clearTimeout(side.t); side.t = setTimeout(() => { chSide(); const i = side.querySelector('input'); i.focus(); i.setSelectionRange(i.value.length, i.value.length) }, 200) } });
   box.querySelector('[data-x=side]').addEventListener('click', () => box.classList.toggle('sopen'));
-  const wel = document.createElement('div'); wel.className = 'welcome'; wel.innerHTML = '<h2>چطور می‌توانم کمک کنم؟</h2><div class="cards"><button type="button">خلاصه‌ی وضعیت همه‌ی پروژه‌ها را بده</button><button type="button">کدام پروژه بیشترین تأخیر را دارد و چرا؟</button><button type="button">بتن‌ریزی‌های ۷ روز آینده کدام‌اند؟</button><button type="button">فعالیت‌های بحرانی عقب‌افتاده را فهرست کن</button></div>';
-  log.appendChild(wel); wel.addEventListener('click', e => { const b = e.target.closest('button'); if (b) send(b.textContent) });
+  const TCSS = document.createElement('style'); TCSS.textContent = `
+#vxai.full{box-sizing:border-box!important}#vxai.full .log{overflow-x:hidden}
+#vxai.full header{padding:10px 16px;gap:10px;min-height:64px;box-sizing:border-box}
+#vxai.full header b{font-size:16px}#vxai.full header small{font-size:12px;max-width:40vw}
+#vxai.full header button{width:48px;height:48px;border-radius:14px;font-size:19px}
+#vxai.full header .hb{gap:4px}
+#vxai.full form{gap:10px;padding-block:14px;align-items:flex-end}
+#vxai.full textarea{min-height:56px;height:56px;max-height:200px;font-size:16px;border-radius:18px;padding:14px 16px}
+#vxai.full form button{width:56px;height:56px;border-radius:18px;font-size:20px}
+#vxai.full form .lng{width:48px!important;font-size:13px!important}
+#vxai.full form .mic svg{width:22px;height:22px}
+#vxai.full .tools button{font-size:15px;padding:10px 14px;min-height:44px;border-radius:12px;opacity:.75}
+#vxai.full .side{padding:14px;gap:10px}
+#vxai.full .side .nw{min-height:56px;font-size:15px;border-radius:16px;background:linear-gradient(135deg,#1b6f52,#2f78c4);color:#fff;border:0}
+#vxai.full .side input{min-height:48px;font-size:15px;border-radius:14px}
+#vxai.full .side .it>button.t{min-height:48px;font-size:14.5px}
+#vxai.full .side .it .ac button{min-width:40px!important;min-height:40px!important;font-size:16px!important}
+#vxai.full .side .it .ac{display:flex}
+#vxai.full .side .ft button{min-height:44px;padding:0 6px}
+#vxai.full .welcome{width:min(960px,100%);box-sizing:border-box;gap:18px;padding:28px 8px}
+#vxai.full .welcome .hero{display:grid;justify-items:center;gap:6px}
+#vxai.full .welcome .orb{width:72px;height:72px;border-radius:24px;display:grid;place-items:center;color:#fff;background:conic-gradient(from 200deg,#1b6f52,#2f78c4,#7a5cd6,#1b6f52);box-shadow:0 12px 30px rgba(47,120,196,.3);animation:vxorb 6s ease-in-out infinite}
+#vxai.full .welcome .orb svg{width:36px;height:36px}
+@keyframes vxorb{50%{transform:translateY(-4px) rotate(4deg)}}
+#vxai.full .welcome h2{font-size:28px}
+#vxai.full .welcome .sub{color:var(--muted,#7a8380);font-size:14px}
+#vxai.full .welcome .svc{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+#vxai.full .welcome .svc span{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;font-size:13px;background:rgba(127,127,127,.09)}
+#vxai.full .welcome .svc i{width:8px;height:8px;border-radius:50%;background:#2fa36b;box-shadow:0 0 0 3px rgba(47,163,107,.2)}
+#vxai.full .welcome .svc .off i{background:#c98a1a;box-shadow:0 0 0 3px rgba(201,138,26,.2)}
+#vxai.full .welcome .cats{display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:2px 4px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#vxai.full .welcome .cats button{flex:none;min-height:48px;padding:0 20px;border-radius:99px;border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+#vxai.full .welcome .cats button.on{background:var(--ink,#14181a);color:var(--card,#fff);border-color:transparent}
+#vxai.full .welcome .cards{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;width:100%}
+#vxai.full .welcome .cards button{position:relative;display:grid;grid-template-rows:auto 1fr;gap:10px;min-height:128px;padding:18px;border-radius:22px;font-size:15px;line-height:1.7;border:1px solid rgba(127,127,127,.18);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,var(--card,#fff)),var(--card,#fff) 70%);box-shadow:0 2px 10px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#vxai.full .welcome .cards button:active{transform:scale(.97)}
+@media (hover:hover){#vxai.full .welcome .cards button:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.09)}}
+#vxai.full .welcome .cards .ic{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:color-mix(in srgb,var(--c) 22%,transparent)}
+#vxai.full .welcome .cards b{display:block;font-size:15.5px}#vxai.full .welcome .cards small{display:block;color:var(--muted,#7a8380);font-size:13px;font-weight:400}
+#vxai.full .welcome .cards .nw{position:absolute;top:12px;inset-inline-end:12px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;background:#7a5cd6;color:#fff}
+#vxai.full .welcome .cards .ed{position:absolute;bottom:10px;inset-inline-end:10px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:16px;opacity:.55}
+@media (max-width:820px){#vxai.full .welcome .cards{grid-template-columns:1fr 1fr}#vxai.full .welcome .cards button{min-height:118px;padding:14px}}
+`; document.head.appendChild(TCSS);
+  // suggestion tiles: q = prompt sent; e = true → put in the box to edit first (needs the user's text)
+  const TILES = [
+    ['پروژه', '#1b6f52', [
+      ['📊', 'وضعیت کل پروژه‌ها', 'خلاصه، پیشرفت و ریسک‌ها', 'خلاصه‌ی وضعیت همه‌ی پروژه‌ها را بده: پیشرفت برنامه‌ای و واقعی، انحراف و مهم‌ترین ریسک‌ها'],
+      ['⏱️', 'بیشترین تأخیر', 'کدام پروژه و چرا', 'کدام پروژه بیشترین تأخیر را دارد و دلایل اصلی آن چیست؟ پیشنهاد جبران هم بده'],
+      ['🧱', 'بتن‌ریزی‌های پیش‌رو', '۷ روز آینده', 'بتن‌ریزی‌های ۷ روز آینده کدام‌اند؟ با تاریخ و پروژه'],
+      ['🚨', 'مسیر بحرانی عقب‌افتاده', 'فعالیت‌های بحرانی', 'فعالیت‌های بحرانی عقب‌افتاده را فهرست کن و اثر آن روی تاریخ پایان را بگو'],
+      ['🗓️', 'برنامه‌ی هفته', 'کارهای شروع/پایان این هفته', 'فعالیت‌هایی که این هفته باید شروع یا تمام شوند را به تفکیک پروژه فهرست کن'],
+      ['🔮', 'پیش‌بینی پایان', 'با روند فعلی', 'با روند پیشرفت فعلی، تاریخ پایان هر پروژه را پیش‌بینی کن و با برنامه مقایسه کن', 1]]],
+    ['نوشتن', '#2f78c4', [
+      ['✉️', 'نامه‌ی اداری', 'به کارفرما/پیمانکار', 'یک نامه‌ی اداری رسمی بنویس به ', 0, 1],
+      ['📝', 'گزارش هفتگی', 'از داده‌های پروژه', 'یک گزارش پیشرفت هفتگی رسمی برای کارفرما از وضعیت پروژه‌ها بنویس'],
+      ['🤝', 'صورت‌جلسه', 'از یادداشت‌های شما', 'این یادداشت‌ها را به صورت‌جلسه‌ی رسمی با مصوبات و مسئول و مهلت تبدیل کن:\n', 0, 1],
+      ['🌐', 'ترجمه‌ی فنی', 'فارسی ⇄ انگلیسی', 'این متن را با اصطلاحات فنی ساختمانی ترجمه کن:\n', 0, 1],
+      ['✨', 'بازنویسی حرفه‌ای', 'رسمی‌تر و کوتاه‌تر', 'این متن را رسمی، دقیق و کوتاه‌تر بازنویسی کن:\n', 1, 1]]],
+    ['مهندسی', '#c46a2f', [
+      ['📐', 'برآورد متره', 'حجم بتن/آرماتور', 'برآورد تقریبی متره کن برای ', 0, 1],
+      ['💰', 'برآورد هزینه', 'تقریبی و به ریال', 'هزینه‌ی تقریبی این آیتم را با فرض‌های روشن برآورد کن: ', 1, 1],
+      ['🌡️', 'شرایط بتن‌ریزی', 'دما، باد، عمل‌آوری', 'برای بتن‌ریزی در هوای سرد/گرم چه نکات اجرایی و عمل‌آوری را باید رعایت کنم؟ چک‌لیست بده', 1],
+      ['🦺', 'چک‌لیست ایمنی', 'برای یک فعالیت', 'چک‌لیست ایمنی اجرایی برای این فعالیت بده: ', 1, 1],
+      ['📏', 'مبحث مقررات ملی', 'سؤال آیین‌نامه‌ای', 'طبق مقررات ملی ساختمان ایران: ', 0, 1]]],
+    ['مدیریت', '#7a5cd6', [
+      ['⚖️', 'تحلیل ریسک', 'احتمال × اثر', 'ریسک‌های اصلی پروژه‌ها را با احتمال، اثر و اقدام پیشگیرانه در یک جدول بده', 1],
+      ['👷', 'برنامه‌ی نیروی کار', 'بر اساس فعالیت‌ها', 'برای فعالیت‌های دو هفته‌ی آینده، نیروی انسانی و ماشین‌آلات لازم را پیشنهاد کن', 1],
+      ['📦', 'سفارش مصالح', 'چه چیزی و کی', 'بر اساس برنامه، چه مصالحی را باید تا دو هفته‌ی آینده سفارش بدهم؟'],
+      ['📈', 'جبران تأخیر', 'فشرده‌سازی برنامه', 'برای جبران تأخیر پروژه‌ی عقب‌افتاده، گزینه‌های فشرده‌سازی (Crashing/Fast-tracking) را پیشنهاد کن', 1]]]];
+  let tCat = 0;
+  const wel = document.createElement('div'); wel.className = 'welcome';
+  function welSvc() {
+    const L = chain(); const n = L.length;
+    return n ? L.slice(0, 4).map(p => '<span><i></i>' + esc(p.name || p.id) + '</span>').join('') + (n > 4 ? '<span>+' + (n - 4) + '</span>' : '')
+      : '<span class="off"><i></i>حالت آفلاین — پاسخ از داده‌های داشبورد</span>';
+  }
+  function welDraw() {
+    const nm = (window.VX_USER && VX_USER.name) || ((JSON.parse(localStorage.getItem('vxSess') || '{}') || {}).name) || '';
+    wel.innerHTML = '<div class="hero"><div class="orb">' + ICON + '</div><h2>' + (nm ? esc(nm) + '، ' : '') + 'چطور می‌توانم کمک کنم؟</h2><div class="sub">یک کاشی را لمس کنید یا سؤالتان را بنویسید — ✎ یعنی متن شما لازم است</div></div>'
+      + '<div class="svc">' + welSvc() + '</div>'
+      + '<div class="cats">' + TILES.map((c, i) => '<button type="button" data-c="' + i + '" class="' + (i === tCat ? 'on' : '') + '">' + c[0] + '</button>').join('') + '</div>'
+      + '<div class="cards">' + TILES[tCat][2].map((t, i) => '<button type="button" data-t="' + i + '" style="--c:' + TILES[tCat][1] + '"><span class="ic">' + t[0] + '</span><span><b>' + t[1] + '</b><small>' + t[2] + '</small></span>' + (t[4] ? '<span class="nw">جدید</span>' : '') + (t[5] ? '<span class="ed">✎</span>' : '') + '</button>').join('') + '</div>';
+  }
+  function esc(x) { return String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]) }
+  welDraw(); setTimeout(welDraw, 2500);
+  log.appendChild(wel); wel.addEventListener('click', e => {
+    const c = e.target.closest('[data-c]'); if (c) { tCat = +c.dataset.c; return welDraw() }
+    const b = e.target.closest('[data-t]'); if (!b) return; const t = TILES[tCat][2][+b.dataset.t];
+    if (t[5]) { const ta = box.querySelector('textarea'); ta.value = t[3]; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); ta.dispatchEvent(new Event('input')) } else send(t[3]);
+  });
   box.querySelector('[data-x=clear]').addEventListener('click', chNew);
   chSide(); chPull();
   window.__vxChat = { add: chAdd, md, tools };
