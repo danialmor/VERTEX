@@ -2035,10 +2035,11 @@ document.addEventListener('click',function(e){var t=e.target;var op=t.closest('[
 seg('segI',function(b){inf.m=b.dataset.i;inf.card=null;inf.place=false;renderInfo()},'info');
 
 // ═════ درباره‌ی و نسخه‌ها (برای هر تغییر یک نسخه؛ ردیف تازه‌ها بالای فهرست اضافه می‌شود) ═════
-var VERSION='4.23.1';
+var VERSION='4.23.2';
 var CHANGELOG=[
-{v:'4.23.1',d:'1405/09/01',t:'کاشی‌های افقی در صفحه‌ی هوش مصنوعی',b:'کاشی‌های پیشنهادی در یک ردیف افقی با کشیدن انگشت؛ صفحه‌ی اول بدون اسکرول؛ دکمه‌های فهرست گفتگوها کوچک‌تر شد.'},
-{v:'4.23.0',d:'1405/09/01',t:'بازطراحی صفحه‌ی هوش مصنوعی برای لمس',b:'کاشی‌های پیشنهادی جدید در ۴ دسته (پروژه، نوشتن، مهندسی، مدیریت) با آیکون؛ نمایش سرویس‌های فعال هوش مصنوعی؛ دکمه‌ها و ورودی بزرگ (۴۸ تا ۵۶ پیکسل) مناسب انگشت در آیپد؛ کاشی‌های ✎ متن را برای تکمیل در کادر می‌گذارند.'},
+{v:'4.23.2',d:'1405/09/01',t:'رفع خرابی «درباره‌ی» و چیدمان پهن دستیار',b:['پنجره‌ی «درباره‌ی» داشبورد دوباره باز می‌شود.','صفحه‌ی خوش‌آمد دستیار تمام عرض صفحه را می‌گیرد؛ سرویس‌های تکراری یک بار نمایش داده می‌شوند.']},
+{v:'4.23.1',d:'1405/09/01',t:'کاشی‌های افقی در صفحه‌ی هوش مصنوعی',b:['کاشی‌های پیشنهادی در یک ردیف افقی با کشیدن انگشت؛ صفحه‌ی اول بدون اسکرول؛ دکمه‌های فهرست گفتگوها کوچک‌تر شد.']},
+{v:'4.23.0',d:'1405/09/01',t:'بازطراحی صفحه‌ی هوش مصنوعی برای لمس',b:['کاشی‌های پیشنهادی جدید در ۴ دسته (پروژه، نوشتن، مهندسی، مدیریت) با آیکون؛ نمایش سرویس‌های فعال هوش مصنوعی؛ دکمه‌ها و ورودی بزرگ (۴۸ تا ۵۶ پیکسل) مناسب انگشت در آیپد؛ کاشی‌های ✎ متن را برای تکمیل در کادر می‌گذارند.']},
 {v:'4.22.1',d:'2 آذر 1405',t:'حالت فشرده بدون کوچک‌شدن فونت',b:['در حالت‌های فشرده اندازه‌ی فونت‌ها ثابت می‌ماند؛ فاصله‌ها، حاشیه‌ها و ارتفاع اضافه‌ی کاشی‌ها حذف می‌شود','کاشی‌ای که محتوایش جا نشود خودکار کمی بلندتر می‌شود تا چیزی بریده نشود']},
 {v:'4.22.0',d:'2 آذر 1405',t:'تب هوش مصنوعی پیشرفته در کنترل پنل',b:['افزودن سرویس‌های API دیگر (OpenAI، OpenRouter، Groq، DeepSeek، Gemini یا هر API سازگار با OpenAI) با ترتیب اولویت؛ اگر یکی جواب ندهد بعدی پاسخ می‌دهد','نمودار سیگنال استفاده‌ی ۱۴ روزه برای هر سرویس (موفق، خطا، زمان پاسخ)','اتصال پلتفرم‌ها: کدام پلتفرم چند بار از دستیار استفاده کرده','پنجره‌ی «پرسش‌های بی‌پاسخ» با پرسش‌های بی‌جواب، مبهم یا گزارش‌شده و ثبت پاسخ دقیق در دانش دستیار']},
 {v:'4.21.1',d:'2 آذر 1405',t:'دستیار: فهم پرسش فارسی برای برنامه‌های انگلیسی',b:['پرسش‌هایی مثل «بتن‌ریزی سقف پنجم فارابی» حالا به فعالیت‌های انگلیسی برنامه (Fifth roof › Concreting of the roof) وصل می‌شوند','همه‌ی زیرفعالیت‌های طبقه یا بخشی که در پرسش آمده به دستیار داده می‌شود']},
@@ -2199,7 +2200,7 @@ var CHANGELOG=[
 {v:'3.0.0',d:'9 آبان 1405',t:'دسته‌ی 2: میز کار من و کنترل پروژه',b:['تابلوی وضعیت، کشوی حل مسئله، تنظیمات نمایش']},
 {v:'2.0.0',d:'9 آبان 1405',t:'دسته‌ی 1: کنترل پروژه و صفحه‌ی پروژه',b:['پیش‌رو، گانت، درخت با رنگ سطح‌ها، تقویم هفته','صفحه‌ی پروژه با «فعالیت‌های جاری» و «کنترل پروژه»']},
 {v:'1.0.0',d:'9 آبان 1405',t:'نمونه‌ی اولیه‌ی طراحی شیشه‌ای',b:['خانه، برنامه، راندمان؛ قرص کشسان منو؛ تم روشن و تیره']}];
-function drawAbout(){var cur0=CHANGELOG[0];$('#about').innerHTML='<div class="ah"><h3>درباره‌ی</h3><button type="button" class="ib2" data-abx="1" aria-label="بستن">✕</button></div><div class="abv"><span class="logo"><i aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg></i></span><div><b class="fa">نسخه‌ی '+fa(VERSION)+'</b><small>آزمایشگاه طراحی داشبورد پروژه‌ها · '+cur0.d+'</small></div></div>'+pwaHtml()+'<p class="abn">همه‌ی اعداد و نام‌ها نمونه‌اند؛ این صفحه ظاهر و حرکت‌ها را نشان می‌دهد. فایل‌هایی که بارگذاری می‌کنید فقط در همین مرورگر می‌مانند.</p><div class="clh">تغییرات (نسخه‌ی تازه‌تر بالاتر)</div><div class="cl">'+CHANGELOG.map(function(c,i){return '<div class="cli'+(i===0?' cur':'')+(c.rev?' rev':'')+'"><div class="t"><span class="vc fa'+(c.rev?' rv':'')+'">'+fa(c.v)+'</span><b>'+c.t+'</b><small>'+c.d+(c.rev?' · برگشت‌خورده':'')+'</small></div><ul>'+c.b.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'}).join('')+'</div>'}
+function drawAbout(){var cur0=CHANGELOG[0];$('#about').innerHTML='<div class="ah"><h3>درباره‌ی</h3><button type="button" class="ib2" data-abx="1" aria-label="بستن">✕</button></div><div class="abv"><span class="logo"><i aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-6 4 3 5-8 4 5"/></svg></i></span><div><b class="fa">نسخه‌ی '+fa(VERSION)+'</b><small>آزمایشگاه طراحی داشبورد پروژه‌ها · '+cur0.d+'</small></div></div>'+pwaHtml()+'<p class="abn">همه‌ی اعداد و نام‌ها نمونه‌اند؛ این صفحه ظاهر و حرکت‌ها را نشان می‌دهد. فایل‌هایی که بارگذاری می‌کنید فقط در همین مرورگر می‌مانند.</p><div class="clh">تغییرات (نسخه‌ی تازه‌تر بالاتر)</div><div class="cl">'+CHANGELOG.map(function(c,i){return '<div class="cli'+(i===0?' cur':'')+(c.rev?' rev':'')+'"><div class="t"><span class="vc fa'+(c.rev?' rv':'')+'">'+fa(c.v)+'</span><b>'+c.t+'</b><small>'+c.d+(c.rev?' · برگشت‌خورده':'')+'</small></div><ul>'+[].concat(c.b||[]).map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'}).join('')+'</div>'}
 document.getElementById('aboutBtn').addEventListener('click',function(){drawAbout();$('#disp').classList.remove('on');$('#about').classList.toggle('on')});
 document.addEventListener('click',function(e){if(e.target.closest('[data-abx]')){$('#about').classList.remove('on');return}if(!e.target.closest('#about')&&!e.target.closest('#aboutBtn'))$('#about').classList.remove('on')});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')$('#about').classList.remove('on')});
@@ -4345,6 +4346,6 @@ window.VX_CTX=function(){try{var f=function(v){return v==null||v===''?'-':(typeo
 
 if(VXDEMO)vxDemoLock();
 </script>
-<script src="../shared/ai/ai.js?v=414" defer></script>
+<script src="../shared/ai/ai.js?v=415" defer></script>
 </body>
 </html>

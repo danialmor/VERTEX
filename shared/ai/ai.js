@@ -527,8 +527,10 @@
 #vxai.full .side .it .ac button{min-width:30px!important;min-height:30px!important;font-size:13px!important}
 #vxai.full .side .it.on .ac{display:flex}
 #vxai.full .side .ft button{min-height:32px;padding:0 4px}
-#vxai.full .welcome{width:100%;box-sizing:border-box;gap:12px;padding:8px 0}
-#vxai.full .welcome .hero{display:grid;justify-items:center;gap:6px}
+#vxai.full:not(.has) .log{padding-inline:28px!important}
+#vxai.full .welcome{width:100%;max-width:1200px;box-sizing:border-box;gap:14px;padding:8px 0}
+#vxai.full .welcome .vxh{background:none!important;color:inherit!important}
+#vxai.full .welcome .vxh{display:grid;justify-items:center;gap:6px}
 #vxai.full .welcome .orb{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;color:#fff;background:conic-gradient(from 200deg,#1b6f52,#2f78c4,#7a5cd6,#1b6f52);box-shadow:0 12px 30px rgba(47,120,196,.3);animation:vxorb 6s ease-in-out infinite}
 #vxai.full .welcome .orb svg{width:36px;height:36px}
 @keyframes vxorb{50%{transform:translateY(-4px) rotate(4deg)}}
@@ -542,7 +544,7 @@
 #vxai.full .welcome .cats button{flex:none;min-height:48px;padding:0 20px;border-radius:99px;border:1px solid rgba(127,127,127,.25);background:transparent;color:inherit;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 #vxai.full .welcome .cats button.on{background:var(--ink,#14181a);color:var(--card,#fff);border-color:transparent}
 #vxai.full .welcome .cards{display:flex!important;gap:12px;width:100%;overflow-x:auto;padding:4px 4px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin;justify-content:safe center}
-#vxai.full .welcome .cards button{flex:0 0 190px;scroll-snap-align:start}
+#vxai.full .welcome .cards button{flex:0 0 clamp(190px,22%,260px);scroll-snap-align:start}
 #vxai.full .welcome .cards button{position:relative;display:grid;grid-template-rows:auto 1fr;gap:10px;min-height:150px;padding:16px;border-radius:22px;font-size:15px;line-height:1.7;border:1px solid rgba(127,127,127,.18);background:linear-gradient(160deg,color-mix(in srgb,var(--c) 14%,var(--card,#fff)),var(--card,#fff) 70%);box-shadow:0 2px 10px rgba(0,0,0,.04);transition:transform .15s,box-shadow .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #vxai.full .welcome .cards button:active{transform:scale(.97)}
 @media (hover:hover){#vxai.full .welcome .cards button:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.09)}}
@@ -581,13 +583,13 @@
   let tCat = 0;
   const wel = document.createElement('div'); wel.className = 'welcome';
   function welSvc() {
-    const L = chain(); const n = L.length;
+    const L = chain().filter((p, i, a) => a.findIndex(q => (q.name || q.id) === (p.name || p.id)) === i); const n = L.length;
     return n ? L.slice(0, 4).map(p => '<span><i></i>' + esc(p.name || p.id) + '</span>').join('') + (n > 4 ? '<span>+' + (n - 4) + '</span>' : '')
       : '<span class="off"><i></i>حالت آفلاین — پاسخ از داده‌های داشبورد</span>';
   }
   function welDraw() {
     const nm = (window.VX_USER && VX_USER.name) || ((JSON.parse(localStorage.getItem('vxSess') || '{}') || {}).name) || '';
-    wel.innerHTML = '<div class="hero"><div class="orb">' + ICON + '</div><h2>' + (nm ? esc(nm) + '، ' : '') + 'چطور می‌توانم کمک کنم؟</h2><div class="sub">یک کاشی را لمس کنید یا سؤالتان را بنویسید — ✎ یعنی متن شما لازم است</div></div>'
+    wel.innerHTML = '<div class="vxh"><div class="orb">' + ICON + '</div><h2>' + (nm ? esc(nm) + '، ' : '') + 'چطور می‌توانم کمک کنم؟</h2><div class="sub">یک کاشی را لمس کنید یا سؤالتان را بنویسید — ✎ یعنی متن شما لازم است</div></div>'
       + '<div class="svc">' + welSvc() + '</div>'
       + '<div class="cats">' + TILES.map((c, i) => '<button type="button" data-c="' + i + '" class="' + (i === tCat ? 'on' : '') + '">' + c[0] + '</button>').join('') + '</div>'
       + '<div class="cards">' + TILES[tCat][2].map((t, i) => '<button type="button" data-t="' + i + '" style="--c:' + TILES[tCat][1] + '"><span class="ic">' + t[0] + '</span><span><b>' + t[1] + '</b><small>' + t[2] + '</small></span>' + (t[4] ? '<span class="nw">جدید</span>' : '') + (t[5] ? '<span class="ed">✎</span>' : '') + '</button>').join('') + '</div>';

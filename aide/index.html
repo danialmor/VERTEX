@@ -67,6 +67,6 @@ $('#ef').addEventListener('submit',function(e){e.preventDefault();var d=new Form
  H.put('events','ev-'+Date.now().toString(36),{title:d.get('title'),start:d.get('start'),end:d.get('end'),attendees:a,type:'meeting',by:H.user.code}).then(function(){e.target.reset()})});
 document.addEventListener('click',function(e){var r=e.target.closest('[data-r]'),x=e.target.closest('[data-del]');if(r)H.resolve(r.dataset.o,r.dataset.r).then(render);if(x&&confirm('این جلسه حذف شود؟'))H.remove('events',x.dataset.del).then(render)});
 </script>
-<script src="../shared/ai/ai.js?v=414" defer></script>
+<script src="../shared/ai/ai.js?v=415" defer></script>
 </body>
 </html>
