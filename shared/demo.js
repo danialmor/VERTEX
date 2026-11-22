@@ -112,7 +112,7 @@
   function home(u) { if (u.role === 'admin' && !u.tenant_id) return B.base + 'admin/'; if (u.tenant_id) return B.base + 'app/'; var p = B.platform(u.home); return p && p.href ? p.href : B.base }
   function sess(u, tok) {
     var t = u.tenant_id ? tn(u.tenant_id) : null, s = t ? sub(t.id) : null;
-    var r = { user: { id: u.id, code: u.code, name: u.name, role: u.role }, tenant: t ? { id: t.id, code: t.code, name: t.name } : null, msp: !t ? u.role === 'admin' : t.msp !== false && (u.role === 'owner' ? (s ? s.modules : []) : (u.mods || [])).indexOf('project-control') >= 0, ucode: u.ucode || '', home: home(u), panel: (u.role === 'admin' && !t) || u.role === 'owner', must_change: !!u.must_change, profile: u.profile || {}, modules: t ? (u.role === 'owner' ? (s ? s.modules : []) : u.mods) : null, grants: u.grants || (t ? { 'msp-bi': 'member' } : {}) };
+    var r = { user: { id: u.id, code: u.code, name: u.name, role: u.role }, tenant: t ? { id: t.id, code: t.code, name: t.name } : null, msp: !t ? (u.role === 'admin' || !!(u.grants && u.grants['msp-bi'])) : t.msp !== false && (u.role === 'owner' ? (s ? s.modules : []) : (u.mods || [])).indexOf('project-control') >= 0, ucode: u.ucode || '', home: home(u), panel: (u.role === 'admin' && !t) || u.role === 'owner', must_change: !!u.must_change, profile: u.profile || {}, modules: t ? (u.role === 'owner' ? (s ? s.modules : []) : u.mods) : (u.role === 'admin' ? null : [].concat(u.grants && u.grants['msp-bi'] ? ['project-control', 'messenger'] : [], u.grants && u.grants.aide ? ['executive-desk'] : [])), grants: u.grants || (t ? { 'msp-bi': 'member' } : {}) };
     r.sub_active = t ? active(t) : true; r.plan = s ? s.plan : ''; r.sub_ends = s ? s.ends : 0;
     if (tok) r.token = tok; return r;
   }
