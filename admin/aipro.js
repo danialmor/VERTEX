@@ -62,6 +62,29 @@
       + '<small style="color:var(--muted)">توکن فقط داخل سرور VERTEX (Cloudflare) نگه داشته می‌شود؛ به مرورگر کاربران نمی‌رسد و اینجا هم دوباره نمایش داده نمی‌شود. توکن را در Cloudflare با دسترسی <b>Workers AI</b> (و ترجیحاً Account Read) بسازید.</small>'
       + '<form id="cfF" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:end"><label style="display:grid;gap:4px"><b style="font-size:13px">توکن API ‏Cloudflare</b><input name="tok" type="password" dir="ltr" autocomplete="off" placeholder="cfut_… یا توکن API" style="' + inp + '"></label><label style="display:grid;gap:4px"><b style="font-size:13px">Account ID (اختیاری)</b><input name="acc" dir="ltr" placeholder="۳۲ کاراکتر — اگر خالی بماند خودکار پیدا می‌شود" style="' + inp + '"></label><div class="row"><button class="btn pri">ذخیره و اتصال</button><button class="btn d" type="button" id="cfDel">حذف توکن</button></div></form><div id="cfOut" style="font-size:13px"></div></div>';
     var box = document.createElement('div'); box.innerHTML = h; pg.appendChild(box);
+    // ── live status strip at the top: every API the ecosystem uses right now, pinged with one tiny request
+    (function () {
+      var dk = function (k) { try { return k ? atob(k).split('').reverse().join('') : '' } catch (e) { return '' } };
+      var L = [{ name: 'Coarena (اصلی)', base: 'https://coarena.ai/api/v1', model: cfg.model || 'gpt-6-luna', k: dk(cfg.k), on: cfg.enabled !== false && cfg.mode !== 'local' }].concat(prov.map(function (p) { return { name: p.name, base: p.base, model: p.model, k: dk(p.k), on: p.on !== false } }));
+      var top = document.createElement('div'); top.className = 'card mb'; top.style.cssText = 'display:grid;gap:10px';
+      top.innerHTML = '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center"><h2 style="margin:0;font-size:16px">سرویس‌های فعال در کل اکوسیستم</h2><button class="btn s" type="button" id="aiPing">بررسی دوباره</button></div><div id="aiLive" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div><small style="color:var(--muted)">به ترتیب اولویت؛ همه‌ی پلتفرم‌ها اول اولین سرویسِ سالم را استفاده می‌کنند. هر بررسی یک پرسش خیلی کوتاه می‌فرستد.</small>';
+      var first = pg.querySelector('.card, .grid'); pg.insertBefore(top, first);
+      function ping() {
+        var g = $('#aiLive'); g.innerHTML = '';
+        L.forEach(function (p, i) {
+          var c = document.createElement('div'); c.style.cssText = 'border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:3px;' + (p.on ? '' : 'opacity:.5');
+          c.innerHTML = '<div style="display:flex;justify-content:space-between;gap:6px"><b>' + fa(i + 1) + '. ' + esc(p.name) + '</b><span data-s>' + (p.on ? '⏳' : 'خاموش') + '</span></div><small dir="ltr" style="color:var(--muted);text-align:end">' + esc(p.model) + '</small><small data-m style="color:var(--muted)"></small>';
+          g.appendChild(c); if (!p.on) return;
+          var S = c.querySelector('[data-s]'), M = c.querySelector('[data-m]'), t0 = performance.now();
+          if (!p.k) { S.textContent = '✗'; S.style.color = '#c0392b'; M.textContent = 'کلید ثبت نشده'; return }
+          fetch(p.base + '/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + p.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: p.model, max_tokens: 8, messages: [{ role: 'user', content: 'ok' }] }) })
+            .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j.error && (j.error.message || j.error)) || ('HTTP ' + r.status)); return j }) })
+            .then(function () { S.textContent = '✓ فعال'; S.style.color = '#1f9d6b'; M.textContent = 'پاسخ در ' + fa(Math.round(performance.now() - t0)) + ' میلی‌ثانیه' })
+            .catch(function (e) { S.textContent = '✗ کار نمی‌کند'; S.style.color = '#c0392b'; var m = String(e.message || e); M.textContent = /Failed to fetch|NetworkError|Load failed/.test(m) ? 'در دسترس نیست (شبکه یا سرور)' : /not connected|501/.test(m) ? 'Cloudflare هنوز متصل نشده' : m.slice(0, 90) });
+        });
+      }
+      ping(); $('#aiPing').onclick = ping;
+    })();
     (function () {
       var st = $('#cfSt'), out = $('#cfOut'), ver = 0;
       var hasProv = function () { return prov.some(function (p) { return /\/ai\/v1$/.test(p.base) && p.base.indexOf(CU) === 0 }) };
