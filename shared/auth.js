@@ -95,4 +95,5 @@
     if (document.body) addHome(); else document.addEventListener('DOMContentLoaded', addHome);
   }
   var need = document.currentScript.getAttribute('data-require'); if (need && !DEMO) require(need);
+  try { if (!/[?&]demo\b/.test(location.search) && !/\/aide\//.test(location.pathname) && !/\/admin\/?$/.test(location.pathname)) { var vxn = document.createElement('script'); vxn.src = ROOT + 'shared/notify.js?v=1'; vxn.defer = true; (document.head || document.documentElement).appendChild(vxn) } } catch (e) { }
 })();

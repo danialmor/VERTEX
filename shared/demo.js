@@ -233,6 +233,20 @@
       if (p === '/admin/backup') return { file: 'در حالت نمایشی پشتیبان ساخته نمی‌شود' };
       if (p === '/admin/export') return D;
     }
+    // Team & notifications (used by Aide, the calendar centre of each subscription, and by every platform's bell)
+    if (p === '/team/members' && m === 'GET') {
+      if (!U) E(401, 'auth');
+      var mine = U.tenant_id ? D.users.filter(function (u) { return u.tenant_id === U.tenant_id && u.active !== false }) : D.users.filter(function (u) { return !u.tenant_id && u.active !== false });
+      return { members: mine.map(function (u) { return { code: u.code, ucode: u.ucode || '', name: u.name || u.code, role: u.role, leader: !!u.leader, level: u.level || 0 } }) };
+    }
+    if (p === '/notify' && m === 'POST') {
+      if (!U) E(401, 'auth'); D.inbox = D.inbox || [];
+      var to = [].concat(b.to || []).map(String).slice(0, 200), id0 = nextId(D.inbox);
+      to.forEach(function (c, k) { D.inbox.unshift({ id: id0 + k, to: c, from: U.code, from_name: U.name || U.code, app: String(b.app || 'aide').slice(0, 30), kind: String(b.kind || 'info').slice(0, 20), title: String(b.title || '').slice(0, 160), body: String(b.body || '').slice(0, 1000), at: b.at || null, link: String(b.link || '').slice(0, 300), t: now(), read: false }) });
+      D.inbox = D.inbox.slice(0, 3000); log(U, 'notify.send', to.join(',')); return { ok: true, sent: to.length };
+    }
+    if (p === '/notify' && m === 'GET') { if (!U) E(401, 'auth'); var mineN = (D.inbox || []).filter(function (x) { return x.to === U.code }).slice(0, 100); return { items: mineN, unread: mineN.filter(function (x) { return !x.read }).length } }
+    if (p === '/notify/read' && m === 'POST') { if (!U) E(401, 'auth'); var ids = [].concat(b.ids || []); (D.inbox || []).forEach(function (x) { if (x.to === U.code && (b.all || ids.indexOf(x.id) >= 0)) x.read = true }); return { ok: true } }
     if (p.indexOf('/panel/') === 0) {
       if (U.role !== 'owner') E(403, 'forbidden'); var t2 = tn(U.tenant_id), s2 = sub(t2.id) || { modules: [], seats: 0, max_levels: 1 };
       var inT = function (u) { return u.tenant_id === t2.id };
