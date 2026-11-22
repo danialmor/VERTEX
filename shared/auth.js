@@ -85,7 +85,7 @@
   // company account without an active subscription: only the purchase page in the control panel
   if (STATIC && !DEMO && s0 && s0.paid === false && !/\/admin\/?/.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'admin/#buy'); }
   // VERTEX core dashboard (msp-bi) is private to the platform admin for now; company users get the app home
-  if (STATIC && !DEMO && s0 && s0.role !== 'admin' && /\/(msp-bi(-next)?|home)\//.test(location.pathname)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
+  if (STATIC && !DEMO && s0 && s0.role !== 'admin' && (/\/home\//.test(location.pathname) || /\/msp-bi(-next)?\//.test(location.pathname) && !s0.msp)) { document.documentElement.style.visibility = 'hidden'; location.replace(ROOT + 'app/'); }
   // Platform switcher: a small VERTEX home button on every platform page (not on the landing, panel or app home)
   if (STATIC && s0 && !/\/(admin|app|home)\/?/.test(location.pathname) && location.pathname.replace(/\/index\.html$/, '/') !== new URL(ROOT, location.href).pathname) {
     var addHome = function () { if (document.getElementById('vxHomeBtn')) return; var a = document.createElement('a'); a.id = 'vxHomeBtn'; a.href = ROOT + (DEMO ? '' : s0.role === 'admin' ? 'home/' : 'app/'); a.title = 'خانه‌ی VERTEX'; a.setAttribute('aria-label', 'خانه‌ی VERTEX و جابه‌جایی بین پلتفرم‌ها');

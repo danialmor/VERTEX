@@ -112,7 +112,7 @@
   function home(u) { if (u.role === 'admin' && !u.tenant_id) return B.base + 'admin/'; if (u.tenant_id) return B.base + 'app/'; var p = B.platform(u.home); return p && p.href ? p.href : B.base }
   function sess(u, tok) {
     var t = u.tenant_id ? tn(u.tenant_id) : null, s = t ? sub(t.id) : null;
-    var r = { user: { id: u.id, code: u.code, name: u.name, role: u.role }, tenant: t ? { id: t.id, code: t.code, name: t.name } : null, ucode: u.ucode || '', home: home(u), panel: (u.role === 'admin' && !t) || u.role === 'owner', must_change: !!u.must_change, profile: u.profile || {}, modules: t ? (u.role === 'owner' ? (s ? s.modules : []) : u.mods) : null, grants: u.grants || (t ? { 'msp-bi': 'member' } : {}) };
+    var r = { user: { id: u.id, code: u.code, name: u.name, role: u.role }, tenant: t ? { id: t.id, code: t.code, name: t.name } : null, msp: !t ? u.role === 'admin' : !!t.msp && (u.role === 'owner' ? (s ? s.modules : []) : (u.mods || [])).indexOf('project-control') >= 0, ucode: u.ucode || '', home: home(u), panel: (u.role === 'admin' && !t) || u.role === 'owner', must_change: !!u.must_change, profile: u.profile || {}, modules: t ? (u.role === 'owner' ? (s ? s.modules : []) : u.mods) : null, grants: u.grants || (t ? { 'msp-bi': 'member' } : {}) };
     r.sub_active = t ? active(t) : true; r.plan = s ? s.plan : ''; r.sub_ends = s ? s.ends : 0;
     if (tok) r.token = tok; return r;
   }
@@ -218,7 +218,7 @@
       if ((x = /^\/admin\/tenants\/(\d+)(\/subscription)?$/.exec(p))) {
         var T = tn(+x[1]); if (!T) E(404, 'not-found');
         if (x[2]) { newSub(T.id, b); log(U, 'tenant.subscription', T.code); return { ok: true } }
-        if (m === 'PATCH') { T.status = b.status === 'suspended' ? 'suspended' : 'active'; log(U, 'tenant.status', T.code); return { ok: true } }
+        if (m === 'PATCH') { if ('msp' in b) { T.msp = !!b.msp; log(U, 'tenant.msp', T.code + ':' + T.msp); return { ok: true } } T.status = b.status === 'suspended' ? 'suspended' : 'active'; log(U, 'tenant.status', T.code); return { ok: true } }
         return { tenant: T, active: active(T), subs: D.subs.filter(function (s) { return s.tenant_id === T.id }).sort(function (a, b) { return b.created - a.created }), users: D.users.filter(function (u) { return u.tenant_id === T.id }).map(pub) };
       }
       if (p === '/admin/stats') return { users: D.users.filter(function (u) { return !u.tenant_id }).length, db_kb: Math.round(JSON.stringify(D).length / 1024), logins24h: D.audit.filter(function (a) { return a.action === 'auth.login' && a.ts > now() - 86400 }).length, failed24h: 0, changes24h: 0, last_backup: 0, version: 'demo', ai: false };

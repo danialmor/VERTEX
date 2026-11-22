@@ -8,10 +8,10 @@
 <meta name="theme-color" content="#0a0d14">
 <title>VERTEX — خانه</title>
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=407"></script>
-<script src="../shared/demo.js?v=407"></script>
-<script src="../shared/auth.js?v=407"></script>
-<script src="../shared/avatar.js?v=407"></script>
+<script src="../shared/cloud.js?v=408"></script>
+<script src="../shared/demo.js?v=408"></script>
+<script src="../shared/auth.js?v=408"></script>
+<script src="../shared/avatar.js?v=408"></script>
 <script>(function(){try{var v=JSON.parse(localStorage.getItem('vxSess')||'null');if(v&&v.role==='admin'){location.replace('../home/');return}if(!localStorage.getItem('hub.token')&&!localStorage.getItem('vxSess'))location.replace('../admin/?next='+encodeURIComponent(location.href))}catch(e){}})()</script>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800;900&amp;display=swap" rel="stylesheet">
 <style>
@@ -172,6 +172,7 @@ h1{margin:0;font-size:28px;font-weight:900}
     if (window.VXAV) { $('av').style.background = 'none'; $('av').innerHTML = VXAV.svg((me.profile || {}).avatar, nm, 44) } else $('av').textContent = nm.charAt(0) || '؟';
     $('sub').textContent = new Date().toLocaleDateString('fa-IR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + (me.tenant ? ' · ' + me.tenant.name : '');
     ME = me; view();
+    try { var vs = JSON.parse(localStorage.getItem('vxSess') || 'null'); if (vs && vs.msp !== !!me.msp) { vs.msp = !!me.msp; localStorage.setItem('vxSess', JSON.stringify(vs)) } } catch (e) {}
     var owner = me.user && me.user.role === 'owner';
     if (!owner) [].forEach.call(document.querySelectorAll('[data-owner]'), function (e) { e.style.display = 'none' });
     $('spT').textContent = 'طرح ' + (me.plan || '—');
@@ -180,7 +181,7 @@ h1{margin:0;font-size:28px;font-weight:900}
     $('ringT').textContent = me.sub_ends ? fa(days) : '∞'; $('ring').setAttribute('stroke-dashoffset', String(100 - Math.min(100, Math.round(days / 30 * 100))));
     var PL = (window.BRAND && BRAND.platforms) || [], mods = me.modules || [];
     PL.filter(function (x) { return mods.indexOf(x.slug) >= 0 }).forEach(function (x) {
-      var soon = !x.href || /\/msp-bi\//.test(x.href), el = document.createElement(soon ? 'div' : 'a'); el.className = 'card'; if (!soon) el.href = x.href; el.style.cssText = 'text-decoration:none;color:inherit;gap:6px;padding:16px;border-top:3px solid ' + x.color + (soon ? ';opacity:.6' : '');
+      var soon = !x.href || /\/msp-bi\//.test(x.href) && !me.msp, el = document.createElement(soon ? 'div' : 'a'); el.className = 'card'; if (!soon) el.href = x.href; el.style.cssText = 'text-decoration:none;color:inherit;gap:6px;padding:16px;border-top:3px solid ' + x.color + (soon ? ';opacity:.6' : '');
       el.innerHTML = '<b></b><small class="mut"></small>'; el.firstChild.textContent = x.fa; el.lastChild.textContent = soon ? 'به‌زودی برای شرکت شما فعال می‌شود' : x.desc_fa; $('plats').appendChild(el) });
     if (!$('plats').children.length) $('plats').innerHTML = '<div class="mut">بخشی در طرح شما فعال نیست.</div>';
     (me.modules || []).forEach(function (m) { var s = document.createElement('span'); s.className = 'chip'; s.style.cssText = 'background:#16213a;padding:6px 14px;font-size:13px'; s.textContent = MN[m] || m; $('mods').appendChild(s) });
@@ -201,6 +202,6 @@ h1{margin:0;font-size:28px;font-weight:900}
   }).catch(function () { $('wD').textContent = 'آب‌وهوا در دسترس نیست' });
 })();
 </script>
-<script src="../shared/ai/ai.js?v=407" defer></script>
+<script src="../shared/ai/ai.js?v=408" defer></script>
 </body>
 </html>
