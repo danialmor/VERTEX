@@ -3,9 +3,17 @@
  "n": "I",
  "name": "Project Control",
  "path": "msp-bi/",
- "version": "4.28.1",
+ "version": "4.28.2",
  "generated": "2026-11-22",
  "changelog": [
+  {
+   "v": "4.28.2",
+   "date": "1405/09/01",
+   "title": "حذف کامل ورود Aide در VERTEX",
+   "items": [
+    "صفحه‌ی ورود Aide در نسخه‌ی VERTEX برای همه حذف شد؛ ورود فقط از کنترل پنل VERTEX انجام می‌شود."
+   ]
+  },
   {
    "v": "4.28.1",
    "date": "1405/09/01",
