@@ -67,7 +67,7 @@
       var dk = function (k) { try { return k ? atob(k).split('').reverse().join('') : '' } catch (e) { return '' } };
       var L = [{ name: 'Coarena (اصلی)', base: 'https://coarena.ai/api/v1', model: cfg.model || 'gpt-6-luna', k: dk(cfg.k), on: cfg.enabled !== false && cfg.mode !== 'local' }].concat(prov.map(function (p) { return { name: p.name, base: p.base, model: p.model, k: dk(p.k), on: p.on !== false } }));
       var top = document.createElement('div'); top.className = 'card mb'; top.style.cssText = 'display:grid;gap:10px';
-      top.innerHTML = '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center"><h2 style="margin:0;font-size:16px">سرویس‌های فعال در کل اکوسیستم</h2><button class="btn s" type="button" id="aiPing">بررسی دوباره</button></div><div id="aiLive" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div><small style="color:var(--muted)">به ترتیب اولویت؛ همه‌ی پلتفرم‌ها اول اولین سرویسِ سالم را استفاده می‌کنند. هر بررسی یک پرسش خیلی کوتاه می‌فرستد.</small>';
+      top.innerHTML = '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:center"><h2 style="margin:0;font-size:16px">سرویس‌های فعال در کل اکوسیستم</h2><button class="btn s" type="button" id="aiPing">بررسی دوباره</button></div><form id="aiQuick" style="display:flex;gap:8px;flex-wrap:wrap"><input name="x" dir="ltr" autocomplete="off" placeholder="کلید API یا دستور curl را اینجا بچسبانید (OpenAI، Groq، OpenRouter، DeepSeek، Gemini، Coarena، Cloudflare)" style="' + inp + ';flex:1;min-width:240px"><button class="btn pri">افزودن به سرویس‌های فعال</button></form><div id="aiQo" style="font-size:13px"></div><div id="aiLive" style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div><small style="color:var(--muted)">به ترتیب اولویت؛ همه‌ی پلتفرم‌ها اول اولین سرویسِ سالم را استفاده می‌کنند. هر بررسی یک پرسش خیلی کوتاه می‌فرستد.</small>';
       var first = pg.querySelector('.card, .grid'); pg.insertBefore(top, first);
       function ping() {
         var g = $('#aiLive'); g.innerHTML = '';
@@ -80,10 +80,36 @@
           fetch(p.base + '/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + p.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: p.model, max_tokens: 8, messages: [{ role: 'user', content: 'ok' }] }) })
             .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j.error && (j.error.message || j.error)) || ('HTTP ' + r.status)); return j }) })
             .then(function () { S.textContent = '✓ فعال'; S.style.color = '#1f9d6b'; M.textContent = 'پاسخ در ' + fa(Math.round(performance.now() - t0)) + ' میلی‌ثانیه' })
-            .catch(function (e) { S.textContent = '✗ کار نمی‌کند'; S.style.color = '#c0392b'; var m = String(e.message || e); M.textContent = /Failed to fetch|NetworkError|Load failed/.test(m) ? 'در دسترس نیست (شبکه یا سرور)' : /not connected|501/.test(m) ? 'Cloudflare هنوز متصل نشده' : m.slice(0, 90) });
+            .catch(function (e) { var m = String(e.message || e), q = /neurons|quota|exhaust|insufficient|credit|allocation|rate.?limit|billing|payment|4006|\b402\b|\b429\b|free tier/i.test(m); S.textContent = q ? '⚠ توکن تمام شده' : '✗ کار نمی‌کند'; S.style.color = q ? '#d68910' : '#c0392b'; M.textContent = q ? 'سهمیه‌ی این API تمام شده؛ بعداً خودش دوباره فعال می‌شود' : /Failed to fetch|NetworkError|Load failed/.test(m) ? 'در دسترس نیست (شبکه یا سرور)' : /not connected|501/.test(m) ? 'Cloudflare هنوز متصل نشده' : /invalid|not valid|unauthor|401|403/i.test(m) ? 'کلید درست نیست' : m.slice(0, 90) });
         });
       }
       ping(); $('#aiPing').onclick = ping;
+      $('#aiQuick').onsubmit = async function (e) {
+        e.preventDefault(); var fm = this, raw = fm.x.value.trim(), o = $('#aiQo'); if (!raw) return;
+        var tok = ((raw.match(/Bearer\s+([\w.\-]{16,})/) || [])[1]) || ((raw.match(/\b(cfut_[\w-]+|coa_[\w-]+|sk-or-[\w-]+|gsk_[\w-]+|sk-[\w-]{16,}|AIza[\w-]{20,})/) || [])[1]) || (/^[\w.\-]{20,}$/.test(raw) ? raw : '');
+        if (!tok) { o.innerHTML = '<span style="color:#c0392b">کلیدی در متن پیدا نشد.</span>'; return }
+        var cf = /^cfut_/.test(tok) || /cloudflare\.com/.test(raw);
+        var T = cf ? null : /^coa_/.test(tok) ? ['coarena2', 'Coarena', 'https://coarena.ai/api/v1', 'gpt-6-luna'] : /^sk-or-/.test(tok) ? ['openrouter', 'OpenRouter', 'https://openrouter.ai/api/v1', 'openai/gpt-4o-mini'] : /^gsk_/.test(tok) ? ['groq', 'Groq', 'https://api.groq.com/openai/v1', 'llama-3.3-70b-versatile'] : /^AIza/.test(tok) ? ['gemini', 'Google Gemini', 'https://generativelanguage.googleapis.com/v1beta/openai', 'gemini-2.0-flash'] : null;
+        o.textContent = 'در حال بررسی…';
+        var ok = function (msg) { o.innerHTML = '<span style="color:#1f9d6b">' + msg + '</span>'; setTimeout(function () { P.A.aiset() }, 1500) };
+        var hasCf = function () { return prov.some(function (p) { return /\/ai\/v1$/.test(p.base) }) };
+        var add = function (t) { return upd('ai-config', function (c) { c.providers = (c.providers || []).concat([{ id: t[0] + '-' + Date.now().toString(36).slice(-4), name: t[1], base: t[2], model: t[3], k: enc(t[4] || tok), on: true, pri: (c.providers || []).length + 1 }]); c.t0 = c.t }, function () { return {} }) };
+        try {
+          if (cf) {
+            var r = await fetch(CU + '/ai/cred', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: tok }) }), j = await r.json().catch(function () { return {} });
+            if (!r.ok) throw new Error(j.error === 'token-invalid' ? 'توکن Cloudflare معتبر نیست' : j.error === 'no-ai-permission' ? 'توکن دسترسی Workers AI ندارد' : j.error === 'not-found' ? 'سرور ابری قدیمی است' : (j.error || 'HTTP ' + r.status));
+            if (!hasCf()) await add(['cfai', 'Cloudflare Workers AI', CU + '/ai/v1', '@cf/meta/llama-3.3-70b-instruct-fp8-fast', 'none']);
+            fm.x.value = ''; ok('✓ Cloudflare اضافه شد' + (j.quota ? ' — ⚠ توکن امروز تمام شده؛ بعد از ساعت ۰۳:۳۰ خودش فعال می‌شود' : '')); return;
+          }
+          var cands = T ? [T] : [['openai', 'OpenAI', 'https://api.openai.com/v1', 'gpt-4o-mini'], ['deepseek', 'DeepSeek', 'https://api.deepseek.com/v1', 'deepseek-chat']], last = '';
+          for (var i = 0; i < cands.length; i++) { var t = cands[i];
+            try { var rr = await fetch(t[2] + '/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: t[3], max_tokens: 5, messages: [{ role: 'user', content: 'ok' }] }) }), jj = await rr.json().catch(function () { return {} }); var em = String((jj.error && (jj.error.message || jj.error)) || '');
+              var q = /quota|exhaust|insufficient|credit|billing|payment|rate.?limit/i.test(em) || rr.status === 402 || rr.status === 429;
+              if (rr.ok || q) { await add(t); fm.x.value = ''; ok('✓ ' + t[1] + ' اضافه شد' + (q ? ' — ⚠ توکن تمام شده (اعتبار یا سهمیه ندارد)' : '')); return }
+              last = t[1] + ': ' + (em || rr.status) } catch (er) { last = t[1] + ': در دسترس نیست' } }
+          throw new Error(last || 'کلید شناخته نشد');
+        } catch (er) { o.innerHTML = '<span style="color:#c0392b">✗ ' + esc(er.message || er) + '</span>' }
+      };
     })();
     (function () {
       var st = $('#cfSt'), out = $('#cfOut'), ver = 0;

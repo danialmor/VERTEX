@@ -13,7 +13,7 @@
      GET    /ai/v1/models                    → the allowed Workers AI models
      GET|PUT|DELETE /ai/cred                 → Cloudflare API token for Workers AI, kept only inside the worker (never returned)
    Names: doc [a-z0-9._-]{1,60}; site [a-z0-9-]{1,40}; file name ≤120 chars, no slashes, known extensions. */
-const VERSION = '1.4.0';
+const VERSION = '1.4.1';
 const DOC = /^[a-z0-9._-]{1,60}$/i, SITE = /^[a-z0-9-]{1,40}$/, FILE = /^[^/\\\x00-\x1f]{1,120}\.(xlsx|xls|csv|tsv|txt|xml|json|pdf|mpp|png|jpg|jpeg|webp|docx)$/i;
 const MAX_FILE = 20 * 1024 * 1024, MAX_DOC = 20 * 1024 * 1024;
 
@@ -48,9 +48,10 @@ async function aiCred(req, env, H, m) {
   if (!acc) { const a = await cf('/accounts'); const L = a.result || []; if (!L.length) return json({ error: 'no-account', detail: 'Account ID را وارد کنید یا به توکن دسترسی Account Read بدهید' }, 400, H); acc = L[0].id; name = L[0].name || '' }
   if (!/^[a-f0-9]{32}$/.test(acc)) return json({ error: 'bad-account' }, 400, H);
   const probe = await fetch('https://api.cloudflare.com/client/v4/accounts/' + acc + '/ai/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: AI_MODELS[3], messages: [{ role: 'user', content: 'ok' }], max_tokens: 5 }) }).catch(() => null);
-  if (!probe || !probe.ok) { let d = ''; try { d = JSON.stringify((await probe.json()).errors || '').slice(0, 200) } catch (e) { } return json({ error: 'no-ai-permission', detail: 'توکن باید دسترسی «Workers AI: Read/Edit» داشته باشد ' + d }, 400, H) }
+  let quota = false;
+  if (!probe || !probe.ok) { let d = ''; try { d = JSON.stringify((await probe.json()).errors || '').slice(0, 300) } catch (e) { } if (/neurons|4006|allocation|quota/i.test(d)) quota = true; else return json({ error: 'no-ai-permission', detail: 'توکن باید دسترسی «Workers AI: Read/Edit» داشته باشد ' + d }, 400, H) }
   await env.VX.put('sec:cfai', JSON.stringify({ token: tok, account: acc, name: name || acc.slice(0, 6) + '…', t: Date.now() }));
-  return json({ ok: true, account: name || acc.slice(0, 6) + '…' }, 200, H);
+  return json({ ok: true, quota, account: name || acc.slice(0, 6) + '…' }, 200, H);
 }
 async function aiChat(req, env, H) {
   const cred = env.AI ? null : await cfCred(env);
