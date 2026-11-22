@@ -1,0 +1,44 @@
+# Mirrors the independent Aide project (github.com/danialmor/aide) into VERTEX/aide/.
+# Edits are made in danialmor/aide; this copy is what VERTEX users open and review.
+# Runs every 5 minutes (GitHub's minimum) and can be started by hand from the Actions tab.
+name: Sync Aide copy
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: sync-aide
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: vertex
+      - name: Fetch latest Aide
+        run: git clone --depth 1 https://github.com/danialmor/aide.git aide-src
+      - name: Copy if changed
+        id: copy
+        run: |
+          SRC_SHA=$(git -C aide-src rev-parse HEAD)
+          OLD_SHA=$(cat vertex/aide/.aide-source 2>/dev/null | head -1 || true)
+          if [ "$SRC_SHA" = "$OLD_SHA" ]; then echo "Aide unchanged ($SRC_SHA)"; echo "changed=false" >> $GITHUB_OUTPUT; exit 0; fi
+          # keep VERTEX-only files (connection page) and replace everything else with the Aide copy
+          mkdir -p keep && cp vertex/aide/connect.html keep/ 2>/dev/null || true
+          rsync -a --delete --exclude '.git' --exclude '.github' --exclude 'cloudflare' --exclude 'wrangler.toml' --exclude '*.zip' aide-src/ vertex/aide/
+          cp keep/* vertex/aide/ 2>/dev/null || true
+          printf '%s\n%s\n' "$SRC_SHA" "$(date -u +%FT%TZ)" > vertex/aide/.aide-source
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "sha=${SRC_SHA:0:7}" >> $GITHUB_OUTPUT
+      - name: Commit copy
+        if: steps.copy.outputs.changed == 'true'
+        working-directory: vertex
+        run: |
+          git config user.name "aide-sync[bot]"
+          git config user.email "aide-sync@users.noreply.github.com"
+          git add -A aide
+          git commit -m "Sync Aide copy from danialmor/aide@${{ steps.copy.outputs.sha }}" || exit 0
+          for i in 1 2 3; do git pull --rebase -q && git push -q && exit 0; sleep 5; done; exit 1

@@ -3,9 +3,18 @@
  "n": "I",
  "name": "Project Control",
  "path": "msp-bi/",
- "version": "4.26.0",
+ "version": "4.27.0",
  "generated": "2026-11-22",
  "changelog": [
+  {
+   "v": "4.27.0",
+   "date": "1405/09/01",
+   "title": "نسخه‌ی کپی Aide داخل VERTEX",
+   "items": [
+    "VERTEX/aide حالا کپی کامل پروژه‌ی مستقل Aide است و هر ۵ دقیقه از GitHub بررسی و در صورت تغییر به‌روز می‌شود.",
+    "تغییرات در پروژه‌ی مستقل danialmor/aide انجام می‌شود و در تقویم VERTEX بازبینی می‌شود."
+   ]
+  },
   {
    "v": "4.26.0",
    "date": "1405/09/01",
