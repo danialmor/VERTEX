@@ -270,7 +270,8 @@
     try { if (o.body) body = JSON.parse(o.body) } catch (e) { }
     if (m === 'GET') { var qs = s.split('?')[1]; if (qs) qs.split('&').forEach(function (kv) { var z = kv.split('='); if (z[0]) body[decodeURIComponent(z[0])] = decodeURIComponent((z[1] || '').replace(/\+/g, ' ')) }) }
     var st = 200, out;
-    return ready.then(function () {
+    // log-in always reads the latest cloud copy first, so a PIN or account changed on another device works here at once
+    return ready.then(function () { return path === '/auth/login' || path === '/me' ? Promise.race([pull(), new Promise(function (r) { setTimeout(r, 4000) })]) : null }).then(function () {
       try { out = route(m, path, body, h); save(); if (m !== 'GET' && path !== '/auth/login') push() } catch (e) { st = e.status || 500; out = e.body || { error: String(e && e.message || e) } }
       return new Response(JSON.stringify(out), { status: st, headers: { 'Content-Type': 'application/json' } });
     });
