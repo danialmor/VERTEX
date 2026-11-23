@@ -7,7 +7,7 @@
 <script src="../shared/track.js" data-site="project-control"></script>
 <script>/* 3.64.0: نامه‌نگاری و میز کار به پلتفرم VI (نامه‌نگاری) منتقل شدند؛ در کنترل پروژه فقط با «اتصال» دیده می‌شوند */
 (function(){var d=document.documentElement,q=location.search,c={};try{c=JSON.parse(localStorage.getItem('pcConn')||'{}')}catch(e){}
- if(/[?&]app=mail\b/.test(q)){d.classList.add('app-mail');try{document.title='VI — نامه‌نگاری'}catch(e){}}
+ if(/[?&]app=mail\b/.test(q)){d.classList.add('app-mail');try{document.title='VI — نامه‌نگاری'}catch(e){}}if(/[?&]app=chat\b/.test(q)){d.classList.add('app-mail');window.__tab='mail';window.__sub='chat';try{document.title='III — پیام‌رسان'}catch(e){}}
  else{if(!c.mail)d.classList.add('nc-mail');if(!c.work)d.classList.add('nc-work')}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap"></noscript>

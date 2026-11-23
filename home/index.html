@@ -147,7 +147,7 @@ footer{margin-top:54px;padding-top:22px;border-top:1px solid var(--line);text-al
  if(AU&&AU.STATIC){
   var slugOf=function(el){var h=el.getAttribute('href')||'';var m=P.filter(function(p){return p.href&&(h===p.href||el.href===new URL(p.href,location.href).href)})[0];return m?m.slug:''};
   [].slice.call(document.querySelectorAll('#mods a.pc,#tri a.nd')).forEach(function(el){var sl=slugOf(el);if(!sl)return;
-   if(!ss){el.href='admin/?next='+encodeURIComponent(el.href);return}
+   if(!ss){el.href='../admin/?next='+encodeURIComponent(el.href);return}
    if(!AU.allowed(sl,ss)){el.removeAttribute('href');el.classList.add('vxno');el.title='دسترسی ندارید';el.setAttribute('aria-disabled','true')}else el.classList.add('vxok')});
   var si=document.querySelector('.top .signin'),go=document.querySelector('.cta .btn.go');
   if(ss){if(si){si.textContent=ss.u+' · Sign out';si.href='#';si.onclick=function(e){e.preventDefault();AU.logout()}}if(go){go.textContent='MY PLATFORMS';go.href='#platforms'}
