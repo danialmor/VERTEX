@@ -71,7 +71,7 @@
         var on = u.id === cur, off = u.id === R.ui.official;
         return '<div class="r pv" style="grid-template-columns:60px minmax(0,1fr) auto;cursor:default"><span class="ver">' + esc(u.id) + '</span><span class="nm">' + esc(u.name) + (off ? ' <span class="chip ok">رسمی</span>' : ' <span class="chip">' + (u.status === 'preview' ? 'پیش‌نمایش' : esc(u.status)) + '</span>') + '<br><span class="pl">' + esc(u.note || '') + ' · ' + esc(u.base) + '</span></span>' +
           (on ? '<span class="pl">در حال نمایش</span>' : '<button class="btn" type="button" data-ui="' + esc(u.id) + '">' + (off ? 'برگشت به رسمی' : 'پیش‌نمایش') + '</button>') + '</div>';
-      }).join('') + '</div><p class="pl" style="margin:8px 0 0">پیش‌نمایش فقط در همین مرورگر است. رسمی‌کردن برای همه: <code>admin/ui/current.js</code> و <code>releases.json → ui.official</code>.</p></div>';
+      }).join('') + '</div><p class="row" style="gap:8px;margin:10px 0 0;align-items:center"><span class="pl">زبان پنل</span> <button class="btn" type="button" data-lang="en">English</button> <button class="btn" type="button" data-lang="fa">فارسی</button></p><p class="pl" style="margin:8px 0 0">پیش‌نمایش فقط در همین مرورگر است. رسمی‌کردن برای همه: <code>admin/ui/current.js</code> و <code>releases.json → ui.official</code>.</p></div>';
     }
     /* features */
     var opts = '<option value="">همه‌ی پلتفرم‌ها</option>' + known.map(function (s) { return '<option value="' + s + '">' + esc(pname(s)) + '</option>' }).join('');
@@ -92,7 +92,7 @@
           '<dt>بررسی اتصال</dt><dd>' + (hl ? hl.items.map(function (i) { return '<span class="dot ' + (i[1] ? 'ok' : 'bad') + '"></span> <code>' + esc(i[0]) + '</code> ' }).join('') + (hl.bad.length ? '<br><span style="color:var(--bad)">پیوند ناشناخته: ' + hl.bad.map(esc).join('، ') + '</span>' : '') : (f.check && f.check.length ? 'در حال بررسی…' : 'چیزی برای بررسی نیست (هنوز ساخته نشده).')) + '</dd></dl></div>';
       }).join('') : '<div class="r hd" style="justify-content:center">موردی نیست.</div>');
     }
-    $('#mon').onclick = function (e) { var ub = e.target.closest('[data-ui]'); if (ub) { try { if (ub.dataset.ui === R.ui.official) localStorage.removeItem('vxUI'); else localStorage.setItem('vxUI', ub.dataset.ui) } catch (x) { } location.reload(); return } var r = e.target.closest('.r[role=button]'); if (!r || e.target.closest('a')) return; r.setAttribute('aria-expanded', r.getAttribute('aria-expanded') === 'true' ? 'false' : 'true') };
+    $('#mon').onclick = function (e) { var lb = e.target.closest('[data-lang]'); if (lb) { try { localStorage.setItem('vxLang', lb.dataset.lang) } catch (x) { } location.reload(); return } var ub = e.target.closest('[data-ui]'); if (ub) { try { if (ub.dataset.ui === R.ui.official) localStorage.removeItem('vxUI'); else localStorage.setItem('vxUI', ub.dataset.ui) } catch (x) { } location.reload(); return } var r = e.target.closest('.r[role=button]'); if (!r || e.target.closest('a')) return; r.setAttribute('aria-expanded', r.getAttribute('aria-expanded') === 'true' ? 'false' : 'true') };
     $('#mon').onkeydown = function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.r[role=button]')) { e.preventDefault(); e.target.click() } };
     ['mQ', 'mP', 'mS'].forEach(function (id) { $('#' + id).oninput = rows });
     function check() {

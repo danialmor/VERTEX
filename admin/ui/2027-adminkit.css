@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 /* VERTEX · IV — UI 2027 "AdminKit" (design version, preview). Base: AdminKit (MIT, adminkit.io) design language.
    Only overrides tokens and chrome; every page keeps working because features read the same variables (see panel.css header).
    Character: dark slate sidebar like a drawing-office title block, crisp 6px corners, one AdminKit blue, quieter shadows. */
@@ -22,3 +23,29 @@ nav.side button[data-go][aria-current=page],html[data-theme=dark] nav.side butto
 nav.side button[data-go][aria-current=page] svg{stroke:#e9ecef}
 .btn.p,button.p{border-radius:var(--r2)}
 .chip{border-radius:4px}
+
+/* ── compact density (owner, 2026-11-23): smaller type, tighter spacing, English LTR base ── */
+:root{--sbw:232px;--gap:12px}
+body{font:400 13px/1.55 Inter,Vazirmatn,"Segoe UI",sans-serif}
+html[lang=en] body{letter-spacing:-.005em}
+h1,.head h1{font-size:17px!important;font-weight:600}
+h2{font-size:14.5px}h3{font-size:13.5px}
+.card{padding:16px}
+.head{margin-bottom:14px!important}.head p{font-size:12.5px;margin-top:2px}
+input,select{height:34px;padding:6px 10px;font-size:13px;border-radius:var(--r2)}
+textarea{font-size:13px;padding:8px 10px}
+.btn,button.btn{font-size:12.5px;padding:6px 12px;min-height:32px;border-radius:var(--r2)}
+.chip{font-size:11px;padding:1px 7px}
+table{font-size:12.5px}th,td{padding:8px 10px!important}
+nav.side{padding:0 16px 16px}
+nav.side .brand{height:60px}
+nav.side .grp{padding:12px 12px 4px;font-size:11px}
+nav.side button[data-go]{padding:6px 12px 6px 25px;font-size:13px;gap:10px;margin-inline:-16px}
+nav.side button[data-go] svg{width:18px;height:18px}
+header,.top,#hdr{min-height:56px}
+nav.side .own{display:none}
+.card.kpi{padding:14px 16px;min-height:0;gap:2px}.card.kpi::before{width:34px;height:34px;border-radius:6px;background-size:18px;margin-bottom:6px}.kpi b{font-size:21px}.kpi span{font-size:12.5px}
+.grid.g4{gap:12px}
+/* left-to-right base: sidebar is on the left, so floating buttons move to the right */
+html[dir=ltr] #vxaiFab{left:auto;right:16px}html[dir=ltr] #vxai{left:auto;right:16px}
+html[dir=ltr] #vxAb{left:auto;right:21px}html[dir=ltr] #vxAbB{left:auto;right:16px;direction:ltr;text-align:left}
