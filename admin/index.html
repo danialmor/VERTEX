@@ -9,7 +9,7 @@
 <title>{brand} · IV — کنترل پنل کاربران</title>
 <link rel="icon" data-brand="favicon" href="data:,">
 <script src="../shared/brand.js"></script>
-<script src="../shared/cloud.js?v=412"></script>
+<script src="../shared/cloud.js?v=413"></script>
 <script src="../shared/demo.js?v=415"></script>
 <script src="../shared/avatar.js?v=412"></script>
 <script src="../shared/auth.js?v=418"></script>
@@ -230,7 +230,7 @@ window.TSP={enter:function(r){return enter(r)},get S(){return S},get T(){return 
 /* GitHub Pages: the original sign-in (same users and passwords as before). After sign-in → next page or the root page with the user's platforms. */
 if(window.VX_AUTH&&VX_AUTH.STATIC){
  var nx=(location.search.match(/[?&]next=([^&]+)/)||[])[1];nx=nx?decodeURIComponent(nx):'';if(nx&&nx.indexOf(VX_AUTH.ROOT)!==0)nx='';
- function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant,paid=r.sub_active!==false;var GS={'msp-bi':['project-control','messenger'],aide:['executive-desk']},sites=eco||!paid?[]:r.tenant?(r.modules||[]):Object.keys(r.grants||{}).reduce(function(a,k){return a.concat(GS[k]||[k])},[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,paid:paid,msp:!!r.msp,staff:!r.tenant&&!eco,t:Date.now()}))}catch(e){}}window.TSP_vxMark=vxMark;
+ function vxMark(r){var u=r.user||{},eco=u.role==='admin'&&!r.tenant,paid=r.sub_active!==false;var GS={'msp-bi':['project-control','messenger'],aide:['executive-desk']},sites=eco||!paid?[]:r.tenant?(r.modules||[]):Object.keys(r.grants||{}).reduce(function(a,k){return a.concat(GS[k]||[k])},[]);try{localStorage.setItem('vxSess',JSON.stringify({u:u.code||'',name:u.name||'',role:eco?'admin':'user',sites:sites,paid:paid,msp:!!r.msp,staff:!r.tenant&&!eco,tc:r.tenant&&r.tenant.code?String(r.tenant.code).toLowerCase():'',t:Date.now()}))}catch(e){}}window.TSP_vxMark=vxMark;
  var _lsub=lf.onsubmit;lf.onsubmit=function(e){e.preventDefault();var b=lf.querySelector('.btn.p');$('#lErr').textContent='';if(!lf.code.value.trim()||!lf.pin.value){$('#lErr').textContent='نام کاربری و رمز را وارد کنید.';return}b.disabled=true;
   var _c=lf.code.value.trim(),_p=lf.pin.value;api('POST','/auth/login',{code:_c,pin:_p,device:'panel',remember:lf.remember.checked}).then(function(r){T=r.token;try{localStorage.setItem('hub.token',T)}catch(x){}lf.pin.value='';vxMark(r);if(r.must_change){enter(r);return}var u=r.user||{},vs2=VX_AUTH.session()||{},can=vs2.role==='admin'||(vs2.sites||[]).indexOf('executive-desk')>=0,sec=can&&vs2.role!=='admin'&&(u.home==='executive-desk'||/منشی|secretary/i.test((u.title||'')+' '+(u.role||''))||(!vs2.msp&&(vs2.sites||[]).length===1));var go=function(){location.replace(nx||(sec?VX_AUTH.ROOT+'aide/':VX_AUTH.ROOT))};if(can){$('#lErr').textContent='در حال ورود به تقویم منشی…';aideSso(u,_c,_p,vs2.role==='admin').then(go,go)}else go()}).catch(function(x){$('#lErr').textContent=emsg(x)}).then(function(){b.disabled=false})};
  /* Aide (CEO & Secretary desk) single sign-on: the VERTEX code and password open the user's Aide account,
@@ -275,7 +275,7 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 <script src="aiq.js?v=412"></script>
 <script src="fx.js?v=412"></script>
 <script src="shell.js?v=413"></script>
-<script src="i18n-en.js?v=14"></script>
+<script src="i18n-en.js?v=15"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}

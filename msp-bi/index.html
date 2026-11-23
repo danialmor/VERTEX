@@ -1296,7 +1296,7 @@ html.app-mail #projSel,html.app-mail .pjsel{display:none!important}
 <link rel="manifest" href="manifest.webmanifest">
 <script src="../shared/brand.js"></script>
 <script src="../shared/auth.js?v=418" data-require="project-control"></script>
-<script src="../shared/cloud.js?v=412"></script>
+<script src="../shared/cloud.js?v=413"></script>
 </head>
 <body>
 <div class="shell">
@@ -2713,7 +2713,7 @@ var GHS={tok:'',own:'danialmor',rep:'VERTEX',q:Promise.resolve(),busy:0,err:'',l
 var STP='msp-bi/data/store/';
 function b64u(str){var b=new TextEncoder().encode(str),o='';for(var i=0;i<b.length;i+=0x8000)o+=String.fromCharCode.apply(null,b.subarray(i,i+0x8000));return btoa(o)}
 function ghApi(path,o){o=o||{};var h={Accept:o.raw?'application/vnd.github.raw+json':'application/vnd.github+json'};if(GHS.tok)h.Authorization='Bearer '+GHS.tok;if(o.body)h['Content-Type']='application/json';return fetch('https://api.github.com/repos/'+GHS.own+'/'+GHS.rep+'/contents/'+path+(o.m?'':'?ref=main'),{method:o.m||'GET',headers:h,body:o.body?JSON.stringify(o.body):undefined,cache:'no-store'})}
-async function ghRead(name){if(window.VXDEMO)return null;if(typeof CLOUDF!=='undefined'&&CLOUDF){try{var cd=await VX_CLOUD.getDoc('msp-'+name);if(cd)return cd}catch(e){}}try{var r=await ghApi(STP+name,{raw:true});if(r.ok)return await r.json();if(r.status===404)return null}catch(e){}try{var r2=await fetch('data/store/'+name+'?t='+Date.now(),{cache:'no-store'});if(r2.ok)return await r2.json()}catch(e){}return null}
+async function ghRead(name){if(window.VXDEMO)return null;if(typeof CLOUDF!=='undefined'&&CLOUDF){try{var cd=await VX_CLOUD.getDoc('msp-'+name);if(cd)return cd}catch(e){}}if(window.VX_CLOUD&&VX_CLOUD.tenant&&VX_CLOUD.tenant())return null;try{var r=await ghApi(STP+name,{raw:true});if(r.ok)return await r.json();if(r.status===404)return null}catch(e){}try{var r2=await fetch('data/store/'+name+'?t='+Date.now(),{cache:'no-store'});if(r2.ok)return await r2.json()}catch(e){}return null}
 async function ghPut(name,obj){if(window.VXDEMO)return;if(name==='pinfo.json'&&!(obj&&obj.rows&&Object.keys(obj.rows).length))return;if(name==='dim.json'&&!(obj&&obj.projects))return;/* never overwrite the shared copy with an empty one */
  if(typeof CLOUDF!=='undefined'&&CLOUDF){await VX_CLOUD.putDoc('msp-'+name,obj);return}var p=STP+name,sha,r=await ghApi(p);if(r.ok)sha=(await r.json()).sha;else if(r.status===401||r.status===403)throw new Error('کلید GitHub پذیرفته نشد ('+r.status+')');else if(r.status!==404)throw new Error('GitHub '+r.status);
  var w=await ghApi(p,{m:'PUT',body:{message:'data: '+name+' — بارگذاری از داشبورد',content:b64u(JSON.stringify(obj)),sha:sha,branch:'main'}});if(!w.ok){var t='';try{t=(await w.json()).message||''}catch(e){}throw new Error('GitHub '+w.status+(t?' · '+t:''))}}
@@ -2747,7 +2747,7 @@ function realPref(){if(window.VXDEMO)return false;try{return localStorage.getIte
 function realSet(on){try{localStorage.setItem('dashReal',on?'1':'0')}catch(e){}}
 try{GH_ON=localStorage.getItem('dashGhost')==='1'&&!realPref()}catch(e){}
 var IDBH=null;
-function idbOpen(){return new Promise(function(res,rej){if(IDBH)return res(IDBH);try{var q=indexedDB.open('dashdb',1);q.onupgradeneeded=function(){q.result.createObjectStore('kv')};q.onsuccess=function(){IDBH=q.result;res(IDBH)};q.onerror=function(){rej(q.error)}}catch(e){rej(e)}})}
+function idbOpen(){return new Promise(function(res,rej){if(IDBH)return res(IDBH);try{var q=indexedDB.open('dashdb'+(window.VX_CLOUD&&VX_CLOUD.tenant&&VX_CLOUD.tenant()?'-'+VX_CLOUD.tenant():''),1);q.onupgradeneeded=function(){q.result.createObjectStore('kv')};q.onsuccess=function(){IDBH=q.result;res(IDBH)};q.onerror=function(){rej(q.error)}}catch(e){rej(e)}})}
 function kvGet(k){if(window.VXDEMO)return Promise.resolve(undefined);return idbOpen().then(function(db){return new Promise(function(res){var r=db.transaction('kv').objectStore('kv').get(k);r.onsuccess=function(){res(r.result)};r.onerror=function(){res(undefined)}})}).catch(function(){try{return JSON.parse(localStorage.getItem('kv_'+k))||undefined}catch(e){return undefined}})}
 function kvSet(k,v){if(window.VXDEMO)return Promise.resolve(true);return idbOpen().then(function(db){return new Promise(function(res){var tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=function(){res(true)};tx.onerror=function(){res(false)}})}).catch(function(){try{localStorage.setItem('kv_'+k,JSON.stringify(v));return true}catch(e){return false}})}
 function tToRow(t){return [t.w,t.n,t.sum?1:0,t.s,t.f,t.bs,t.bf,t.p,t.wt,t.crit?1:0,t.res,t.lv,t.st,t.sl,t.co,t.bc,t.ac,t.bp,t.bw,t.ea,t.wp,t.wa,t.sp,t.cp,t.pr||'',t.nt||'']}

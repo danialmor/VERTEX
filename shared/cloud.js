@@ -22,6 +22,13 @@
     async getFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name)); if (!r.ok) throw new Error('cloud ' + r.status); return r.blob() },
     async delFile(site, name) { var r = await req('/files/' + site + '/' + encodeURIComponent(name), { method: 'DELETE' }); if (!r.ok) throw new Error('cloud ' + r.status); return true }
   };
+  /* Per-subscription store (feature VX-014): the Project Control dashboard of each subscription has its own docs and files.
+     Ecosystem admin / head office: docs "msp-<name>", files site "msp-bi". Subscription T002: docs "msp-t002-<name>", files site "msp-bi-t002". */
+  C.tenant = function () { try { var s = JSON.parse(localStorage.getItem('vxSess') || sessionStorage.getItem('vxSess') || 'null'); return s && s.role !== 'admin' && s.tc ? String(s.tc).toLowerCase().replace(/[^a-z0-9]/g, '') : '' } catch (e) { return '' } };
+  var nsDoc = function (n) { var t = C.tenant(); return t && /^msp-/.test(n) && n.indexOf('msp-' + t + '-') !== 0 ? 'msp-' + t + '-' + n.slice(4) : n };
+  var nsSite = function (s) { var t = C.tenant(); return t && s === 'msp-bi' ? 'msp-bi-' + t : s };
+  ['getDoc', 'putDoc'].forEach(function (k) { var f = C[k]; C[k] = function (n) { var a = [].slice.call(arguments); a[0] = nsDoc(n); return f.apply(C, a) } });
+  ['listFiles', 'putFile', 'putFileP', 'fileUrl', 'getFile', 'delFile'].forEach(function (k) { var f = C[k]; C[k] = function (s) { var a = [].slice.call(arguments); a[0] = nsSite(s); return f.apply(C, a) } });
   C.ready = C.on ? _f(CLOUD + '/health', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null }).then(function (j) { C.up = !!(j && j.ok && j.kv); C.ver = parseFloat((j && j.version) || '0'); return C.up }).catch(function () { C.up = false; return false }) : Promise.resolve(false);
   window.VX_CLOUD = C;
 })();

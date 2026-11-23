@@ -7,7 +7,7 @@
   var tok = function () { try { return localStorage.getItem('hub.token') || '' } catch (e) { return '' } };
   if (!tok()) return;
   function need(src) { return new Promise(function (r) { var s = document.createElement('script'); s.src = ROOT + src; s.onload = r; s.onerror = r; document.head.appendChild(s) }) }
-  var ready = (window.VX_HUB ? Promise.resolve() : (window.VX_CLOUD ? Promise.resolve() : need('shared/cloud.js?v=412')).then(function () { return window.BRAND ? null : need('shared/brand.js') }).then(function () { return need('shared/demo.js?v=414') }));
+  var ready = (window.VX_HUB ? Promise.resolve() : (window.VX_CLOUD ? Promise.resolve() : need('shared/cloud.js?v=413')).then(function () { return window.BRAND ? null : need('shared/brand.js') }).then(function () { return need('shared/demo.js?v=414') }));
   var api = function (m, p, b) { return fetch(location.origin + ROOT + 'api/v1' + p, { method: m, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok() }, body: b ? JSON.stringify(b) : undefined }).then(function (r) { return r.json() }) };
   var css = document.createElement('style');
   css.textContent = '#vxBell{position:fixed;right:16px;bottom:16px;z-index:9997;width:48px;height:48px;border-radius:50%;border:0;background:#121212;color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);touch-action:manipulation}' +
