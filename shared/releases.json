@@ -1,8 +1,16 @@
 {
  "updated": "2026-11-23",
  "ecosystem": {
-  "version": "5.5.0",
+  "version": "5.6.0",
   "changelog": [
+   {
+    "v": "5.6.0",
+    "date": "1405/09/02",
+    "title": "سورس پیام‌رسان بارگذاری شد",
+    "items": [
+     "سورس کامل Mattermost در شاخه‌ی messenger-source مخزن VERTEX؛ برای اجرا به سرور نیاز دارد."
+    ]
+   },
    {
     "v": "5.5.0",
     "date": "1405/09/02",
@@ -91,9 +99,17 @@
    ]
   },
   "messenger": {
-   "version": "0.1.0",
+   "version": "0.2.0",
    "path": "",
    "changelog": [
+    {
+     "v": "0.2.0",
+     "date": "1405/09/02",
+     "title": "سورس پیام‌رسان بارگذاری شد",
+     "items": [
+      "سورس کامل Mattermost در شاخه‌ی messenger-source مخزن VERTEX؛ برای اجرا به سرور نیاز دارد."
+     ]
+    },
     {
      "v": "0.1.0",
      "date": "1405/09/02",
@@ -629,9 +645,11 @@
    "name": "پیام‌رسان (Mattermost)",
    "platform": "messenger",
    "since": "",
-   "status": "planned",
-   "desc": "پیام‌رسان سازمانی از سورس Mattermost؛ به سرور (Go + PostgreSQL) نیاز دارد.",
-   "files": [],
+   "status": "partial",
+   "desc": "سورس کامل Mattermost در شاخه‌ی messenger-source مخزن VERTEX؛ برای اجرا به سرور نیاز دارد.",
+   "files": [
+    "branch: messenger-source"
+   ],
    "links": [
     "users-panel"
    ],
