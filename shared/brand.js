@@ -21,7 +21,7 @@
     platforms: [
       ['I', 'project-control', 'Project Control', 'کنترل پروژه', 'Scheduling and project management', 'زمان‌بندی و مدیریت پروژه', '#e0262f', 'crane', 'msp-bi/'],
       ['II', 'training', 'Training', 'آموزش', 'Learning and development', 'یادگیری و توسعه‌ی مهارت', '#f25a22', 'cap', ''],
-      ['III', 'messenger', 'Messenger', 'مسنجر', 'Company communication', 'گفت‌وگوی درون‌سازمانی', '#f7941d', 'chat', 'msp-bi/?app=chat'],
+      ['III', 'messenger', 'Messenger', 'مسنجر', 'Company communication', 'گفت‌وگوی درون‌سازمانی', '#f7941d', 'chat', 'messenger/'],
       ['IV', 'users-panel', 'User Control Panel', 'کنترل پنل کاربران', 'Accounts and permissions', 'حساب‌ها و دسترسی‌ها', '#fbb817', 'users', 'admin/'],
       ['V', 'executive-desk', 'CEO & Secretary Desk', 'میز مدیرعامل و منشی', 'Management and decisions', 'مدیریت و تصمیم‌گیری', '#e8d200', 'tie', 'aide/'],
       ['VI', 'mail', 'Letters & Email', 'نامه‌نگاری و ایمیل', 'Smart correspondence', 'مکاتبات هوشمند', '#8dc63f', 'mail', 'mail/'],

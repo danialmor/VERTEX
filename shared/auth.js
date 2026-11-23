@@ -94,8 +94,9 @@
       if (matchMedia('(max-width:760px)').matches) a.style.bottom = '86px'; if (/\/ai\//.test(location.pathname)) { a.style.bottom = 'auto'; a.style.top = '6px'; a.style.width = a.style.height = '38px' } document.body.appendChild(a) };
     if (document.body) addHome(); else document.addEventListener('DOMContentLoaded', addHome);
   }
-  var need = document.currentScript.getAttribute('data-require'); if (need && !DEMO) require(need);
+  var need = document.currentScript.getAttribute('data-require'); if (need === 'project-control') { if (/[?&]app=chat\b/.test(location.search)) need = 'messenger'; else if (/[?&]app=mail\b/.test(location.search)) need = 'mail'; } if (need && !DEMO) require(need);
   try { if (!/[?&]demo\b/.test(location.search) && !/\/aide\//.test(location.pathname) && !/\/admin\/?$/.test(location.pathname)) { var vxn = document.createElement('script'); vxn.src = ROOT + 'shared/notify.js?v=1'; vxn.defer = true; (document.head || document.documentElement).appendChild(vxn) } } catch (e) { }
   try { var vxp = document.createElement('script'); vxp.src = ROOT + 'shared/pwa.js?v=1'; (document.head || document.documentElement).appendChild(vxp) } catch (e) { }
+  try { if (!/\/messenger\/|[?&]app=chat\b/.test(location.pathname + location.search) && self === top) { var vxm = document.createElement('script'); vxm.src = ROOT + 'shared/msgbtn.js?v=1'; vxm.defer = true; (document.head || document.documentElement).appendChild(vxm) } } catch (e) { }
   try { var vxa = document.createElement('script'); vxa.src = ROOT + 'shared/about.js?v=2'; vxa.defer = true; (document.head || document.documentElement).appendChild(vxa) } catch (e) { }
 })();
