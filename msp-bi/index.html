@@ -4380,6 +4380,22 @@ var _rDC75=renderDC;renderDC=function(){_rDC75();try{if(CLOUDF){var Bq=$('#fiBod
  document.addEventListener('click',function(){setTimeout(function(){try{gsPill()}catch(e){}},30)},true);
  setTimeout(function(){apply(get());try{gsPill()}catch(e){}},1500);
 })();
+/* 6.1.6: «بهترین عملکرد اول» — a small round button next to PDF and full screen in every tab. When on, every comparison list of projects
+   (dashboard pages, efficiency, scores, cards) is ordered by SPI (actual ÷ planned progress), best first. Remembered in localStorage vxSortBest. */
+(function(){var K='vxSortBest',on=false;try{on=localStorage.getItem(K)==='1'}catch(e){}
+ var ICO='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 16l4 4 4-4"/><path d="M14 6h7M14 11h5M14 16h3"/></svg>';
+ function val(x){if(!x||x.real===false||x.ns)return -1;var v=x.spi!=null&&isFinite(x.spi)?x.spi:(x.pl>0&&isFinite(x.pr)?x.pr/x.pl:null);return v==null?-1:v}
+ function score(uid){return val(PX.filter(function(p){return String(p.uid)===String(uid)})[0])}
+ function sortPX(){PX.forEach(function(x,i){if(x._o==null)x._o=i});PX.sort(function(a,b){return on?(val(b)-val(a))||a._o-b._o:a._o-b._o})}
+ var _dp=dProjects;dProjects=function(){var L=_dp.apply(this,arguments);if(!on||!Array.isArray(L))return L;return L.slice().sort(function(a,b){return score(b.uid)-score(a.uid)})};
+ var _sp=syncPX;syncPX=function(){var r=_sp.apply(this,arguments);try{PX.forEach(function(x){x._o=null});sortPX()}catch(e){}return r};
+ function redraw(){try{sortPX()}catch(e){}try{if(cur==='dash')renderDash();else if(cur==='eff')renderEff();else if(cur==='score')renderScore();else if(cur==='info')renderInfo();else if(cur==='sched')drawSched();else if(cur==='proj')renderProj()}catch(e){}}
+ function paint(){[].forEach.call(document.querySelectorAll('.vtools'),function(v){var b=v.querySelector('[data-vt="best"]');if(!b){b=document.createElement('button');b.type='button';b.dataset.vt='best';b.innerHTML=ICO;v.insertBefore(b,v.firstChild)}
+  b.setAttribute('aria-pressed',String(on));b.title=on?'ترتیب: بهترین عملکرد اول (برای ترتیب اصلی بزنید)':'مرتب‌سازی بر اساس بهترین عملکرد';b.setAttribute('aria-label',b.title);b.dataset.help=b.title;b.classList.toggle('on',on)})}
+ document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-vt="best"]');if(!b)return;e.preventDefault();e.stopPropagation();on=!on;try{localStorage.setItem(K,on?'1':'0')}catch(x){}paint();redraw()},true);
+ var st=document.createElement('style');st.textContent='.vtools [data-vt="best"].on{background:var(--brand,#1b6f52)!important;color:#fff!important;border-color:var(--brand,#1b6f52)!important}';document.head.appendChild(st);
+ setInterval(paint,1500);setTimeout(function(){paint();if(on)redraw()},2000);
+})();
 window.VX_DATA=function(){try{return PX.filter(function(x){return x.real!==false&&!x.ns}).map(function(x){return {n:x.n,en:x.en||'',pr:Math.round(x.pr||0),pl:Math.round(x.pl||0),dl:Math.round(x.dl||0),end:String(x.end||''),endD:String(x.endD||''),est:!!x.est}})}catch(e){return []}};
 window.VX_CTX=function(){try{var f=function(v){return v==null||v===''?'-':(typeof v==='number'?Math.round(v):String(v))};var L=PX.filter(function(x){return x.real!==false&&!x.ns}).map(function(x){return x.n+' ('+(x.en||'')+'): '+f(x.pr)+'% done, plan '+f(x.pl)+'%, late '+f(x.dl)+'d, end '+f(x.end)+'→'+f(x.endD)});var A=PX.filter(function(x){return x.real!==false&&!x.ns});var mx=A.slice().sort(function(a,b){return (b.dl||0)-(a.dl||0)})[0],lo=A.slice().sort(function(a,b){return ((a.pr||0)-(a.pl||0))-((b.pr||0)-(b.pl||0))})[0];return 'Today '+jd(0)+'\nMost delayed project: '+(mx?mx.n+' ('+f(mx.dl)+' days)':'-')+'. Furthest behind plan: '+(lo?lo.n+' ('+f(lo.pr)+'% vs '+f(lo.pl)+'%)':'-')+'. Projects: '+A.length+'.\n'+L.join('\n')}catch(e){return ''}};
 })();
