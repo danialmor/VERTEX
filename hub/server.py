@@ -459,11 +459,14 @@ class H(BaseHTTPRequestHandler):
             if err == 'locked': return self.send(429, {'error': 'locked'})
             if not u2: return self.send(401, {'error': 'bad-credentials'})
             hub.set_pin(u['id'], new, False); hub.log(u['code'], 'pin-change', '', '', self.ip()); return self.send(200, {'token': hub.issue(dict(hub.one('SELECT * FROM users WHERE id=?', (u['id'],))))})
-        if seg == ['me']: return self.send(200, hub.session(u))
+        if seg == ['me']:
+            if now() - (u.get('last_login') or 0) > 300: hub.q('UPDATE users SET last_login=? WHERE id=?', (now(), u['id']))  # VX-015: last connected
+            return self.send(200, hub.session(u))
         if seg == ['me', 'profile'] and m == 'PATCH':
             b = self.body(); pr = json.loads(u.get('profile') or '{}')
-            for k in ('phone', 'email', 'title', 'bio'):
-                if k in b: pr[k] = str(b[k])[:120]
+            for k in ('phone', 'email', 'title', 'bio', 'avatar', 'photo', 'photo_t', 'birth', 'city', 'address', 'emergency', 'dept', 'start'):  # VX-015
+                if k in b: pr[k] = str(b[k])[:400 if k in ('bio', 'address') else 120]
+            if isinstance(b.get('docs'), list): pr['docs'] = [{'name': str(d.get('name', ''))[:120], 'label': str(d.get('label', ''))[:80], 'size': int(d.get('size') or 0), 'ts': float(d.get('ts') or now())} for d in b['docs'][:40] if isinstance(d, dict)]
             hub.q('UPDATE users SET profile=?' + (',name=?' if b.get('name') else '') + ' WHERE id=?', (json.dumps(pr, ensure_ascii=False),) + ((str(b['name'])[:80],) if b.get('name') else ()) + (u['id'],))
             return self.send(200, hub.session(dict(hub.one('SELECT * FROM users WHERE id=?', (u['id'],)))))
         if seg[0] == 'panel':
@@ -752,8 +755,8 @@ class H(BaseHTTPRequestHandler):
             tid = int(seg[1]); t = hub.one('SELECT * FROM tenants WHERE id=?', (tid,))
             if not t: return self.send(404, {'error': 'not-found'})
             if len(seg) == 2 and m == 'GET':
-                users = hub.all('SELECT id,code,name,role,level,ucode,active,last_login,mods,home FROM users WHERE tenant_id=? ORDER BY level,id', (tid,))
-                for x in users: x['mods'] = json.loads(x['mods'] or '[]')
+                users = hub.all('SELECT id,code,name,role,level,ucode,active,last_login,mods,home,profile FROM users WHERE tenant_id=? ORDER BY level,id', (tid,))
+                for x in users: x['mods'] = json.loads(x['mods'] or '[]'); x['profile'] = json.loads(x['profile'] or '{}')
                 subs = hub.all('SELECT * FROM subscriptions WHERE tenant_id=? ORDER BY id DESC', (tid,))
                 for x in subs: x['modules'] = json.loads(x['modules'] or '[]')
                 return self.send(200, {'tenant': {**dict(t), 'levels': json.loads(t['levels'] or '[]'), 'contact': json.loads(t['contact'] or '{}')}, 'subs': subs, 'users': users, 'active': hub.sub_ok(tid)})
@@ -783,8 +786,8 @@ class H(BaseHTTPRequestHandler):
         if seg == ['export'] and m == 'GET': hub.log(adm['code'], 'export'); return self.send(200, hub.export())
         if seg == ['users']:
             if m == 'GET':
-                us = hub.all('SELECT id,code,name,role,active,created,last_login,meta FROM users WHERE tenant_id IS NULL ORDER BY id'); gs = hub.all('SELECT * FROM grants')
-                for x in us: x['grants'] = {g['site']: g['role'] for g in gs if g['user_id'] == x['id']}; x['must_change'] = hub.mc(x); del x['meta']
+                us = hub.all('SELECT id,code,name,role,active,created,last_login,meta,profile FROM users WHERE tenant_id IS NULL ORDER BY id'); gs = hub.all('SELECT * FROM grants')
+                for x in us: x['grants'] = {g['site']: g['role'] for g in gs if g['user_id'] == x['id']}; x['must_change'] = hub.mc(x); del x['meta']; x['profile'] = json.loads(x['profile'] or '{}')
                 return self.send(200, {'users': us})
             if m == 'POST':
                 b = self.body(); code = str(b.get('code', '')).strip(); name = str(b.get('name', '')).strip(); role = b.get('role', 'member')

@@ -81,9 +81,12 @@
     if (j && j.hub) { if (!BASE && (j.t || 0) <= (D._t || 0)) setBase(j.hub); adopt(j); } else if (!BASE) setBase(D);   // nothing online yet: what we have is the common base
     REMOTE.loaded = !!j; paint();
   })();
-  function push() {
-    if (!(CL && CL.on)) { REMOTE.err = 'no-cloud'; paint(); return }
-    clearTimeout(REMOTE.timer); REMOTE.timer = setTimeout(async function () {
+  var DIRTY = false;
+  function push(now0) {
+    if (!(CL && CL.on)) { REMOTE.err = 'no-cloud'; paint(); return Promise.resolve(false) }
+    clearTimeout(REMOTE.timer); REMOTE.timer = 0;
+    return new Promise(function (done) { REMOTE.timer = setTimeout(async function () {
+      REMOTE.timer = 0; while (REMOTE.busy) await new Promise(function (z) { setTimeout(z, 200) });
       REMOTE.busy = true; paint();
       try {
         for (var tries = 0; tries < 5; tries++) {
@@ -93,9 +96,11 @@
           catch (e) { if (!e.conflict) throw e; await new Promise(function (z) { setTimeout(z, 400 + Math.random() * 900) }) }   // someone saved at the same moment: merge again
         }
       } catch (e) { REMOTE.err = String(e.message || e) }
-      REMOTE.busy = false; paint();
-    }, 800);
+      REMOTE.busy = false; paint(); done(!REMOTE.err);
+    }, now0 ? 0 : 800) });
   }
+  // leaving the page with a save still waiting: send it now
+  window.addEventListener('pagehide', function () { if (REMOTE.timer) push(true) });
   // Keep every open page fresh: pull others' changes every 20 s and when the page comes back into view.
   async function pull() { if (REMOTE.busy || !(CL && CL.on)) return; try { var j = await fetchRemote(); if (j && j.hub && j.t !== REMOTE.t && adopt(j)) { try { window.dispatchEvent(new CustomEvent('vx-data')) } catch (e) { } } } catch (e) { } }
   setInterval(pull, 20000); document.addEventListener('visibilitychange', function () { if (!document.hidden) pull() });
@@ -121,7 +126,7 @@
   }
   function me(h) { var m = /demo-(\d+)/.exec(h || ''); var u = m && usr(+m[1]); if (!u || !u.active) E(401, 'unauthorized'); return u }
   function tenantRow(t) { var o = D.users.filter(function (u) { return u.tenant_id === t.id && u.role === 'owner' })[0]; return { id: t.id, code: t.code, name: t.name, status: t.status, active: active(t), sub: sub(t.id), owner: o ? { name: o.name, code: o.code } : null, users: D.users.filter(function (u) { return u.tenant_id === t.id && u.active }).length, leaders: D.users.filter(function (u) { return u.tenant_id === t.id && u.active && u.leader }).length } }
-  function pub(u) { return { id: u.id, leader: !!u.leader, ucode: u.ucode, name: u.name, code: u.code, role: u.role, level: u.level, mods: u.mods || [], home: u.home, parent_id: u.parent_id || null, last_login: u.last_login || 0, active: u.active } }
+  function pub(u) { return { id: u.id, leader: !!u.leader, ucode: u.ucode, name: u.name, code: u.code, role: u.role, level: u.level, mods: u.mods || [], home: u.home, parent_id: u.parent_id || null, last_login: u.last_login || 0, last_seen: u.last_seen || u.last_login || 0, profile: u.profile || {}, active: u.active } }
   function newSub(tid, b) { var t = now(); D.subs.push({ id: nextId(D.subs), tenant_id: tid, plan: b.plan || '', modules: b.modules && b.modules.length ? b.modules : ['project-control'], seats: Math.max(1, +b.seats || 1), max_levels: Math.min(10, Math.max(1, +b.max_levels || 1)), max_projects: +b.max_projects || 0, users: b.users != null ? +b.users : null, leaders: b.leaders != null ? +b.leaders : null, starts: t, ends: +b.months ? t + b.months * 30 * 86400 : 0, price: b.price || '', note: b.note || '', created: t }) }
   function codeTaken(c) { c = String(c || '').toLowerCase(); return D.users.some(function (u) { return u.code.toLowerCase() === c || (u.ucode || '').toLowerCase() === c }) }
   function nextU(t) { var n = D.users.filter(function (u) { return u.tenant_id === t.id }).length + 1; return t.code + '-' + ('000' + n).slice(-4) }
@@ -156,12 +161,12 @@
       var c = String(b.code || '').toLowerCase(), u = D.users.filter(function (u) { return u.code.toLowerCase() === c || (u.ucode || '').toLowerCase() === c })[0];
       if (!u || !u.active || u.pin !== b.pin) E(401, 'bad-credentials');
       if (u.tenant_id && u.role !== 'owner' && !active(tn(u.tenant_id))) E(403, 'subscription-inactive');
-      u.last_login = now(); log(u, 'auth.login'); return sess(u, 'demo-' + u.id);
+      u.last_login = u.last_seen = now(); DIRTY = true; log(u, 'auth.login'); return sess(u, 'demo-' + u.id);
     }
     var U = me(h);
     if (p === '/fx' && m === 'POST') { if (!U) E(401, 'auth'); var r0 = +b.rate || 0; if (r0 < 100000 || r0 > 100000000) E(400, 'invalid'); if (b.manual) { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); D.fx = { rate: Math.round(r0), t: now(), src: 'manual', lock: !!b.lock } } else if (!D.fx.lock && (now() - (D.fx.t || 0) > 600 || !D.fx.rate)) D.fx = { rate: Math.round(r0), t: now(), src: String(b.src || '').slice(0, 40) }; return { ok: true, fx: D.fx } }
     if (p === '/admin/seat' && m === 'PUT') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); D.seatP = { user: Math.max(0, +b.user || 0), mgr: Math.max(0, +b.mgr || 0), proj: Math.max(0, +b.proj || 0), off: Math.max(0, Math.min(90, +b.off || 0)) }; if (b.unlock) { D.fx.lock = false; D.fx.t = 0 } log(U, 'seat.save'); return { ok: true } }
-    if (p === '/me') return sess(U);
+    if (p === '/me') { if (now() - (U.last_seen || 0) > 300) { U.last_seen = now(); DIRTY = true } return sess(U) }
     // ── platform records for HubSDK pages (aide calendar…): /directory, /data/:site/:coll, /sync/batch — revisioned, conflict-checked, per company
     if (p === '/directory') { var dm = D.users.filter(function (u) { return u.active !== false && (U.tenant_id ? u.tenant_id === U.tenant_id : !u.tenant_id || true) }); return { users: dm.map(function (u) { return { code: u.ucode || u.code, name: u.name, role: u.role === 'owner' ? 'مدیر اشتراک' : u.role === 'admin' ? 'مدیر' : u.leader ? 'لیدر' : 'کاربر' } }) } }
     if (!D.recs) D.recs = {}; if (!D.recSeq) D.recSeq = 0;
@@ -172,8 +177,11 @@
         D.recSeq++; if (o.type === 'del') bag[o.id] = { rev: crev + 1, data: null, del: true, seq: D.recSeq }; else { bag[o.id] = { rev: crev + 1, data: o.data, seq: D.recSeq, by: U.code };
           if (o.coll === 'events' && o.data && o.data.start) { var att = o.data.attendees || []; Object.keys(bag).forEach(function (id2) { var e2 = bag[id2]; if (id2 === o.id || e2.del || !e2.data) return; var sh = (e2.data.attendees || []).filter(function (c) { return att.indexOf(c) >= 0 }); if (sh.length && e2.data.start < o.data.end && o.data.start < e2.data.end) warnings.push({ id: id2, title: e2.data.title, codes: sh }) }) } }
         return { op_id: o.op_id, status: 'ok', rev: bag[o.id].rev } }); return { results: results, warnings: warnings } }
-    if (p === '/me/profile') { if (b.name) U.name = b.name; var av0 = (U.profile || {}).avatar || ''; U.profile = { title: b.title != null ? b.title : (U.profile || {}).title || '', phone: b.phone != null ? b.phone : (U.profile || {}).phone || '', email: b.email != null ? b.email : (U.profile || {}).email || '', avatar: b.avatar != null ? String(b.avatar).slice(0, 20) : av0 }; return sess(U) }
-    if (p === '/auth/change-pin') { if (b.old !== U.pin) E(401, 'bad-credentials'); if (String(b.new || '').length < 8 || b.new === b.old) E(400, 'weak-pin'); U.pin = b.new; U.must_change = false; return { token: 'demo-' + U.id } }
+    if (p === '/me/profile') { if (b.name) U.name = String(b.name).slice(0, 80); var P0 = U.profile || {}, NP = {};
+      ['title', 'phone', 'email', 'avatar', 'photo', 'photo_t', 'birth', 'city', 'address', 'emergency', 'bio', 'dept', 'start'].forEach(function (k) { NP[k] = b[k] != null ? String(b[k]).slice(0, k === 'bio' || k === 'address' ? 400 : 120) : (P0[k] || '') });
+      NP.docs = Array.isArray(b.docs) ? b.docs.slice(0, 40).map(function (d) { return { name: String(d.name || '').slice(0, 120), label: String(d.label || '').slice(0, 80), size: +d.size || 0, ts: +d.ts || now() } }) : (P0.docs || []);
+      U.profile = NP; log(U, 'profile.save'); return sess(U) }
+    if (p === '/auth/change-pin') { if (b.old !== U.pin) E(401, 'bad-credentials'); if (String(b.new || '').length < 8 || b.new === b.old) E(400, 'weak-pin'); U.pin = b.new; U.must_change = false; U.pin_t = now(); log(U, 'auth.change-pin'); return { token: 'demo-' + U.id } }
     // ── 1.1: دستگاه‌ها، فعالیت، داده‌ی عمومی، دسترسی‌ها
     if (p === '/auth/logout-all') { log(U, 'logout-all'); return { ok: true } }
     if (p === '/me/activity') return { items: D.audit.filter(function (a) { return a.user === U.code }).slice(0, 60) };
@@ -236,7 +244,7 @@
       if (p === '/admin/signups') return { items: D.signups };
       if ((x = /^\/admin\/signups\/(\d+)$/.exec(p))) { D.signups.forEach(function (s) { if (s.id === +x[1]) s.status = b.status }); return { ok: true } }
       if (p === '/admin/modules') { D.modules.forEach(function (md) { if (md.slug === b.slug) { if (b.status) md.status = b.status; if (b.path != null) md.path = b.path; if (b.site != null) md.site = b.site; if (b.settings && typeof b.settings === 'object') { md.settings = { notice: b.settings.notice && b.settings.notice.text ? { text: String(b.settings.notice.text).slice(0, 300), kind: b.settings.notice.kind === 'warn' ? 'warn' : 'info' } : null, notes: String(b.settings.notes || '').slice(0, 600), ai: b.settings.ai !== false } } } }); return { ok: true } }
-      if (p === '/admin/users' && m === 'GET') return { users: D.users.filter(function (u) { return !u.tenant_id }).map(function (u) { return { id: u.id, name: u.name, code: u.code, role: u.role, grants: u.grants || {}, last_login: u.last_login || 0, active: u.active } }) };
+      if (p === '/admin/users' && m === 'GET') return { users: D.users.filter(function (u) { return !u.tenant_id }).map(function (u) { return { id: u.id, name: u.name, code: u.code, role: u.role, grants: u.grants || {}, last_login: u.last_login || 0, last_seen: u.last_seen || u.last_login || 0, ucode: u.ucode || '', profile: u.profile || {}, active: u.active } }) };
       if (p === '/admin/users' && m === 'POST') { if (!b.code || !b.name) E(400, 'invalid'); if (codeTaken(b.code)) E(409, 'code-exists'); D.users.push({ id: nextId(D.users), code: b.code, name: b.name, role: b.role || 'member', tenant_id: null, grants: b.grants || {}, pin: PIN, must_change: true, active: true, profile: {} }); return { code: b.code, pin: PIN } }
       if ((x = /^\/admin\/users\/(\d+)(\/reset-pin)?$/.exec(p))) { var V = usr(+x[1]); if (!V) E(404, 'not-found'); if (x[2]) { V.pin = PIN; V.must_change = true; return { pin: PIN } } if ('active' in b) V.active = !!b.active; return { ok: true } }
       if (p.indexOf('/admin/audit') === 0) return { items: D.audit.slice(0, 40) };
@@ -297,8 +305,12 @@
     var st = 200, out;
     // log-in always reads the latest cloud copy first, so a PIN or account changed on another device works here at once
     return ready.then(function () { return path === '/auth/login' || path === '/me' ? Promise.race([pull(), new Promise(function (r) { setTimeout(r, 4000) })]) : null }).then(function () {
-      try { out = route(m, path, body, h); save(); if (m !== 'GET' && path !== '/auth/login') push() } catch (e) { st = e.status || 500; out = e.body || { error: String(e && e.message || e) } }
-      return new Response(JSON.stringify(out), { status: st, headers: { 'Content-Type': 'application/json' } });
+      var wait = null;
+      try { out = route(m, path, body, h); save();
+        // a password or profile change is confirmed only after it is in the cloud, so it works on every device at once
+        if (path === '/auth/change-pin' || path === '/me/profile') wait = push(true).then(function (ok) { out.cloud = ok });
+        else if ((m !== 'GET' && path !== '/auth/login') || DIRTY) { DIRTY = false; push() } } catch (e) { st = e.status || 500; out = e.body || { error: String(e && e.message || e) } }
+      return Promise.resolve(wait).then(function () { return new Response(JSON.stringify(out), { status: st, headers: { 'Content-Type': 'application/json' } }) });
     });
   };
   /* نوار «حالت نمایشی» با دکمه‌ی پاک کردن داده‌ها */
