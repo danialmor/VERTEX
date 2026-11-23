@@ -14,3 +14,6 @@
 
 ## 6.5.0 — VX-018
 - Tenant detail: «نام کاربری / رمز» column, masked; 👁 calls GET /admin/tenants/:id/creds (ecosystem admin only, audit tenant.creds.view) and shows username/password with Copy. Demo (github.io) stores passwords in plain text so it works there; the real hub stores hashes and cannot show them.
+
+## 6.5.1
+- New panel page #creds (NAV_ADMIN, group Customers & users): GET /admin/creds lists every subscription user with password (masked until "Show passwords"), search, copy, last connected. Verified on the live data copy.
