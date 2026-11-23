@@ -11,3 +11,6 @@
 ## 6.4.1 — VX-017
 - User menu «تغییر رمز» opens a dialog (old, new, repeat) → /auth/change-pin, waits for the cloud save.
 - The ecosystem admin (code Admin) is renamed to «دانیال» on login / first request when the name is still a default; i18n shows "Danial".
+
+## 6.5.0 — VX-018
+- Tenant detail: «نام کاربری / رمز» column, masked; 👁 calls GET /admin/tenants/:id/creds (ecosystem admin only, audit tenant.creds.view) and shows username/password with Copy. Demo (github.io) stores passwords in plain text so it works there; the real hub stores hashes and cannot show them.

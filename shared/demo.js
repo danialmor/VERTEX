@@ -227,6 +227,8 @@
         var pw = b.owner.password || PIN, o = { id: nextId(D.users), code: b.owner.username, name: b.owner.name, role: 'owner', tenant_id: t.id, ucode: t.code + '-0001', level: 1, mods: [], home: '', pin: pw, must_change: true, active: true, profile: {} }; D.users.push(o);
         log(U, 'tenant.create', t.code); return { code: t.code, owner: { username: o.code, ucode: o.ucode, password: pw } };
       }
+      // VX-018: the ecosystem admin can see a subscription's usernames and current passwords (logged in the audit)
+      if ((x = /^\/admin\/tenants\/(\d+)\/creds$/.exec(p)) && m === 'GET') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); var TT = tn(+x[1]); if (!TT) E(404, 'not-found'); log(U, 'tenant.creds.view', TT.code); DIRTY = true; return { users: D.users.filter(function (u) { return u.tenant_id === TT.id }).map(function (u) { return { id: u.id, username: u.code, ucode: u.ucode || '', password: u.pin || '', initial: !!u.must_change } }) } }
       if ((x = /^\/admin\/tenants\/(\d+)\/users$/.exec(p)) && m === 'POST') {
         var T3 = tn(+x[1]); if (!T3) E(404, 'not-found'); var s3 = sub(T3.id) || { modules: [], seats: 0, max_levels: 1 };
         if (D.users.filter(function (u) { return u.tenant_id === T3.id && u.active }).length >= s3.seats) E(409, 'no-seats'); if (!b.username || !b.name) E(400, 'invalid'); if (codeTaken(b.username)) E(409, 'code-exists');
