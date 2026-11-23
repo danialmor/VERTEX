@@ -28,10 +28,10 @@
     '#vxDockB{position:absolute;left:12px;bottom:12px;width:52px;height:52px;border-radius:50%;border:1px solid rgba(127,182,255,.45);background:#111827;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 22px -6px rgba(0,0,0,.55);transition:transform .25s;z-index:2}' +
     '#vxDockB:focus-visible{outline:3px solid #7fb6ff;outline-offset:3px}#vxDock.on #vxDockB{transform:rotate(-12deg) scale(.94)}' +
     '#vxDockQ{position:absolute;left:0;bottom:0;width:86px;height:86px;border-top-right-radius:86px;background:rgba(17,24,39,.08);opacity:0;transition:opacity .2s;pointer-events:none}#vxDock.on #vxDockQ{opacity:1}' +
-    '.vxT{position:absolute;left:38px;bottom:38px;transform-origin:0 50%;height:40px;width:150px;margin-bottom:-20px;padding:0 14px 0 52px;border:0;border-radius:0 22px 22px 0;display:flex;align-items:center;gap:8px;color:#fff;font:600 14px/1 Vazirmatn,Inter,system-ui,sans-serif;cursor:pointer;' +
+    '.vxT{position:absolute;left:38px;bottom:38px;transform-origin:0 50%;height:40px;width:auto;margin-bottom:-20px;padding:0 16px 0 56px;direction:ltr;border:1px solid rgba(127,182,255,.35);border-radius:0 22px 22px 0;display:flex;align-items:center;gap:8px;color:#e6eefc;background:rgba(17,24,39,.88)!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:600 14px/1 Vazirmatn,Inter,system-ui,sans-serif;cursor:pointer;' +
     'box-shadow:0 8px 20px -10px rgba(0,0,0,.6);transform:rotate(var(--a)) scaleX(.2);opacity:0;pointer-events:none;transition:transform .28s cubic-bezier(.2,.9,.3,1.25),opacity .18s;transition-delay:var(--d)}' +
-    '#vxDock.on .vxT{transform:rotate(var(--a)) scaleX(1);opacity:1;pointer-events:auto}.vxT svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}' +
-    '.vxT:hover,.vxT:focus-visible{filter:brightness(1.12);outline:none}.vxT span{white-space:nowrap}' +
+    '#vxDock.on .vxT{transform:rotate(var(--a)) scaleX(1);opacity:1;pointer-events:auto}.vxT svg{width:18px;height:18px;flex:none;fill:none;stroke:#7fb6ff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}' +
+    '.vxT[data-k=ai] svg{stroke:#f0a53a}.vxT:hover,.vxT:focus-visible{background:rgba(30,41,64,.95)!important;border-color:#7fb6ff;outline:none}.vxT span{white-space:nowrap}' +
     '@media (prefers-reduced-motion:reduce){.vxT,#vxDockB{transition:none}}';
   function openAI() {
     if (window.VXAI && window.VXAI.open) return window.VXAI.open();
