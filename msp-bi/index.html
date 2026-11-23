@@ -4422,15 +4422,15 @@ var _rDC75=renderDC;renderDC=function(){_rDC75();try{if(CLOUDF){var Bq=$('#fiBod
  function grp(R,key,val){var m={};R.forEach(function(x){[].concat(key(x)).forEach(function(k){if(!k)return;m[k]=(m[k]||0)+val(x)})});return Object.keys(m).map(function(k){return [k,m[k]]}).sort(function(a,b){return b[1]-a[1]})}
  function bars(T,L,unit,max){var mx=Math.max.apply(null,L.map(function(r){return r[1]}).concat([1]));return '<div class="card dsx"><h3>'+T+'</h3>'+(L.length?L.slice(0,max||8).map(function(r){return '<div class="dsb"><span class="dsl" title="'+esc2(r[0])+'">'+esc2(r[0])+'</span><span class="dst"><i style="width:'+Math.round(r[1]/mx*100)+'%"></i></span><b class="fa">'+fa(r[1])+'</b></div>'}).join(''):'<p class="mut">داده‌ای نیست.</p>')+'<small class="mut">'+unit+'</small></div>'}
  function pct(a,b){return b?Math.round(a/b*100):0}
- delayInner=function(inSched){if(!inSched)return _di(inSched);try{_di(inSched)}catch(e){}var R=rows();
+ delayInner=function(inSched){if(!inSched||(typeof DLV!=='undefined'&&DLV.v==='req'))return _di(inSched);try{_di(inSched)}catch(e){}var R=rows();
   if(!R.length)return '<div class="card"><h2>آمار و تحلیل تأخیرها</h2><p class="mut">هنوز درخواست تأخیری ثبت نشده است. از «درخواست‌ها و پاسخ» فایل اکسل فرم را وارد کنید.</p></div>';
   var D=function(x){return +x.days||0},days=R.reduce(function(s,x){return s+D(x)},0),open=R.filter(function(x){return x.st==='open'}),acc=R.reduce(function(s,x){return s+(x.resp&&(x.st==='ok'||x.st==='part')?+x.resp.days||0:0)},0);
   var byCause=grp(R,dlCats,D),byProj=grp(R,function(x){return dlPName(x)},D),byWho=grp(R,function(x){return x.by||'—'},function(){return 1}),byUnit=grp(R,function(x){return x.unit||'—'},D),byImp=grp(R,function(x){return x.impact||'—'},function(){return 1});
   var mo={};R.forEach(function(x){var k=String(x.date||'').slice(0,7);if(!/^\d{4}\/\d{2}$/.test(k))return;mo[k]=mo[k]||[0,0];mo[k][0]++;mo[k][1]+=D(x)});var MK=Object.keys(mo).sort().slice(-12),mmx=Math.max.apply(null,MK.map(function(k){return mo[k][1]}).concat([1]));
   var longest=R.slice().sort(function(a,b){return D(b)-D(a)})[0],top3=byCause.slice(0,3).reduce(function(s,r){return s+r[1]},0),stop=R.filter(function(x){return x.impact==='توقف کامل'}).length;
-  var tips=[];
-  if(byCause[0])tips.push('<b>'+esc2(byCause[0][0])+'</b> بزرگ‌ترین علت است: '+fa(pct(byCause[0][1],days))+'% از کل روزهای درخواستی ('+fa(byCause[0][1])+' روز).');
-  if(byCause.length>2)tips.push('سه علت اول ('+byCause.slice(0,3).map(function(r){return esc2(r[0])}).join('، ')+') '+fa(pct(top3,days))+'% روزها را می‌سازند؛ رفع همین‌ها بیشترین اثر را دارد.');
+  var tips=[],cz=byCause.reduce(function(t,r){return t+r[1]},0)||1;
+  if(byCause[0])tips.push('<b>'+esc2(byCause[0][0])+'</b> بزرگ‌ترین علت است: '+fa(pct(byCause[0][1],cz))+'% از روزهای ثبت‌شده برای علت‌ها ('+fa(byCause[0][1])+' روز).');
+  if(byCause.length>2)tips.push('سه علت اول ('+byCause.slice(0,3).map(function(r){return esc2(r[0])}).join('، ')+') '+fa(pct(top3,cz))+'% روزها را می‌سازند؛ رفع همین‌ها بیشترین اثر را دارد.');
   if(byProj[0]&&byProj.length>1)tips.push('بیشترین روز تأخیر در <b>'+esc2(byProj[0][0])+'</b> است ('+fa(byProj[0][1])+' روز، '+fa(pct(byProj[0][1],days))+'%).');
   if(stop)tips.push(fa(stop)+' درخواست ('+fa(pct(stop,R.length))+'%) «توقف کامل» کار را گزارش کرده‌اند.');
   if(longest)tips.push('طولانی‌ترین درخواست: '+fa(D(longest))+' روز — '+esc2(dlActs(longest).join('، ')||'—')+' ('+esc2(dlPName(longest))+').');
