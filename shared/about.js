@@ -35,6 +35,17 @@
   var noBtn = /\/aide\//.test(path) || (document.currentScript && document.currentScript.dataset.button === '0');
   document.addEventListener('click', function (e) { if (!box.contains(e.target)) box.classList.remove('on') });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') box.classList.remove('on') });
-  function mount() { if (!noBtn) document.body.appendChild(b); document.body.appendChild(box); if (document.querySelector('.vx-pill,#vxPill,[data-vx-pill]')) document.body.classList.add('vx-has-pill') }
+  /* platform notice set by the ecosystem admin (control panel → platform tab → advanced settings) */
+  function notice() {
+    fetch(ROOT + 'api/v1/modules', { cache: 'no-store', headers: (function () { try { var t = localStorage.getItem('hub.token'); return t ? { Authorization: 'Bearer ' + t } : {} } catch (e) { return {} } })() }).then(function (r) { return r.ok ? r.json() : null }).then(function (j) {
+      var m = j && (j.modules || []).filter(function (x) { return x.slug === slug })[0], n = m && m.notice; if (!n || !n.text) return;
+      try { if (sessionStorage.getItem('vxNoticeX') === n.text) return } catch (e) { }
+      var d = document.createElement('div'); d.id = 'vxNotice'; d.setAttribute('role', 'status'); d.dir = 'auto';
+      d.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:9995;max-width:min(720px,calc(100vw - 24px));padding:8px 38px 8px 14px;border-radius:8px;font:13px/1.6 Vazirmatn,Inter,system-ui,sans-serif;box-shadow:0 8px 24px -10px rgba(0,0,0,.35);' + (n.kind === 'warn' ? 'background:#fffaeb;color:#93370d;border:1px solid #fedf89' : 'background:#eff4ff;color:#1d2939;border:1px solid #c7d7fe');
+      d.textContent = n.text; var x = document.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', 'Close'); x.style.cssText = 'position:absolute;right:8px;top:6px;border:0;background:none;cursor:pointer;font-size:13px;color:inherit;opacity:.6';
+      x.onclick = function () { d.remove(); try { sessionStorage.setItem('vxNoticeX', n.text) } catch (e) { } }; d.appendChild(x); document.body.appendChild(d);
+    }).catch(function () { });
+  }
+  function mount() { setTimeout(notice, 1200); if (!noBtn) document.body.appendChild(b); document.body.appendChild(box); if (document.querySelector('.vx-pill,#vxPill,[data-vx-pill]')) document.body.classList.add('vx-has-pill') }
   document.body ? mount() : addEventListener('DOMContentLoaded', mount);
 })();

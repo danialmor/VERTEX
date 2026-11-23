@@ -97,5 +97,5 @@
   var need = document.currentScript.getAttribute('data-require'); if (need && !DEMO) require(need);
   try { if (!/[?&]demo\b/.test(location.search) && !/\/aide\//.test(location.pathname) && !/\/admin\/?$/.test(location.pathname)) { var vxn = document.createElement('script'); vxn.src = ROOT + 'shared/notify.js?v=1'; vxn.defer = true; (document.head || document.documentElement).appendChild(vxn) } } catch (e) { }
   try { var vxp = document.createElement('script'); vxp.src = ROOT + 'shared/pwa.js?v=1'; (document.head || document.documentElement).appendChild(vxp) } catch (e) { }
-  try { var vxa = document.createElement('script'); vxa.src = ROOT + 'shared/about.js?v=1'; vxa.defer = true; (document.head || document.documentElement).appendChild(vxa) } catch (e) { }
+  try { var vxa = document.createElement('script'); vxa.src = ROOT + 'shared/about.js?v=2'; vxa.defer = true; (document.head || document.documentElement).appendChild(vxa) } catch (e) { }
 })();

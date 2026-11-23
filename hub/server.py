@@ -98,7 +98,7 @@ class Hub:
         CREATE INDEX IF NOT EXISTS sub_t ON subscriptions(tenant_id, id);
         CREATE TABLE IF NOT EXISTS signups(id INTEGER PRIMARY KEY, ts REAL, name TEXT, company TEXT, phone TEXT, email TEXT, note TEXT, status TEXT DEFAULT 'new', ip TEXT);''')
         for t, col, ddl in (('users', 'tenant_id', 'INTEGER'), ('users', 'level', 'INTEGER DEFAULT 0'), ('users', 'parent_id', 'INTEGER'), ('users', 'ucode', 'TEXT'),
-                            ('users', 'home', "TEXT DEFAULT ''"), ('users', 'mods', "TEXT DEFAULT '[]'"), ('users', 'profile', "TEXT DEFAULT '{}'"), ('events', 'tenant', "TEXT DEFAULT ''"), ('tenants', 'perms', "TEXT DEFAULT '{}'")):
+                            ('users', 'home', "TEXT DEFAULT ''"), ('users', 'mods', "TEXT DEFAULT '[]'"), ('users', 'profile', "TEXT DEFAULT '{}'"), ('events', 'tenant', "TEXT DEFAULT ''"), ('tenants', 'perms', "TEXT DEFAULT '{}'"), ('modules', 'settings', "TEXT DEFAULT '{}'")):
             try: self.db.execute('ALTER TABLE %s ADD COLUMN %s %s' % (t, col, ddl))
             except sqlite3.OperationalError: pass
         self.db.execute('CREATE UNIQUE INDEX IF NOT EXISTS u_ucode ON users(ucode)'); self.db.execute('CREATE INDEX IF NOT EXISTS u_ten ON users(tenant_id)')
@@ -424,8 +424,10 @@ class H(BaseHTTPRequestHandler):
         if seg is None: return self.send(404, {'error': 'not-found'})
         if seg == ['health']: return self.send(200, {'ok': True, 'version': VERSION, 'time': now(), 'test_mode': bool(hub.cfg.get('test_mode'))})
         if seg == ['modules'] and m == 'GET':  # public registry; access flags only when signed in
-            uu = self.user(); rows = hub.all('SELECT slug,name_fa,name_en,status,path,color,icon,ord,summary_en,site FROM modules ORDER BY ord')
+            uu = self.user(); rows = hub.all('SELECT slug,name_fa,name_en,status,path,color,icon,ord,summary_en,site,settings FROM modules ORDER BY ord')
             for r in rows:
+                st = json.loads(r.pop('settings') or '{}'); r['notice'] = st.get('notice') or None
+                if uu and uu['role'] == 'admin' and not uu.get('tenant_id'): r['settings'] = st
                 r['access'] = bool(uu) and hub.mod_access(uu, r)
                 if not uu: r.pop('site', None)
             self._etag = True; return self.send(200, {'modules': rows})
@@ -733,6 +735,10 @@ class H(BaseHTTPRequestHandler):
             if not SLUG.match(slug) or not b.get('name_fa') or not b.get('name_en') or b.get('status', 'planned') not in ('live', 'beta', 'planned', 'retired'): return self.send(400, {'error': 'invalid'})
             hub.q('INSERT OR REPLACE INTO modules(slug,name_fa,name_en,status,path,site,color,icon,ord,summary_en,updated) VALUES(?,?,?,?,?,?,?,?,COALESCE(?,(SELECT ord FROM modules WHERE slug=?),99),?,?)',
                   (slug, str(b['name_fa'])[:60], str(b['name_en'])[:60], b.get('status', 'planned'), str(b.get('path', ''))[:80], str(b.get('site', ''))[:40], str(b.get('color', ''))[:20], str(b.get('icon', ''))[:20], b.get('ord'), slug, str(b.get('summary_en', ''))[:300], now()))
+            if isinstance(b.get('settings'), dict):
+                st = {k: (str(v)[:600] if isinstance(v, str) else v) for k, v in b['settings'].items() if k in ('notice', 'notes', 'ai')}
+                if isinstance(st.get('notice'), dict): st['notice'] = {'text': str(st['notice'].get('text', ''))[:300], 'kind': 'warn' if st['notice'].get('kind') == 'warn' else 'info'} if st['notice'].get('text') else None
+                hub.q('UPDATE modules SET settings=? WHERE slug=?', (json.dumps(st, ensure_ascii=False), slug))
             hub.log(adm['code'], 'module-save', slug); return self.send(200, {'ok': True})
         if seg == ['tenants'] and m == 'GET':
             out = []

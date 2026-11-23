@@ -97,3 +97,4 @@ The control panel (admin, tab «مرکز کنترل», `admin/monitor.js`) is th
 4. Keep text in the panel small (13px body, 11.5–12px meta).
 - Design versions (VX-009): yearly UI redesign = a new `admin/ui/<year>-<name>.css` over the panel.css tokens; process in `docs/UI-REDESIGN.md`.
 - English base (VX-010): the control panel shows English, left-to-right, with the Persian original on hover/long-press (`admin/i18n-en.js`). Source text stays Persian. **Every new Persian string in the panel (including releases.json text) needs an English entry in that dictionary**, otherwise it shows in Persian.
+- Platform tabs (VX-012): `admin/platforms.js` builds one control-panel tab per platform in `shared/brand.js` automatically. Platform-specific admin controls go in its `#pfX` block; per-platform settings (notice, notes) live in the hub module record (`settings`).

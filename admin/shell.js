@@ -17,11 +17,12 @@
     filemap: 'M3 7h6l2 2h10v10H3z',
     sim: 'M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M6 18l2-2M16 8l2-2 M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z'
   };
-  var GROUP = [['overview', 'منو'], ['ecopolicy', 'اکوسیستم'], ['sitemap', 'ابزارها'], ['tenants', 'مشتریان و کاربران'], ['users', 'کاربران و دسترسی'], ['system', 'سیستم و حساب'], ['activity', 'سیستم و حساب'], ['profile', 'حساب من']];
+  var GROUP = [['overview', 'منو'], ['ecopolicy', 'اکوسیستم'], ['pf-project-control', 'پلتفرم‌ها'], ['sitemap', 'ابزارها'], ['tenants', 'مشتریان و کاربران'], ['users', 'کاربران و دسترسی'], ['system', 'سیستم و حساب'], ['activity', 'سیستم و حساب'], ['profile', 'حساب من']];
   var SUB = { aiset: 'اکوسیستم', github: 'اکوسیستم', ecopolicy: 'اکوسیستم', ecosite: 'اکوسیستم', 'eco-pc': 'پلتفرم I', sitemap: 'ابزارها', filemap: 'ابزارها', sim: 'ابزارها · هوش مصنوعی' };
   function decorate() {
     var nav = $('#nav'); if (!nav) return;
     $$('#nav button[data-go]').forEach(function (b) {
+      if (!b.querySelector('svg') && /^pf-/.test(b.dataset.go) && window.BRAND && BRAND.mark) { b.insertAdjacentHTML('afterbegin', BRAND.mark(b.dataset.go.slice(3), 18)); var sv = b.querySelector('svg'); if (sv) sv.style.stroke = 'none' }
       if (!b.querySelector('svg') && IC[b.dataset.go]) b.insertAdjacentHTML('afterbegin', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + IC[b.dataset.go] + '"/></svg>');
       if (!b.querySelector('.lb')) { var t = [].filter.call(b.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim() }); t.forEach(function (n) { var s = document.createElement('span'); s.className = 'lb'; s.textContent = n.textContent; n.replaceWith(s) }) }
       b.title = (b.querySelector('.lb') || b).textContent.trim();
