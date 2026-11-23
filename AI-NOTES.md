@@ -7,3 +7,7 @@
   cloud save (push(true)) and return `cloud:true|false`; pending saves are flushed on pagehide.
 - hub/server.py mirrors the profile fields; /me refreshes last_login; tenant and staff lists return profile.
 - Initial password screen: «فعلاً رد شو (Skip)» enters without changing; must_change stays, so it is asked again next sign-in.
+
+## 6.4.1 — VX-017
+- User menu «تغییر رمز» opens a dialog (old, new, repeat) → /auth/change-pin, waits for the cloud save.
+- The ecosystem admin (code Admin) is renamed to «دانیال» on login / first request when the name is still a default; i18n shows "Danial".

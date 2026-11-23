@@ -11,7 +11,7 @@
 <script src="../shared/brand.js"></script>
 <script src="../shared/cloud.js?v=413"></script>
 <script src="people.js?v=1"></script>
-<script src="../shared/demo.js?v=421"></script>
+<script src="../shared/demo.js?v=422"></script>
 <script src="../shared/avatar.js?v=412"></script>
 <script src="../shared/auth.js?v=418"></script>
 <script src="../shared/track.js" data-site="users-panel"></script>
@@ -71,7 +71,7 @@
    <div id="hdTools"></div>
    <button class="ib rd" id="hdTheme" type="button" aria-label="تغییر حالت روشن و تیره"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
    <div class="um"><button type="button" id="umB" aria-haspopup="true" aria-expanded="false"><span class="av" id="umAv">؟</span><span class="nm" id="umN"></span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></button>
-    <div class="dd" id="umD" hidden><div class="who"><b id="umN2"></b><span class="mono" id="umC"></span></div><button type="button" data-um="profile">پروفایل من</button><button type="button" data-um="security">امنیت حساب</button><button type="button" data-um="home">صفحه‌ی اصلی</button><button type="button" data-um="out">خروج</button></div></div>
+    <div class="dd" id="umD" hidden><div class="who"><b id="umN2"></b><span class="mono" id="umC"></span></div><button type="button" data-um="profile">پروفایل من</button><button type="button" data-um="pw">تغییر رمز</button><button type="button" data-um="security">امنیت حساب</button><button type="button" data-um="home">صفحه‌ی اصلی</button><button type="button" data-um="out">خروج</button></div></div>
   </header>
   <main class="pg" id="pg"></main>
  </div>
@@ -277,8 +277,8 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 <script src="scores.js?v=412"></script>
 <script src="aiq.js?v=412"></script>
 <script src="fx.js?v=412"></script>
-<script src="shell.js?v=413"></script>
-<script src="i18n-en.js?v=27"></script>
+<script src="shell.js?v=414"></script>
+<script src="i18n-en.js?v=28"></script>
 <script>(function(){var K='tsuba.theme',r=document.documentElement;try{var t=localStorage.getItem(K);if(t)r.dataset.theme=t}catch(e){}
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}

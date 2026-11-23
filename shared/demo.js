@@ -16,7 +16,7 @@
       tenants: [{ id: 1, code: 'T001', name: 'شرکت نمونه', status: 'active', levels: ['مدیرعامل', 'مدیر پروژه', 'سرپرست کارگاه'], contact: {} }],
       subs: [{ id: 1, tenant_id: 1, plan: 'حرفه‌ای', modules: ['project-control', 'messenger', 'mail', 'file-manager'], seats: 10, max_levels: 3, starts: t, ends: t + 300 * 86400, price: '', note: 'نمونه', created: t }],
       users: [
-        { id: 1, code: 'Admin', name: 'مدیر اکوسیستم', role: 'admin', tenant_id: null, grants: { 'msp-bi': 'admin', aide: 'admin' }, pin: PIN, must_change: false, active: true, profile: {} },
+        { id: 1, code: 'Admin', name: 'دانیال', role: 'admin', tenant_id: null, grants: { 'msp-bi': 'admin', aide: 'admin' }, pin: PIN, must_change: false, active: true, profile: {} },
         { id: 2, code: 'owner', name: 'مدیر شرکت نمونه', role: 'owner', tenant_id: 1, ucode: 'T001-0001', level: 1, mods: [], home: '', pin: PIN, must_change: false, active: true, profile: {} },
         { id: 3, code: 'site1', name: 'سرپرست نمونه', role: 'member', tenant_id: 1, ucode: 'T001-0002', level: 3, parent_id: 2, mods: ['project-control', 'mail'], home: 'project-control', pin: PIN, must_change: false, active: true, profile: {} }
       ],
@@ -161,9 +161,10 @@
       var c = String(b.code || '').toLowerCase(), u = D.users.filter(function (u) { return u.code.toLowerCase() === c || (u.ucode || '').toLowerCase() === c })[0];
       if (!u || !u.active || u.pin !== b.pin) E(401, 'bad-credentials');
       if (u.tenant_id && u.role !== 'owner' && !active(tn(u.tenant_id))) E(403, 'subscription-inactive');
-      u.last_login = u.last_seen = now(); DIRTY = true; log(u, 'auth.login'); return sess(u, 'demo-' + u.id);
+      if (u.code === 'Admin' && !u.tenant_id && /^(مدیر اکوسیستم|مدیر کل|Admin)$/.test(u.name || '')) u.name = 'دانیال'; u.last_login = u.last_seen = now(); DIRTY = true; log(u, 'auth.login'); return sess(u, 'demo-' + u.id);
     }
     var U = me(h);
+    if (U.code === 'Admin' && !U.tenant_id && /^(مدیر اکوسیستم|مدیر کل|Admin)$/.test(U.name || '')) { U.name = 'دانیال'; DIRTY = true }   // the owner is addressed by name everywhere
     if (p === '/fx' && m === 'POST') { if (!U) E(401, 'auth'); var r0 = +b.rate || 0; if (r0 < 100000 || r0 > 100000000) E(400, 'invalid'); if (b.manual) { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); D.fx = { rate: Math.round(r0), t: now(), src: 'manual', lock: !!b.lock } } else if (!D.fx.lock && (now() - (D.fx.t || 0) > 600 || !D.fx.rate)) D.fx = { rate: Math.round(r0), t: now(), src: String(b.src || '').slice(0, 40) }; return { ok: true, fx: D.fx } }
     if (p === '/admin/seat' && m === 'PUT') { if (!(U.role === 'admin' && !U.tenant_id)) E(403, 'forbidden'); D.seatP = { user: Math.max(0, +b.user || 0), mgr: Math.max(0, +b.mgr || 0), proj: Math.max(0, +b.proj || 0), off: Math.max(0, Math.min(90, +b.off || 0)) }; if (b.unlock) { D.fx.lock = false; D.fx.t = 0 } log(U, 'seat.save'); return { ok: true } }
     if (p === '/me') { if (now() - (U.last_seen || 0) > 300) { U.last_seen = now(); DIRTY = true } return sess(U) }
