@@ -1,8 +1,18 @@
 {
  "updated": "2026-11-23",
  "ecosystem": {
-  "version": "5.9.0",
+  "version": "6.0.0",
   "changelog": [
+   {
+    "v": "6.0.0",
+    "date": "1405/09/02",
+    "title": "ایمیل و مسنجر در نشانی‌های تازه",
+    "items": [
+     "نامه‌نگاری و مسنجر قبلی حذف شدند.",
+     "ایمیل: /VERTEX/vmail/ با سورس Bulwark Webmail.",
+     "مسنجر: /VERTEX/messenger/ با سورس Mattermost؛ هر دو بعد از راه‌اندازی سرور اجرا می‌شوند."
+    ]
+   },
    {
     "v": "5.9.0",
     "date": "1405/09/02",
@@ -134,9 +144,19 @@
    ]
   },
   "messenger": {
-   "version": "0.4.0",
+   "version": "1.0.0",
    "path": "messenger/",
    "changelog": [
+    {
+     "v": "1.0.0",
+     "date": "1405/09/02",
+     "title": "ایمیل و مسنجر در نشانی‌های تازه",
+     "items": [
+      "نامه‌نگاری و مسنجر قبلی حذف شدند.",
+      "ایمیل: /VERTEX/vmail/ با سورس Bulwark Webmail.",
+      "مسنجر: /VERTEX/messenger/ با سورس Mattermost؛ هر دو بعد از راه‌اندازی سرور اجرا می‌شوند."
+     ]
+    },
     {
      "v": "0.4.0",
      "date": "1405/09/02",
@@ -277,9 +297,19 @@
    ]
   },
   "mail": {
-   "version": "1.2.0",
-   "path": "mail/",
+   "version": "2.0.0",
+   "path": "vmail/",
    "changelog": [
+    {
+     "v": "2.0.0",
+     "date": "1405/09/02",
+     "title": "ایمیل و مسنجر در نشانی‌های تازه",
+     "items": [
+      "نامه‌نگاری و مسنجر قبلی حذف شدند.",
+      "ایمیل: /VERTEX/vmail/ با سورس Bulwark Webmail.",
+      "مسنجر: /VERTEX/messenger/ با سورس Mattermost؛ هر دو بعد از راه‌اندازی سرور اجرا می‌شوند."
+     ]
+    },
     {
      "v": "1.2.0",
      "date": "1405/09/02",
@@ -730,14 +760,17 @@
    "platform": "messenger",
    "since": "",
    "status": "partial",
-   "desc": "سورس کامل Mattermost در شاخه‌ی messenger-source مخزن VERTEX؛ برای اجرا به سرور نیاز دارد.",
+   "desc": "سورس Mattermost در /VERTEX/messenger/ (نسخه‌ی کامل در شاخه‌ی messenger-source)؛ به سرور نیاز دارد.",
    "files": [
-    "branch: messenger-source"
+    "messenger/"
    ],
    "links": [
     "users-panel"
    ],
-   "check": []
+   "check": [
+    "messenger/",
+    "messenger/README.md"
+   ]
   },
   {
    "code": "MS-002",
@@ -745,19 +778,15 @@
    "platform": "messenger",
    "since": "0.3.0",
    "status": "live",
-   "desc": "نشانی مستقل /VERTEX/messenger/ و دکمه‌ی نارنجی مسنجر در همه‌ی پلتفرم‌ها برای کسانی که دسترسی دارند.",
+   "desc": "دکمه‌ی نارنجی مسنجر در همه‌ی پلتفرم‌ها برای کسانی که دسترسی دارند؛ به /VERTEX/messenger/ می‌رود.",
    "files": [
-    "messenger/index.html",
-    "shared/msgbtn.js",
-    "shared/auth.js"
+    "shared/msgbtn.js"
    ],
    "links": [
     "ecosystem",
     "project-control"
    ],
    "check": [
-    "messenger/",
-    "Messenger/",
     "shared/msgbtn.js"
    ]
   },
@@ -766,17 +795,13 @@
    "name": "نامه‌نگاری",
    "platform": "mail",
    "since": "1.0.0",
-   "status": "live",
-   "desc": "فقط نامه‌ها؛ مسنجر و میز کار نشانی جدا دارند.",
-   "files": [
-    "mail/index.html"
-   ],
+   "status": "off",
+   "desc": "حذف شد؛ ایمیل در /VERTEX/vmail/.",
+   "files": [],
    "links": [
     "project-control"
    ],
-   "check": [
-    "mail/"
-   ]
+   "check": []
   },
   {
    "code": "ML-002",
@@ -784,16 +809,16 @@
    "platform": "mail",
    "since": "1.2.0",
    "status": "partial",
-   "desc": "سورس Bulwark Webmail در شاخه‌ی vmail-source؛ نشانی /VERTEX/vmail/ آماده است و بعد از راه‌اندازی سرور، خود ایمیل را باز می‌کند.",
+   "desc": "سورس Bulwark Webmail در /VERTEX/vmail/؛ بعد از راه‌اندازی سرور اجرا می‌شود.",
    "files": [
-    "vmail/index.html",
-    "branch: vmail-source"
+    "vmail/"
    ],
    "links": [
     "users-panel"
    ],
    "check": [
-    "vmail/"
+    "vmail/",
+    "vmail/package.json"
    ]
   },
   {

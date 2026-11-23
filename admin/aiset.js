@@ -10,7 +10,7 @@
   var tok = function () { try { return localStorage.getItem('ghTok') || '' } catch (e) { return '' } };
   var dec = function (k) { try { return k ? atob(k).split('').reverse().join('') : '' } catch (e) { return '' } };
   var enc = function (k) { return btoa(k.split('').reverse().join('')) };
-  var PAGES = [['/', 'صفحه‌ی اصلی'], ['admin/', 'کنترل پنل'], ['msp-bi/', 'I — کنترل پروژه (با داده‌ی پروژه‌ها)'], ['mail/', 'نامه‌نگاری'], ['files/', 'فایل منیجر'], ['trading/', 'تریدینگ'], ['aide/', 'میز منشی']];
+  var PAGES = [['/', 'صفحه‌ی اصلی'], ['admin/', 'کنترل پنل'], ['msp-bi/', 'I — کنترل پروژه (با داده‌ی پروژه‌ها)'], ['vmail/', 'ایمیل'], ['messenger/', 'مسنجر'], ['desk/', 'میز کار من'], ['files/', 'فایل منیجر'], ['trading/', 'تریدینگ'], ['aide/', 'میز منشی']];
   async function load() {
     var sha = '', j = null, CL = window.VX_CLOUD;
     if (CL && CL.on) { try { j = await CL.getDoc('ai-config') } catch (e) { } if (j) return { sha: '', c: Object.assign({ enabled: true, name: 'دستیار VERTEX', mode: 'coarena', model: 'gpt-6-luna', k: '', prompt: '' }, j) } }

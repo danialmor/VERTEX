@@ -1,0 +1,236 @@
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
+package app
+
+import (
+	"net/http"
+	"slices"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/shared/mlog"
+	"github.com/mattermost/mattermost/server/public/shared/request"
+)
+
+// renderableActionConfig controls fallback behavior when ABAC is inactive or evaluation fails.
+type renderableActionConfig struct {
+	ResourceType        string
+	DefaultWhenInactive bool
+	// FailClosedOnError returns denied+evaluated on subject-build or PDP errors
+	// rather than falling back to DefaultWhenInactive. Set for security-sensitive actions.
+	FailClosedOnError bool
+}
+
+// renderableABACActions is the allowlist of ABAC actions that may be queried
+// through the render-decision (Action Search) API. Any action not present here
+// is rejected with 400 to prevent arbitrary action probing and to centralize the
+// security posture for each renderable affordance.
+var renderableABACActions = map[string]renderableActionConfig{
+	model.AccessControlPolicyActionUploadFileAttachment: {
+		ResourceType:        model.AccessControlPolicyTypeChannel,
+		DefaultWhenInactive: true,
+		FailClosedOnError:   true,
+	},
+	model.AccessControlPolicyActionDownloadFileAttachment: {
+		ResourceType:        model.AccessControlPolicyTypeChannel,
+		DefaultWhenInactive: true,
+		FailClosedOnError:   true,
+	},
+	// Answered by its enforcement gate, which already allows while ABAC is inactive and
+	// fails closed on errors, so DefaultWhenInactive and FailClosedOnError only record that.
+	model.AccessControlPolicyActionChannelReadAccess: {
+		ResourceType:        model.AccessControlPolicyTypeChannel,
+		DefaultWhenInactive: true,
+		FailClosedOnError:   true,
+	},
+	model.AccessControlPolicyActionChannelWriteAccess: {
+		ResourceType:        model.AccessControlPolicyTypeChannel,
+		DefaultWhenInactive: true,
+		FailClosedOnError:   true,
+	},
+	model.AccessControlPolicyActionChannelManagementAccess: {
+		ResourceType:        model.AccessControlPolicyTypeChannel,
+		DefaultWhenInactive: true,
+		FailClosedOnError:   true,
+	},
+	model.AccessControlPolicyActionCreateBurnOnReadPost: {
+		ResourceType:        model.AccessControlPolicyTypeChannel,
+		DefaultWhenInactive: true,
+		FailClosedOnError:   true,
+	},
+}
+
+// SearchAllowedActionsForCurrentUser computes non-authoritative, render-time ABAC
+// decisions for the current session user on a single resource. It mirrors the
+// enforcement path (BuildAccessControlSubjectForSession + AccessEvaluation with
+// the same Resource shape) so a render "allowed" can never disagree with what
+// enforcement would decide. channel_read_access is answered by its enforcement
+// gate outright, since that gate decides more than the PDP does. Results MUST NOT
+// be used to authorize an action; the protected endpoints always re-evaluate the
+// PDP live.
+//
+// When req.Actions is nil/empty the function operates in discovery mode: it
+// evaluates all renderable actions registered for the resource type and returns
+// the permitted set. When req.Actions is non-empty only those specific actions
+// are evaluated (targeted mode).
+func (a *App) SearchAllowedActionsForCurrentUser(rctx request.CTX, req model.ActionSearchRequest) (*model.ActionSearchResponse, *model.AppError) {
+	if appErr := req.IsValid(); appErr != nil {
+		return nil, appErr
+	}
+
+	// Subject reservation: any Subject whose ID != session user is rejected.
+	// This gate exists to make Phase 3 (arbitrary-subject evaluation, Enterprise)
+	// a non-breaking extension — the field is in the contract but gated here.
+	if req.Subject != nil && req.Subject.ID != rctx.Session().UserId {
+		return nil, model.NewAppError(
+			"SearchAllowedActionsForCurrentUser",
+			"app.access_control_decision.subject_mismatch.app_error",
+			nil, "", http.StatusForbidden)
+	}
+
+	// Discovery mode: collect registry entries for the resource type, then sort for
+	// deterministic wire output — Go map iteration is non-deterministic.
+	// Targeted mode: validate each requested action against the registry.
+	var candidates []string
+	if len(req.Actions) == 0 {
+		for action, cfg := range renderableABACActions {
+			if cfg.ResourceType == req.Resource.Type {
+				candidates = append(candidates, action)
+			}
+		}
+		slices.Sort(candidates)
+	} else {
+		for _, action := range req.Actions {
+			cfg, ok := renderableABACActions[action]
+			if !ok || cfg.ResourceType != req.Resource.Type {
+				return nil, model.NewAppError("SearchAllowedActionsForCurrentUser", "app.access_control_decision.unsupported_action.app_error", map[string]any{"Action": action}, "", http.StatusBadRequest)
+			}
+		}
+		candidates = req.Actions
+	}
+
+	resp := &model.ActionSearchResponse{
+		Resource:  req.Resource,
+		Results:   []model.ActionSearchResult{},                                     // always non-nil so it serializes as []
+		Decisions: make(map[string]model.RenderPermissionDecision, len(candidates)), // always non-nil so it serializes as {}
+	}
+	record := func(action string, d model.RenderPermissionDecision) {
+		resp.Decisions[action] = d
+		if d.Allowed {
+			resp.Results = append(resp.Results, model.ActionSearchResult{Action: model.ActionSearchResultAction{Name: action}})
+		}
+	}
+
+	acs := a.Srv().Channels().AccessControl
+	active := acs != nil && a.attributeBasedAccessControlEnabled()
+
+	channelID := ""
+	if req.Resource.Type == model.AccessControlPolicyTypeChannel {
+		channelID = req.Resource.ID
+	}
+
+	exempt := active && slices.ContainsFunc(candidates, isChannelAccessAction) && a.channelAccessExemptByID(rctx, req.Resource.ID)
+	managementExempt := active && slices.Contains(candidates, model.AccessControlPolicyActionChannelManagementAccess) &&
+		a.SessionHasPermissionTo(*rctx.Session(), model.PermissionManageSystem)
+	recordIfExempt := func(action string) bool {
+		if !(exempt && isChannelAccessAction(action)) &&
+			!(managementExempt && action == model.AccessControlPolicyActionChannelManagementAccess) {
+			return false
+		}
+		record(action, model.RenderPermissionDecision{Allowed: true, Evaluated: true})
+		return true
+	}
+
+	var subject *model.Subject
+	var subjectErr *model.AppError
+	for _, action := range candidates {
+		if action == model.AccessControlPolicyActionChannelReadAccess {
+			// Its enforcement gate also exempts DMs and GMs, requires Enterprise Advanced,
+			// and allows without evaluating when no policy governs the action, so a bare
+			// PDP call would disagree with enforcement on each of those.
+			record(action, model.RenderPermissionDecision{
+				Allowed:   a.HasChannelReadAccessByID(rctx, rctx.Session().UserId, req.Resource.ID),
+				Evaluated: true,
+			})
+			continue
+		}
+
+		// No active policy, or a channel permission action while its enforcement is off (the
+		// flag, ABAC or an Enterprise Advanced license is missing, so enforcement allows
+		// everything) — the per-action default.
+		if !active || (model.IsChannelPermissionAction(action) && !a.ChannelAccessEnforcementActive()) {
+			record(action, model.RenderPermissionDecision{
+				Allowed:   renderableABACActions[action].DefaultWhenInactive,
+				Evaluated: true,
+			})
+			continue
+		}
+
+		if recordIfExempt(action) {
+			continue
+		}
+
+		// Built once, by the first action the PDP answers.
+		if subject == nil && subjectErr == nil {
+			subject, subjectErr = a.BuildAccessControlSubjectForSession(rctx, channelID)
+			if subjectErr != nil {
+				rctx.Logger().Info("Failed to build ABAC subject for render-decision search",
+					mlog.String("resource_type", req.Resource.Type),
+					mlog.String("resource_id", req.Resource.ID),
+					mlog.Err(subjectErr),
+				)
+			}
+		}
+		if subjectErr != nil {
+			record(action, renderDecisionOnError(action))
+			continue
+		}
+
+		decision, evalErr := acs.AccessEvaluation(rctx, model.AccessRequest{
+			Subject:  *subject,
+			Resource: req.Resource,
+			Action:   action,
+		})
+		if evalErr != nil {
+			rctx.Logger().Debug("ABAC render-decision evaluation failed",
+				mlog.String("action", action),
+				mlog.String("resource_id", req.Resource.ID),
+				mlog.Err(evalErr),
+			)
+			record(action, renderDecisionOnError(action))
+			continue
+		}
+		record(action, model.RenderPermissionDecision{
+			Allowed:   decision.Decision,
+			Evaluated: true,
+		})
+	}
+
+	return resp, nil
+}
+
+func (a *App) channelAccessExemptByID(rctx request.CTX, channelID string) bool {
+	channel, appErr := a.GetChannel(rctx, channelID)
+	if appErr != nil {
+		return false
+	}
+	return channelAccessExempt(channel)
+}
+
+// renderDecisionOnError returns the conservative decision for an action whose
+// subject build or PDP evaluation failed: fail closed (deny + generic reason)
+// for security-sensitive actions, otherwise fall back to the inactive default.
+func renderDecisionOnError(action string) model.RenderPermissionDecision {
+	cfg := renderableABACActions[action]
+	if cfg.FailClosedOnError {
+		return model.RenderPermissionDecision{
+			Allowed:   false,
+			Evaluated: true,
+			Reason:    model.RenderDecisionReasonRestrictedByPolicy,
+		}
+	}
+	return model.RenderPermissionDecision{
+		Allowed:   cfg.DefaultWhenInactive,
+		Evaluated: true,
+	}
+}

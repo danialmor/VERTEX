@@ -1,0 +1,117 @@
+// Copyright (c) 2015-present Mattermost, Inc. All Rights Reserved.
+// See LICENSE.txt for license information.
+
+package jobs
+
+import (
+	"math/rand/v2"
+	"time"
+
+	"github.com/mattermost/mattermost/server/public/model"
+	"github.com/mattermost/mattermost/server/public/shared/mlog"
+	"github.com/mattermost/mattermost/server/public/shared/request"
+)
+
+// Default polling interval for jobs termination.
+// (Defining as `var` rather than `const` allows tests to lower the interval.)
+var DefaultWatcherPollingInterval = 15000
+
+type Watcher struct {
+	srv     *JobServer
+	workers *Workers
+
+	stop            chan struct{}
+	stopped         chan struct{}
+	pollingInterval int
+
+	// jobType, when set, limits polling to pending jobs of that type, and skips polling while
+	// that type's worker is disabled.
+	jobType string
+}
+
+func (srv *JobServer) MakeWatcher(workers *Workers, pollingInterval int) *Watcher {
+	return &Watcher{
+		stop:            make(chan struct{}),
+		stopped:         make(chan struct{}),
+		pollingInterval: pollingInterval,
+		workers:         workers,
+		srv:             srv,
+	}
+}
+
+// MakeJobTypeWatcher returns a watcher that polls only pending jobs of jobType, for a worker set
+// that runs that one type.
+func (srv *JobServer) MakeJobTypeWatcher(workers *Workers, pollingInterval int, jobType string) *Watcher {
+	watcher := srv.MakeWatcher(workers, pollingInterval)
+	watcher.jobType = jobType
+	return watcher
+}
+
+func (watcher *Watcher) Start() {
+	mlog.Debug("Watcher Started")
+
+	defer func() {
+		mlog.Debug("Watcher Finished")
+		close(watcher.stopped)
+	}()
+
+	// Delay for some random number of milliseconds before starting to ensure that multiple
+	// instances of the jobserver  don't poll at a time too close to each other. A stop during
+	// the delay ends it, so Stop doesn't wait it out.
+	select {
+	case <-watcher.stop:
+		mlog.Debug("Watcher: Received stop signal")
+		return
+	case <-time.After(time.Duration(rand.IntN(watcher.pollingInterval)) * time.Millisecond):
+	}
+
+	for {
+		select {
+		case <-watcher.stop:
+			mlog.Debug("Watcher: Received stop signal")
+			return
+		case <-time.After(time.Duration(watcher.pollingInterval) * time.Millisecond):
+			watcher.PollAndNotify()
+		}
+	}
+}
+
+func (watcher *Watcher) Stop() {
+	mlog.Debug("Watcher Stopping")
+	close(watcher.stop)
+	<-watcher.stopped
+
+	watcher.stop = make(chan struct{})
+	watcher.stopped = make(chan struct{})
+}
+
+func (watcher *Watcher) PollAndNotify() {
+	rctx := request.EmptyContext(watcher.srv.logger)
+	var (
+		jobs []*model.Job
+		err  error
+	)
+	if watcher.jobType != "" {
+		// Nothing could run the jobs while the worker is disabled, so don't query for them.
+		if worker := watcher.workers.Get(watcher.jobType); worker == nil || !worker.IsEnabled(watcher.srv.Config()) {
+			return
+		}
+		jobs, err = watcher.srv.Store.Job().GetAllByTypeAndStatus(rctx, watcher.jobType, model.JobStatusPending)
+	} else {
+		jobs, err = watcher.srv.Store.Job().GetAllByStatus(rctx, model.JobStatusPending)
+	}
+	if err != nil {
+		mlog.Error("Error occurred getting all pending statuses.", mlog.Err(err))
+		return
+	}
+
+	for _, job := range jobs {
+		worker := watcher.workers.Get(job.Type)
+		if worker != nil {
+			select {
+			case worker.JobChannel() <- *job:
+			default:
+			}
+		}
+	}
+}
