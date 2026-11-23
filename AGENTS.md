@@ -88,3 +88,10 @@ See **"Next steps"** in `docs/STATUS.md`. The top item is always the current pri
 - Trading now has 7 module tabs (GMGN Skills, gmgnAgent, SolScope, pump.fun bot, Freqtrade, CCXT live, Order Flow live); each with GUIDE.fa.md. Details: trading/PLATFORM.md.
 
 - Control panel → «ذخیره در GitHub» (`admin/github.js`, ecosystem admin): one GitHub key (`localStorage.ghTok`, shared by every page of the site) for all repo saves — panel data `data/vertex.json`, dashboard store `msp-bi/data/store/`, assistant key `shared/ai/config.json`; optional encrypted copy `shared/vault.json` unlocked on other devices with the admin password. Never commit a plain token.
+
+## Control panel rule (owner, 2026-11-23) — the most important rule
+The control panel (admin, tab «مرکز کنترل», `admin/monitor.js`) is the owner's monitoring center for the whole ecosystem.
+1. `shared/releases.json` is the single source of versions: one ecosystem version + one version per platform, each with its own changelog. Bump the platform's version and the ecosystem version on every release.
+2. Every new feature gets a code in `releases.json → features` (`VX-` ecosystem, `PC-` project control, `AD-` Aide, `MS-` messenger, `ML-` mail, `FM-` files, `TR-` trading; next free number), with a short Persian description, status (live/partial/planned), files, links to other platforms and `check` paths. The tab shows it as an expandable row and checks its connections every time it opens.
+3. Every platform shows its own About (`shared/about.js`, loaded by `shared/auth.js`; Aide: menu under the brand A) from the same file.
+4. Keep text in the panel small (13px body, 11.5–12px meta).
