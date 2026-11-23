@@ -34,7 +34,7 @@
     return undefined;
   }
   function session() { var s = null; try { s = JSON.parse(localStorage.getItem(SK) || sessionStorage.getItem(SK) || 'null'); } catch (e) {} return s && s.u && Date.now() - s.t < DAYS * 864e5 ? s : null; }
-  function allowed(slug, s) { s = s || session(); if (!s) return false; if (s.role === 'admin') return true; if (slug === 'project-control' && s.msp) return true; return !slug || (s.sites || []).indexOf(slug) >= 0; }
+  function allowed(slug, s) { s = s || session(); if (!s) return false; if (s.role === 'admin') return true; if (slug === 'project-control' && s.msp) return true; if (slug === 'desk') return true; return !slug || (s.sites || []).indexOf(slug) >= 0; }
   function save(s, remember) { try { localStorage.removeItem(SK); sessionStorage.removeItem(SK); (remember ? localStorage : sessionStorage).setItem(SK, JSON.stringify(s)); } catch (e) {} }
   async function login(u, p, remember) {
     u = String(u || '').trim().toLowerCase();
@@ -94,7 +94,7 @@
       if (matchMedia('(max-width:760px)').matches) a.style.bottom = '86px'; if (/\/ai\//.test(location.pathname)) { a.style.bottom = 'auto'; a.style.top = '6px'; a.style.width = a.style.height = '38px' } document.body.appendChild(a) };
     if (document.body) addHome(); else document.addEventListener('DOMContentLoaded', addHome);
   }
-  var need = document.currentScript.getAttribute('data-require'); if (need === 'project-control') { if (/[?&]app=chat\b/.test(location.search)) need = 'messenger'; else if (/[?&]app=mail\b/.test(location.search)) need = 'mail'; } if (need && !DEMO) require(need);
+  var need = document.currentScript.getAttribute('data-require'); if (need === 'project-control') { if (/[?&]app=chat\b/.test(location.search)) need = 'messenger'; else if (/[?&]app=mail\b/.test(location.search)) need = 'mail'; else if (/[?&]app=work\b/.test(location.search)) need = 'desk'; } if (need && !DEMO) require(need);
   try { if (!/[?&]demo\b/.test(location.search) && !/\/aide\//.test(location.pathname) && !/\/admin\/?$/.test(location.pathname)) { var vxn = document.createElement('script'); vxn.src = ROOT + 'shared/notify.js?v=1'; vxn.defer = true; (document.head || document.documentElement).appendChild(vxn) } } catch (e) { }
   try { var vxp = document.createElement('script'); vxp.src = ROOT + 'shared/pwa.js?v=1'; (document.head || document.documentElement).appendChild(vxp) } catch (e) { }
   try { if (!/\/messenger\/|[?&]app=chat\b/.test(location.pathname + location.search) && self === top) { var vxm = document.createElement('script'); vxm.src = ROOT + 'shared/msgbtn.js?v=1'; vxm.defer = true; (document.head || document.documentElement).appendChild(vxm) } } catch (e) { }

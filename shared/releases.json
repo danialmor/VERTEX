@@ -1,8 +1,18 @@
 {
  "updated": "2026-11-23",
  "ecosystem": {
-  "version": "5.7.0",
+  "version": "5.8.0",
   "changelog": [
+   {
+    "v": "5.8.0",
+    "date": "1405/09/02",
+    "title": "جداسازی مسنجر، نامه‌نگاری و میز کار",
+    "items": [
+     "مسنجر: /VERTEX/messenger/ فقط گفتگوها.",
+     "نامه‌نگاری: /VERTEX/mail/ فقط نامه‌ها.",
+     "میز کار من: /VERTEX/desk/ نشانی جدا."
+    ]
+   },
    {
     "v": "5.7.0",
     "date": "1405/09/02",
@@ -116,9 +126,19 @@
    ]
   },
   "messenger": {
-   "version": "0.3.0",
+   "version": "0.4.0",
    "path": "messenger/",
    "changelog": [
+    {
+     "v": "0.4.0",
+     "date": "1405/09/02",
+     "title": "جداسازی مسنجر، نامه‌نگاری و میز کار",
+     "items": [
+      "مسنجر: /VERTEX/messenger/ فقط گفتگوها.",
+      "نامه‌نگاری: /VERTEX/mail/ فقط نامه‌ها.",
+      "میز کار من: /VERTEX/desk/ نشانی جدا."
+     ]
+    },
     {
      "v": "0.3.0",
      "date": "1405/09/02",
@@ -249,9 +269,19 @@
    ]
   },
   "mail": {
-   "version": "1.0.0",
+   "version": "1.1.0",
    "path": "mail/",
    "changelog": [
+    {
+     "v": "1.1.0",
+     "date": "1405/09/02",
+     "title": "جداسازی مسنجر، نامه‌نگاری و میز کار",
+     "items": [
+      "مسنجر: /VERTEX/messenger/ فقط گفتگوها.",
+      "نامه‌نگاری: /VERTEX/mail/ فقط نامه‌ها.",
+      "میز کار من: /VERTEX/desk/ نشانی جدا."
+     ]
+    },
     {
      "v": "1.0.0",
      "date": "1405/08/26",
@@ -303,6 +333,10 @@
   "landing": {
    "name": "صفحه‌ی اصلی",
    "path": ""
+  },
+  "desk": {
+   "name": "میز کار من",
+   "path": "desk/"
   }
  },
  "features": [
@@ -717,7 +751,7 @@
    "platform": "mail",
    "since": "1.0.0",
    "status": "live",
-   "desc": "نامه‌ها و میز کار من.",
+   "desc": "فقط نامه‌ها؛ مسنجر و میز کار نشانی جدا دارند.",
    "files": [
     "mail/index.html"
    ],
@@ -759,6 +793,25 @@
    "links": [],
    "check": [
     "trading/"
+   ]
+  },
+  {
+   "code": "VX-013",
+   "name": "میز کار من (نشانی جدا)",
+   "platform": "ecosystem",
+   "since": "5.8.0",
+   "status": "live",
+   "desc": "میز کار من: /VERTEX/desk/ نشانی جدا.",
+   "files": [
+    "desk/index.html",
+    "msp-bi/index.html"
+   ],
+   "links": [
+    "project-control",
+    "mail"
+   ],
+   "check": [
+    "desk/"
    ]
   }
  ],
