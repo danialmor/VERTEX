@@ -24,11 +24,34 @@
   var pname = function (slug) { if (slug === 'ecosystem') return 'اکوسیستم'; var p = B.platform && B.platform(slug); return p ? p.n + ' — ' + p.fa : slug };
   var fetchOk = function (path) { return fetch(ROOT + path + (path.indexOf('?') < 0 ? '?' : '&') + 'c=' + Date.now(), { method: 'GET', cache: 'no-store' }).then(function (r) { return r.ok }, function () { return false }) };
 
+
+  /* Local AI (shared/ai, Qwen on this device, VX_AI_LOCAL in index.html): context + exact answers from the monitoring data. */
+  var MR = null, MH = {};
+  fetch(ROOT + 'shared/releases.json?c=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json() }).then(function (j) { MR = j }, function () { });
+  var stName = { live: 'فعال', partial: 'نیمه‌کاره', planned: 'برنامه‌ریزی', off: 'خاموش' };
+  window.VX_CTX = function () {
+    if (!MR) return '';
+    return 'You are the VERTEX control-panel assistant for the ecosystem owner. Answer briefly in Persian. Use only these facts.\n' +
+      'Ecosystem version ' + MR.ecosystem.version + '. Platforms: ' + Object.keys(MR.platforms).map(function (s) { return pname(s) + ' ' + MR.platforms[s].version }).join('; ') + '.\n' +
+      'Features (code | name | platform | status | connection): ' + MR.features.map(function (f) { var h = MH[f.code]; return f.code + ' | ' + f.name + ' | ' + pname(f.platform) + ' | ' + (stName[f.status] || f.status) + ' | ' + (h == null ? '?' : h.ok ? 'ok' : 'broken') }).join('\n');
+  };
+  window.VX_FACTS = function (q) {
+    if (!MR) return ''; q = String(q || '');
+    var F = MR.features, code = (q.toUpperCase().match(/\b(VX|PC|AD|MS|ML|FM|TR)-\d{3}\b/) || [])[0];
+    var line = function (f) { var h = MH[f.code]; return f.code + ' · ' + f.name + ' — ' + pname(f.platform) + ' · ' + (stName[f.status] || f.status) + (h ? (h.ok ? ' · اتصال سالم' : ' · اتصال ناقص') : '') };
+    if (code) { var f = F.filter(function (x) { return x.code === code })[0]; return f ? line(f) + '\n' + f.desc + (f.links.length ? '\nاتصال به: ' + f.links.map(pname).join('، ') : '') : 'قابلیتی با کد ' + code + ' ثبت نشده.' }
+    if (/نسخه|ورژن|version/i.test(q)) return 'اکوسیستم ' + MR.ecosystem.version + '\n' + Object.keys(MR.platforms).map(function (s) { return pname(s) + ': ' + MR.platforms[s].version }).join('\n');
+    if (/خراب|ناقص|قطع|مشکل|broken|سالم|اتصال/i.test(q)) { var b = F.filter(function (f) { return MH[f.code] && !MH[f.code].ok }); return Object.keys(MH).length ? (b.length ? 'اتصال ناقص:\n' + b.map(line).join('\n') : 'همه‌ی اتصال‌های بررسی‌شده سالم‌اند (' + Object.keys(MH).length + ' قابلیت).') : 'تب «مرکز کنترل» را باز کنید تا اتصال‌ها بررسی شوند.' }
+    var want = /نیمه|partial/i.test(q) ? 'partial' : /برنامه|planned|آینده/i.test(q) ? 'planned' : /قابلیت|feature|فعال/i.test(q) ? 'all' : '';
+    if (want) { var L = want === 'all' ? F : F.filter(function (f) { return f.status === want }); return L.length + ' قابلیت:\n' + L.map(line).join('\n') }
+    return '';
+  };
   function page() {
     $('#pg').innerHTML = css + head('مرکز کنترل', 'نسخه‌ها، قابلیت‌ها و اتصال‌های کل اکوسیستم') + '<div id="mon"><div class="card">در حال خواندن…</div></div>';
-    fetch(ROOT + 'shared/releases.json?c=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json() }).then(draw, function () { $('#mon').innerHTML = '<div class="card">فایل shared/releases.json خوانده نشد.</div>' });
+    return fetch(ROOT + 'shared/releases.json?c=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json() }).then(draw, function () { $('#mon').innerHTML = '<div class="card">فایل shared/releases.json خوانده نشد.</div>' });
   }
   function draw(R) {
+    MR = R;
     var F = R.features || [], PL = R.platforms || {}, health = {}, known = Object.keys(PL).concat(['ecosystem']);
     var cnt = function (s) { return F.filter(function (f) { return f.status === s }).length };
     var h = '<div class="k"><div class="card"><small>نسخه‌ی اکوسیستم</small><b class="ver">' + esc(R.ecosystem.version) + '</b></div>' +
@@ -71,7 +94,7 @@
       var res = {}; Object.keys(paths).forEach(function (p) { todo.push(fetchOk(p).then(function (ok) { res[p] = ok })) });
       Promise.all(todo).then(function () {
         var good = 0, all = 0;
-        F.forEach(function (f) { var items = (f.check || []).map(function (c) { return [c, res[c]] }), bad = (f.links || []).filter(function (l) { return known.indexOf(l) < 0 }); if (!items.length && !bad.length) return; var ok = items.every(function (i) { return i[1] }) && !bad.length; health[f.code] = { ok: ok, items: items, bad: bad }; all++; if (ok) good++ });
+        F.forEach(function (f) { var items = (f.check || []).map(function (c) { return [c, res[c]] }), bad = (f.links || []).filter(function (l) { return known.indexOf(l) < 0 }); if (!items.length && !bad.length) return; var ok = items.every(function (i) { return i[1] }) && !bad.length; health[f.code] = { ok: ok, items: items, bad: bad }; MH = health; all++; if (ok) good++ });
         Object.keys(PL).forEach(function (s) { var el = $('#pp-' + s); if (!el) return; var p = PL[s].path; el.innerHTML = p ? '<span class="dot ' + (res[p] ? 'ok' : 'bad') + '"></span> <span class="pl">' + (res[p] ? 'در دسترس' : 'پاسخ نمی‌دهد') + '</span>' : '<span class="dot"></span> <span class="pl">هنوز آدرسی ندارد</span>' });
         $('#mH').textContent = good + ' / ' + all; $('#mHs').textContent = good === all ? 'همه سالم' : (all - good) + ' قابلیت اتصال ناقص دارد'; $('#mH').style.color = good === all ? 'var(--ok)' : 'var(--bad)';
         rows();

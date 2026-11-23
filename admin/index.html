@@ -257,7 +257,7 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 <script src="sitemap.js?v=412"></script>
 <script src="filemap.js?v=412"></script>
 <script src="eco.js?v=412"></script>
-<script src="monitor.js?v=1"></script>
+<script src="monitor.js?v=2"></script>
 <script src="sim.js?v=412"></script>
 <script src="github.js?v=412"></script>
 <script src="aiset.js?v=412"></script>
@@ -271,6 +271,7 @@ if(window.VX_AUTH&&VX_AUTH.STATIC){
 function mk(){if(document.getElementById('thT'))return;var b=document.createElement('button');b.id='thT';b.type='button';var set=function(){b.textContent=r.dataset.theme==='dark'?'☀️':'🌙';b.title=r.dataset.theme==='dark'?'حالت روشن':'حالت تیره';b.setAttribute('aria-label',b.title)};set();
 b.onclick=function(){r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem(K,r.dataset.theme)}catch(e){}set()};document.body.appendChild(b)}
 if(document.body)mk();else document.addEventListener('DOMContentLoaded',mk)})();</script>
-<script src="../shared/ai/ai.js?v=419" defer></script>
+<script>window.VX_AI_LOCAL=1</script>
+<script src="../shared/ai/ai.js?v=420" defer></script>
 </body>
 </html>

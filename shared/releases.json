@@ -1,46 +1,543 @@
 {
  "updated": "2026-11-23",
  "ecosystem": {
-  "version": "5.0.0",
+  "version": "5.1.0",
   "changelog": [
-   { "v": "5.0.0", "date": "1405/09/02", "title": "مرکز کنترل و نسخه‌ی جدا برای هر پلتفرم", "items": ["هر پلتفرم نسخه‌ی خودش را دارد و اکوسیستم یک نسخه‌ی کلی.", "تب «مرکز کنترل» در کنترل پنل: نسخه‌ها، فهرست کدگذاری‌شده‌ی قابلیت‌ها و بررسی اتصال‌ها.", "دکمه‌ی «درباره» در هر پلتفرم."] },
-   { "v": "4.30.0", "date": "1405/09/01", "title": "نصب به‌صورت وب‌اپ", "items": ["همه‌ی بخش‌ها به‌صورت وب‌اپ نصب می‌شوند."] },
-   { "v": "4.29.0", "date": "1405/09/01", "title": "اعلان‌ها و تیم", "items": ["زنگوله‌ی اعلان در همه‌ی پلتفرم‌ها؛ مسیرهای هاب /team/members و /notify."] }
+   {
+    "v": "5.1.0",
+    "date": "1405/09/02",
+    "title": "هوش مصنوعی محلی در کنترل پنل",
+    "items": [
+     "دستیار کنترل پنل فقط با مدل روی همین دستگاه کار می‌کند؛ بدون سرور خارجی.",
+     "پاسخ دقیق درباره‌ی نسخه‌ها، قابلیت‌ها و اتصال‌ها."
+    ]
+   },
+   {
+    "v": "5.0.0",
+    "date": "1405/09/02",
+    "title": "مرکز کنترل و نسخه‌ی جدا برای هر پلتفرم",
+    "items": [
+     "هر پلتفرم نسخه‌ی خودش را دارد و اکوسیستم یک نسخه‌ی کلی.",
+     "تب «مرکز کنترل» در کنترل پنل: نسخه‌ها، فهرست کدگذاری‌شده‌ی قابلیت‌ها و بررسی اتصال‌ها.",
+     "دکمه‌ی «درباره» در هر پلتفرم."
+    ]
+   },
+   {
+    "v": "4.30.0",
+    "date": "1405/09/01",
+    "title": "نصب به‌صورت وب‌اپ",
+    "items": [
+     "همه‌ی بخش‌ها به‌صورت وب‌اپ نصب می‌شوند."
+    ]
+   },
+   {
+    "v": "4.29.0",
+    "date": "1405/09/01",
+    "title": "اعلان‌ها و تیم",
+    "items": [
+     "زنگوله‌ی اعلان در همه‌ی پلتفرم‌ها؛ مسیرهای هاب /team/members و /notify."
+    ]
+   }
   ]
  },
  "platforms": {
-  "project-control": { "version": "3.64.0", "path": "msp-bi/", "changelog": [ { "v": "3.64.0", "date": "1405/09/01", "title": "آخرین نسخه‌ی داشبورد", "items": ["تاریخچه‌ی کامل در msp-bi/platform.json"] } ] },
-  "messenger": { "version": "0.1.0", "path": "", "changelog": [ { "v": "0.1.0", "date": "1405/09/02", "title": "برنامه‌ریزی", "items": ["پیام‌رسان بر پایه‌ی سورس Mattermost ساخته می‌شود (نیاز به سرور)."] } ] },
-  "users-panel": { "version": "2.0.0", "path": "admin/", "changelog": [ { "v": "2.0.0", "date": "1405/09/02", "title": "مرکز کنترل", "items": ["تب مرکز کنترل: نسخه‌ها، قابلیت‌ها، اتصال‌ها."] }, { "v": "1.9.0", "date": "1405/09/01", "title": "ورود واحد Aide", "items": ["ورود به Aide فقط از کنترل پنل."] } ] },
-  "executive-desk": { "version": "1.39.0", "path": "aide/", "changelog": [ { "v": "1.39.0", "date": "1405/09/01", "title": "چیدمان گوشی و دسکتاپ مدیرعامل", "items": ["منشی چیدمان کاشی‌های صفحه‌ی مدیرعامل را برای گوشی و دسکتاپ جدا تنظیم می‌کند."] }, { "v": "1.38.0", "date": "1405/09/01", "title": "کاشی‌های هوشمند", "items": ["خلاصه‌ی هوشمند روز و وضعیت پروژه‌ها از کنترل پروژه."] }, { "v": "1.37.0", "date": "1405/09/01", "title": "ساعت قفل", "items": ["قفل، ساعت FlipClock اصلی را تمام‌صفحه باز می‌کند."] } ] },
-  "mail": { "version": "1.0.0", "path": "mail/", "changelog": [ { "v": "1.0.0", "date": "1405/08/26", "title": "نسخه‌ی اول", "items": ["نامه‌ها و میز کار من از داده‌ی کنترل پروژه."] } ] },
-  "file-manager": { "version": "1.0.0", "path": "files/", "changelog": [ { "v": "1.0.0", "date": "1405/08/26", "title": "نسخه‌ی اول", "items": ["پوشه‌ها و فایل‌ها؛ فایل‌ها فعلاً در مرورگر."] } ] },
-  "trading": { "version": "1.0.0", "path": "trading/", "changelog": [ { "v": "1.0.0", "date": "1405/08/28", "title": "نسخه‌ی اول", "items": ["ابزارهای تحلیل بازار."] } ] }
+  "project-control": {
+   "version": "3.64.0",
+   "path": "msp-bi/",
+   "changelog": [
+    {
+     "v": "3.64.0",
+     "date": "1405/09/01",
+     "title": "آخرین نسخه‌ی داشبورد",
+     "items": [
+      "تاریخچه‌ی کامل در msp-bi/platform.json"
+     ]
+    }
+   ]
+  },
+  "messenger": {
+   "version": "0.1.0",
+   "path": "",
+   "changelog": [
+    {
+     "v": "0.1.0",
+     "date": "1405/09/02",
+     "title": "برنامه‌ریزی",
+     "items": [
+      "پیام‌رسان بر پایه‌ی سورس Mattermost ساخته می‌شود (نیاز به سرور)."
+     ]
+    }
+   ]
+  },
+  "users-panel": {
+   "version": "2.1.0",
+   "path": "admin/",
+   "changelog": [
+    {
+     "v": "2.1.0",
+     "date": "1405/09/02",
+     "title": "هوش مصنوعی محلی",
+     "items": [
+      "Qwen 0.5B روی دستگاه؛ داده‌ی مرکز کنترل را می‌شناسد."
+     ]
+    },
+    {
+     "v": "2.0.0",
+     "date": "1405/09/02",
+     "title": "مرکز کنترل",
+     "items": [
+      "تب مرکز کنترل: نسخه‌ها، قابلیت‌ها، اتصال‌ها."
+     ]
+    },
+    {
+     "v": "1.9.0",
+     "date": "1405/09/01",
+     "title": "ورود واحد Aide",
+     "items": [
+      "ورود به Aide فقط از کنترل پنل."
+     ]
+    }
+   ]
+  },
+  "executive-desk": {
+   "version": "1.39.0",
+   "path": "aide/",
+   "changelog": [
+    {
+     "v": "1.39.0",
+     "date": "1405/09/01",
+     "title": "چیدمان گوشی و دسکتاپ مدیرعامل",
+     "items": [
+      "منشی چیدمان کاشی‌های صفحه‌ی مدیرعامل را برای گوشی و دسکتاپ جدا تنظیم می‌کند."
+     ]
+    },
+    {
+     "v": "1.38.0",
+     "date": "1405/09/01",
+     "title": "کاشی‌های هوشمند",
+     "items": [
+      "خلاصه‌ی هوشمند روز و وضعیت پروژه‌ها از کنترل پروژه."
+     ]
+    },
+    {
+     "v": "1.37.0",
+     "date": "1405/09/01",
+     "title": "ساعت قفل",
+     "items": [
+      "قفل، ساعت FlipClock اصلی را تمام‌صفحه باز می‌کند."
+     ]
+    }
+   ]
+  },
+  "mail": {
+   "version": "1.0.0",
+   "path": "mail/",
+   "changelog": [
+    {
+     "v": "1.0.0",
+     "date": "1405/08/26",
+     "title": "نسخه‌ی اول",
+     "items": [
+      "نامه‌ها و میز کار من از داده‌ی کنترل پروژه."
+     ]
+    }
+   ]
+  },
+  "file-manager": {
+   "version": "1.0.0",
+   "path": "files/",
+   "changelog": [
+    {
+     "v": "1.0.0",
+     "date": "1405/08/26",
+     "title": "نسخه‌ی اول",
+     "items": [
+      "پوشه‌ها و فایل‌ها؛ فایل‌ها فعلاً در مرورگر."
+     ]
+    }
+   ]
+  },
+  "trading": {
+   "version": "1.0.0",
+   "path": "trading/",
+   "changelog": [
+    {
+     "v": "1.0.0",
+     "date": "1405/08/28",
+     "title": "نسخه‌ی اول",
+     "items": [
+      "ابزارهای تحلیل بازار."
+     ]
+    }
+   ]
+  }
  },
  "parts": {
-  "home": { "name": "خانه", "path": "home/" },
-  "ai": { "name": "هوش مصنوعی", "path": "ai/" },
-  "landing": { "name": "صفحه‌ی اصلی", "path": "" }
+  "home": {
+   "name": "خانه",
+   "path": "home/"
+  },
+  "ai": {
+   "name": "هوش مصنوعی",
+   "path": "ai/"
+  },
+  "landing": {
+   "name": "صفحه‌ی اصلی",
+   "path": ""
+  }
  },
  "features": [
-  { "code": "VX-001", "name": "ورود واحد", "platform": "users-panel", "since": "4.0.0", "status": "live", "desc": "یک ورود برای همه‌ی پلتفرم‌ها؛ نشست در vxSess.", "files": ["admin/index.html", "shared/auth.js"], "links": ["executive-desk", "project-control", "mail", "file-manager"], "check": ["admin/", "shared/auth.js"] },
-  { "code": "VX-002", "name": "اشتراک‌ها و سطوح کاربری", "platform": "users-panel", "since": "4.0.0", "status": "live", "desc": "مدیر اکوسیستم اشتراک می‌سازد؛ مدیر اشتراک کاربر و ۱۰ سطح دسترسی دارد.", "files": ["admin/index.html", "hub/server.py"], "links": ["project-control"], "check": ["admin/"] },
-  { "code": "VX-003", "name": "همگام‌سازی ابری", "platform": "ecosystem", "since": "4.20.0", "status": "live", "desc": "داده‌ی نسخه‌ی گیت‌هاب در سند ابری vertex ذخیره می‌شود.", "files": ["shared/demo.js", "shared/cloud.js"], "links": ["users-panel", "project-control"], "check": ["shared/demo.js", "shared/cloud.js"] },
-  { "code": "VX-004", "name": "اعلان‌ها", "platform": "ecosystem", "since": "4.29.0", "status": "live", "desc": "زنگوله در همه‌ی پلتفرم‌ها؛ پیام‌های منشی از Aide.", "files": ["shared/notify.js", "aide/js/team.js"], "links": ["executive-desk"], "check": ["shared/notify.js"] },
-  { "code": "VX-005", "name": "نصب وب‌اپ", "platform": "ecosystem", "since": "4.30.0", "status": "live", "desc": "manifest و service worker برای همه‌ی بخش‌ها.", "files": ["shared/pwa.js", "sw.js", "manifest.webmanifest"], "links": [], "check": ["shared/pwa.js", "manifest.webmanifest", "sw.js"] },
-  { "code": "VX-006", "name": "مرکز کنترل", "platform": "users-panel", "since": "5.0.0", "status": "live", "desc": "نسخه‌ها، قابلیت‌های کدگذاری‌شده و بررسی اتصال‌ها در یک تب.", "files": ["admin/monitor.js", "shared/releases.json"], "links": ["ecosystem"], "check": ["shared/releases.json", "admin/monitor.js"] },
-  { "code": "VX-007", "name": "درباره‌ی هر پلتفرم", "platform": "ecosystem", "since": "5.0.0", "status": "live", "desc": "دکمه‌ی «i» نسخه‌ی پلتفرم، نسخه‌ی اکوسیستم و تغییرات اخیر را نشان می‌دهد.", "files": ["shared/about.js"], "links": ["users-panel"], "check": ["shared/about.js", "shared/releases.json"] },
-  { "code": "PC-001", "name": "داشبورد کنترل پروژه", "platform": "project-control", "since": "3.0.0", "status": "live", "desc": "زمان‌بندی، پیشرفت و گزارش ۱۵ پروژه.", "files": ["msp-bi/index.html"], "links": ["executive-desk", "mail"], "check": ["msp-bi/"] },
-  { "code": "PC-002", "name": "اطلاعات پروژه‌ها (pinfo)", "platform": "project-control", "since": "3.50.0", "status": "live", "desc": "شروع، پایان و درصد پیشرفت هر پروژه؛ منبع کاشی پروژه‌ها در Aide.", "files": ["msp-bi/data/store/pinfo.json"], "links": ["executive-desk"], "check": ["msp-bi/data/store/pinfo.json"] },
-  { "code": "AD-001", "name": "تقویم‌ها و قالب‌ها", "platform": "executive-desk", "since": "1.20.0", "status": "live", "desc": "۱۵ قالب تقویم و زمان با تم و تاریخ شمسی.", "files": ["aide/js/template-frames.js", "aide/templates/fa.js"], "links": [], "check": ["aide/"] },
-  { "code": "AD-002", "name": "صفحه‌ی مدیرعامل", "platform": "executive-desk", "since": "1.30.0", "status": "partial", "desc": "لینک خصوصی بدون رمز؛ نیاز به استقرار worker به‌روز در Cloudflare.", "files": ["aide/ceo.html", "aide/js/ceo-view.js", "aide/cloudflare/worker.js"], "links": ["project-control"], "check": ["aide/ceo.html"] },
-  { "code": "AD-003", "name": "کاشی‌های هوشمند", "platform": "executive-desk", "since": "1.38.0", "status": "live", "desc": "خلاصه‌ی روز و وضعیت پروژه‌ها روی میز منشی و صفحه‌ی مدیرعامل.", "files": ["aide/js/smart-tiles.js"], "links": ["project-control"], "check": ["aide/js/smart-tiles.js", "msp-bi/data/store/pinfo.json"] },
-  { "code": "AD-004", "name": "تیم و جلسه برای اعضا", "platform": "executive-desk", "since": "1.33.0", "status": "partial", "desc": "منشی جلسه و یادآوری برای اعضا می‌گذارد؛ هنوز در تقویم پلتفرم‌های دیگر دیده نمی‌شود.", "files": ["aide/js/team.js"], "links": ["ecosystem"], "check": ["aide/js/team.js"] },
-  { "code": "AD-005", "name": "ساعت قفل", "platform": "executive-desk", "since": "1.37.0", "status": "live", "desc": "FlipClock اصلی هنگام قفل.", "files": ["aide/flipclock/index.html", "aide/js/flipclock.js"], "links": [], "check": ["aide/flipclock/index.html"] },
-  { "code": "AD-006", "name": "تقویم مستقل هر کاربر", "platform": "executive-desk", "since": "", "status": "planned", "desc": "تقویم کاری هر کاربر در میز خودش؛ منشی همه را با انتخاب می‌بیند.", "files": [], "links": ["ecosystem"], "check": [] },
-  { "code": "MS-001", "name": "پیام‌رسان (Mattermost)", "platform": "messenger", "since": "", "status": "planned", "desc": "پیام‌رسان سازمانی از سورس Mattermost؛ به سرور (Go + PostgreSQL) نیاز دارد.", "files": [], "links": ["users-panel"], "check": [] },
-  { "code": "ML-001", "name": "نامه‌نگاری", "platform": "mail", "since": "1.0.0", "status": "live", "desc": "نامه‌ها و میز کار من.", "files": ["mail/index.html"], "links": ["project-control"], "check": ["mail/"] },
-  { "code": "FM-001", "name": "فایل منیجر", "platform": "file-manager", "since": "1.0.0", "status": "partial", "desc": "پوشه‌ها روی هاب؛ فایل‌ها تا راه‌اندازی سرور در مرورگر.", "files": ["files/index.html", "files/files.js"], "links": ["users-panel"], "check": ["files/"] },
-  { "code": "TR-001", "name": "تریدینگ", "platform": "trading", "since": "1.0.0", "status": "live", "desc": "ابزارهای تحلیل بازار.", "files": ["trading/index.html"], "links": [], "check": ["trading/"] }
+  {
+   "code": "VX-001",
+   "name": "ورود واحد",
+   "platform": "users-panel",
+   "since": "4.0.0",
+   "status": "live",
+   "desc": "یک ورود برای همه‌ی پلتفرم‌ها؛ نشست در vxSess.",
+   "files": [
+    "admin/index.html",
+    "shared/auth.js"
+   ],
+   "links": [
+    "executive-desk",
+    "project-control",
+    "mail",
+    "file-manager"
+   ],
+   "check": [
+    "admin/",
+    "shared/auth.js"
+   ]
+  },
+  {
+   "code": "VX-002",
+   "name": "اشتراک‌ها و سطوح کاربری",
+   "platform": "users-panel",
+   "since": "4.0.0",
+   "status": "live",
+   "desc": "مدیر اکوسیستم اشتراک می‌سازد؛ مدیر اشتراک کاربر و ۱۰ سطح دسترسی دارد.",
+   "files": [
+    "admin/index.html",
+    "hub/server.py"
+   ],
+   "links": [
+    "project-control"
+   ],
+   "check": [
+    "admin/"
+   ]
+  },
+  {
+   "code": "VX-003",
+   "name": "همگام‌سازی ابری",
+   "platform": "ecosystem",
+   "since": "4.20.0",
+   "status": "live",
+   "desc": "داده‌ی نسخه‌ی گیت‌هاب در سند ابری vertex ذخیره می‌شود.",
+   "files": [
+    "shared/demo.js",
+    "shared/cloud.js"
+   ],
+   "links": [
+    "users-panel",
+    "project-control"
+   ],
+   "check": [
+    "shared/demo.js",
+    "shared/cloud.js"
+   ]
+  },
+  {
+   "code": "VX-004",
+   "name": "اعلان‌ها",
+   "platform": "ecosystem",
+   "since": "4.29.0",
+   "status": "live",
+   "desc": "زنگوله در همه‌ی پلتفرم‌ها؛ پیام‌های منشی از Aide.",
+   "files": [
+    "shared/notify.js",
+    "aide/js/team.js"
+   ],
+   "links": [
+    "executive-desk"
+   ],
+   "check": [
+    "shared/notify.js"
+   ]
+  },
+  {
+   "code": "VX-005",
+   "name": "نصب وب‌اپ",
+   "platform": "ecosystem",
+   "since": "4.30.0",
+   "status": "live",
+   "desc": "manifest و service worker برای همه‌ی بخش‌ها.",
+   "files": [
+    "shared/pwa.js",
+    "sw.js",
+    "manifest.webmanifest"
+   ],
+   "links": [],
+   "check": [
+    "shared/pwa.js",
+    "manifest.webmanifest",
+    "sw.js"
+   ]
+  },
+  {
+   "code": "VX-006",
+   "name": "مرکز کنترل",
+   "platform": "users-panel",
+   "since": "5.0.0",
+   "status": "live",
+   "desc": "نسخه‌ها، قابلیت‌های کدگذاری‌شده و بررسی اتصال‌ها در یک تب.",
+   "files": [
+    "admin/monitor.js",
+    "shared/releases.json"
+   ],
+   "links": [
+    "ecosystem"
+   ],
+   "check": [
+    "shared/releases.json",
+    "admin/monitor.js"
+   ]
+  },
+  {
+   "code": "VX-007",
+   "name": "درباره‌ی هر پلتفرم",
+   "platform": "ecosystem",
+   "since": "5.0.0",
+   "status": "live",
+   "desc": "دکمه‌ی «i» نسخه‌ی پلتفرم، نسخه‌ی اکوسیستم و تغییرات اخیر را نشان می‌دهد.",
+   "files": [
+    "shared/about.js"
+   ],
+   "links": [
+    "users-panel"
+   ],
+   "check": [
+    "shared/about.js",
+    "shared/releases.json"
+   ]
+  },
+  {
+   "code": "VX-008",
+   "name": "هوش مصنوعی محلی کنترل پنل",
+   "platform": "users-panel",
+   "since": "2.1.0",
+   "status": "live",
+   "desc": "مدل Qwen 0.5B داخل مرورگر (WebGPU یا WASM)؛ فایل‌ها از خود VERTEX، یک بار دانلود (۴۸۳ مگابایت) و بعد بدون اینترنت. پاسخ فوری به نسخه، کد قابلیت، وضعیت و اتصال.",
+   "files": [
+    "shared/ai/ai.js",
+    "shared/ai/worker.js",
+    "admin/monitor.js"
+   ],
+   "links": [
+    "ecosystem"
+   ],
+   "check": [
+    "shared/ai/ai.js",
+    "shared/ai/worker.js",
+    "shared/ai/models/qwen05/onnx/model_q4f16.onnx.part00"
+   ]
+  },
+  {
+   "code": "PC-001",
+   "name": "داشبورد کنترل پروژه",
+   "platform": "project-control",
+   "since": "3.0.0",
+   "status": "live",
+   "desc": "زمان‌بندی، پیشرفت و گزارش ۱۵ پروژه.",
+   "files": [
+    "msp-bi/index.html"
+   ],
+   "links": [
+    "executive-desk",
+    "mail"
+   ],
+   "check": [
+    "msp-bi/"
+   ]
+  },
+  {
+   "code": "PC-002",
+   "name": "اطلاعات پروژه‌ها (pinfo)",
+   "platform": "project-control",
+   "since": "3.50.0",
+   "status": "live",
+   "desc": "شروع، پایان و درصد پیشرفت هر پروژه؛ منبع کاشی پروژه‌ها در Aide.",
+   "files": [
+    "msp-bi/data/store/pinfo.json"
+   ],
+   "links": [
+    "executive-desk"
+   ],
+   "check": [
+    "msp-bi/data/store/pinfo.json"
+   ]
+  },
+  {
+   "code": "AD-001",
+   "name": "تقویم‌ها و قالب‌ها",
+   "platform": "executive-desk",
+   "since": "1.20.0",
+   "status": "live",
+   "desc": "۱۵ قالب تقویم و زمان با تم و تاریخ شمسی.",
+   "files": [
+    "aide/js/template-frames.js",
+    "aide/templates/fa.js"
+   ],
+   "links": [],
+   "check": [
+    "aide/"
+   ]
+  },
+  {
+   "code": "AD-002",
+   "name": "صفحه‌ی مدیرعامل",
+   "platform": "executive-desk",
+   "since": "1.30.0",
+   "status": "partial",
+   "desc": "لینک خصوصی بدون رمز؛ نیاز به استقرار worker به‌روز در Cloudflare.",
+   "files": [
+    "aide/ceo.html",
+    "aide/js/ceo-view.js",
+    "aide/cloudflare/worker.js"
+   ],
+   "links": [
+    "project-control"
+   ],
+   "check": [
+    "aide/ceo.html"
+   ]
+  },
+  {
+   "code": "AD-003",
+   "name": "کاشی‌های هوشمند",
+   "platform": "executive-desk",
+   "since": "1.38.0",
+   "status": "live",
+   "desc": "خلاصه‌ی روز و وضعیت پروژه‌ها روی میز منشی و صفحه‌ی مدیرعامل.",
+   "files": [
+    "aide/js/smart-tiles.js"
+   ],
+   "links": [
+    "project-control"
+   ],
+   "check": [
+    "aide/js/smart-tiles.js",
+    "msp-bi/data/store/pinfo.json"
+   ]
+  },
+  {
+   "code": "AD-004",
+   "name": "تیم و جلسه برای اعضا",
+   "platform": "executive-desk",
+   "since": "1.33.0",
+   "status": "partial",
+   "desc": "منشی جلسه و یادآوری برای اعضا می‌گذارد؛ هنوز در تقویم پلتفرم‌های دیگر دیده نمی‌شود.",
+   "files": [
+    "aide/js/team.js"
+   ],
+   "links": [
+    "ecosystem"
+   ],
+   "check": [
+    "aide/js/team.js"
+   ]
+  },
+  {
+   "code": "AD-005",
+   "name": "ساعت قفل",
+   "platform": "executive-desk",
+   "since": "1.37.0",
+   "status": "live",
+   "desc": "FlipClock اصلی هنگام قفل.",
+   "files": [
+    "aide/flipclock/index.html",
+    "aide/js/flipclock.js"
+   ],
+   "links": [],
+   "check": [
+    "aide/flipclock/index.html"
+   ]
+  },
+  {
+   "code": "AD-006",
+   "name": "تقویم مستقل هر کاربر",
+   "platform": "executive-desk",
+   "since": "",
+   "status": "planned",
+   "desc": "تقویم کاری هر کاربر در میز خودش؛ منشی همه را با انتخاب می‌بیند.",
+   "files": [],
+   "links": [
+    "ecosystem"
+   ],
+   "check": []
+  },
+  {
+   "code": "MS-001",
+   "name": "پیام‌رسان (Mattermost)",
+   "platform": "messenger",
+   "since": "",
+   "status": "planned",
+   "desc": "پیام‌رسان سازمانی از سورس Mattermost؛ به سرور (Go + PostgreSQL) نیاز دارد.",
+   "files": [],
+   "links": [
+    "users-panel"
+   ],
+   "check": []
+  },
+  {
+   "code": "ML-001",
+   "name": "نامه‌نگاری",
+   "platform": "mail",
+   "since": "1.0.0",
+   "status": "live",
+   "desc": "نامه‌ها و میز کار من.",
+   "files": [
+    "mail/index.html"
+   ],
+   "links": [
+    "project-control"
+   ],
+   "check": [
+    "mail/"
+   ]
+  },
+  {
+   "code": "FM-001",
+   "name": "فایل منیجر",
+   "platform": "file-manager",
+   "since": "1.0.0",
+   "status": "partial",
+   "desc": "پوشه‌ها روی هاب؛ فایل‌ها تا راه‌اندازی سرور در مرورگر.",
+   "files": [
+    "files/index.html",
+    "files/files.js"
+   ],
+   "links": [
+    "users-panel"
+   ],
+   "check": [
+    "files/"
+   ]
+  },
+  {
+   "code": "TR-001",
+   "name": "تریدینگ",
+   "platform": "trading",
+   "since": "1.0.0",
+   "status": "live",
+   "desc": "ابزارهای تحلیل بازار.",
+   "files": [
+    "trading/index.html"
+   ],
+   "links": [],
+   "check": [
+    "trading/"
+   ]
+  }
  ]
 }

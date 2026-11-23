@@ -146,6 +146,7 @@
 
   // Instant, exact answers from the dashboard data for common questions (the 0.5B model is weak at Persian facts).
   function facts(q) {
+    try { if (typeof window.VX_FACTS === 'function') { const r = window.VX_FACTS(q || ''); if (r) return r; } } catch (e) {}
     let D = []; try { D = (window.VX_DATA && window.VX_DATA()) || []; } catch (e) {}
     if (!D.length) return '';
     const fa = (n) => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
@@ -183,7 +184,7 @@
   }
   function applySrv() {
     if (SRV.model) cfg.model = SRV.model;
-    if (SRV.mode) { cfg.mode = SRV.mode; try { fld('mode').value = cfg.mode; } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); }
+    if (SRV.mode && !window.VX_AI_LOCAL) { cfg.mode = SRV.mode; try { fld('mode').value = cfg.mode; } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); }
     if (SRV.enabled === false) { fab.hidden = true; document.querySelectorAll('.rail .vxai').forEach(b => b.hidden = true); box.classList.remove('open'); }
     if (SRV.name) { const hb = box.querySelector('header b'); if (hb) hb.textContent = SRV.name; }
     kst(); label();
@@ -196,6 +197,7 @@
   const CFG_K = 'vxaiCfg';
   let cfg = { mode: 'coarena', model: 'gpt-6-luna' };
   try { const o = JSON.parse(localStorage.getItem(CFG_K) || '{}'); delete o.key; Object.assign(cfg, o); } catch (e) {}
+  if (window.VX_AI_LOCAL) cfg.mode = 'local'; // page asked for the on-device model only (control panel): no outside server
   const setEl = box.querySelector('#vxaiSet');
   const fld = k => setEl.querySelector('[data-k=' + k + ']');
   function saveCfg() { try { localStorage.setItem(CFG_K, JSON.stringify(cfg)); } catch (e) {} setEl.classList.toggle('loc', cfg.mode === 'local'); label(); }
@@ -454,7 +456,7 @@
   async function ask(q, sysTxt) {
     if (cfg.enabled === false) throw new Error('off');
     const msgs = [{ role: 'system', content: (sysTxt || '') + '\n\n' + context(q) }, { role: 'user', content: q }];
-    if (VIAHUB) { const r = await fetch('/api/v1/ai', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ system: msgs[0].content, prompt: q, model: cfg.model }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j.text || ''; }
+    if (VIAHUB && cfg.mode !== 'local') { const r = await fetch('/api/v1/ai', { method: 'POST', headers: { 'Authorization': 'Bearer ' + htok(), 'Content-Type': 'application/json' }, body: JSON.stringify({ system: msgs[0].content, prompt: q, model: cfg.model }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j.text || ''; }
     const C = chain();
     if (cfg.mode !== 'local' && C.length) { let le = '';
       for (const p of C) { const t0 = performance.now(); try { const r = await fetch(p.base + '/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + p.k, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: p.model, messages: msgs, max_tokens: 700 }) }); const j = await r.json(); if (!r.ok) throw new Error((j.error && (j.error.message || j.error)) || r.status); const a = String(((j.choices || [{}])[0].message || {}).content || ''); if (!a) throw new Error('empty'); meter(p.id, true, performance.now() - t0); return a.replace(/^\s*\[\?\]\s*/, '') } catch (e) { meter(p.id, false, performance.now() - t0); le = e.message || e } }
