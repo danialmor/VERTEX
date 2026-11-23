@@ -4351,6 +4351,29 @@ function inBox(){var B=$('#fiBody');if(!B)return;var g=B.querySelector('.dcl .fd
 setTimeout(function(){inboxPull(false)},2500);
 (function hdBtn(){var seg=document.getElementById('segS');if(!seg){setTimeout(hdBtn,800);return}if(document.getElementById('hdTg'))return;var b=document.createElement('button');b.type='button';b.id='hdTg';b.className='hdtg';var paint=function(){b.textContent=HD?'✓ انجام‌شده‌ها پنهان':'✓ انجام‌شده‌ها نمایش';b.classList.toggle('on',HD);b.title=HD?'فعالیت‌های ۱۰۰٪ نشان داده نمی‌شوند؛ برای نمایش بزنید':'برای پنهان کردن فعالیت‌های انجام‌شده بزنید'};paint();b.onclick=function(){HD=!HD;try{localStorage.setItem('pcHideDone',HD?'1':'0')}catch(e){}paint();try{drawSched()}catch(e){}};seg.parentNode.insertBefore(b,seg.nextSibling)})();
 var _rDC75=renderDC;renderDC=function(){_rDC75();try{if(CLOUDF){var Bq=$('#fiBody');if(Bq)Bq.classList.add('dccloud')}}catch(e){}try{inBox();if(INB.files===null)inboxPull(false);if(UPQ)upPaint()}catch(e){}try{dcBadges();srvVerify(false)}catch(e){}try{if(VLT.j===undefined)vLoad().then(function(){if(cur==='files'){vBox()}});else{vBox()}}catch(e){}};
+/* 6.1.2: one project selection for every tab. The project picked in any tab (پروژه‌ها، برنامه‌ی زمان‌بندی، داشبورد، راندمان، به‌روزرسانی)
+   is remembered (localStorage vxPick = PX uid or 'all') and applied to the next tab, so switching tabs no longer drops or changes it. */
+(function(){var K='vxPick';
+ function get(){try{return localStorage.getItem(K)||''}catch(e){return ''}}
+ function put(u){try{localStorage.setItem(K,u)}catch(e){}}
+ function byUid(u){return PX.filter(function(x){return x.real!==false&&String(x.uid)===String(u)})[0]||null}
+ function byC(c){return PX.filter(function(x){return x.real!==false&&x.c===c})[0]||null}
+ function read(v){try{
+  if(v==='sched'||v==='upd')return GS;
+  if(v==='dash'){if(DS_.all)return 'all';return DS_.touched&&DS_.src&&DS_.src!=='demo'?String(DS_.src):null}
+  if(v==='eff'){if(!ef.p)return null;if(ef.p==='all')return 'all';var x=byC(ef.p);return x?String(x.uid):null}
+  if(v==='proj'){var p=PJ[pj],y=p&&byC(p[0]);return y?String(y.uid):null}
+ }catch(e){}return null}
+ function apply(u){try{if(!u)return;var x=u==='all'?null:byUid(u);if(u!=='all'&&!x)return;
+  GS=x?String(x.uid):'all';try{localStorage.setItem('gScope',GS)}catch(e){}
+  if(x){DS_.src=String(x.uid);DS_.all=0;DS_.touched=1}else{DS_.all=1;if(DS_.page==='a')DS_.page='b'}
+  if(typeof ef!=='undefined')ef.p=x?x.c:'all';
+  if(x){var k=PJ.map(function(r){return r[0]}).indexOf(x.c);if(k>=0)pj=k}
+ }catch(e){}}
+ var _show=show;show=function(v){var r=read(cur);if(r!=null)put(r);apply(get());return _show.apply(this,arguments)};
+ document.addEventListener('click',function(){setTimeout(function(){var r=read(cur);if(r!=null&&r!==get())put(r)},0)},true);
+ setTimeout(function(){apply(get());try{gsPill()}catch(e){}},1500);
+})();
 window.VX_DATA=function(){try{return PX.filter(function(x){return x.real!==false&&!x.ns}).map(function(x){return {n:x.n,en:x.en||'',pr:Math.round(x.pr||0),pl:Math.round(x.pl||0),dl:Math.round(x.dl||0),end:String(x.end||''),endD:String(x.endD||''),est:!!x.est}})}catch(e){return []}};
 window.VX_CTX=function(){try{var f=function(v){return v==null||v===''?'-':(typeof v==='number'?Math.round(v):String(v))};var L=PX.filter(function(x){return x.real!==false&&!x.ns}).map(function(x){return x.n+' ('+(x.en||'')+'): '+f(x.pr)+'% done, plan '+f(x.pl)+'%, late '+f(x.dl)+'d, end '+f(x.end)+'→'+f(x.endD)});var A=PX.filter(function(x){return x.real!==false&&!x.ns});var mx=A.slice().sort(function(a,b){return (b.dl||0)-(a.dl||0)})[0],lo=A.slice().sort(function(a,b){return ((a.pr||0)-(a.pl||0))-((b.pr||0)-(b.pl||0))})[0];return 'Today '+jd(0)+'\nMost delayed project: '+(mx?mx.n+' ('+f(mx.dl)+' days)':'-')+'. Furthest behind plan: '+(lo?lo.n+' ('+f(lo.pr)+'% vs '+f(lo.pl)+'%)':'-')+'. Projects: '+A.length+'.\n'+L.join('\n')}catch(e){return ''}};
 })();
