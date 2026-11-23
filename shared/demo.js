@@ -215,9 +215,17 @@
         var pw = b.owner.password || PIN, o = { id: nextId(D.users), code: b.owner.username, name: b.owner.name, role: 'owner', tenant_id: t.id, ucode: t.code + '-0001', level: 1, mods: [], home: '', pin: pw, must_change: true, active: true, profile: {} }; D.users.push(o);
         log(U, 'tenant.create', t.code); return { code: t.code, owner: { username: o.code, ucode: o.ucode, password: pw } };
       }
+      if ((x = /^\/admin\/tenants\/(\d+)\/users$/.exec(p)) && m === 'POST') {
+        var T3 = tn(+x[1]); if (!T3) E(404, 'not-found'); var s3 = sub(T3.id) || { modules: [], seats: 0, max_levels: 1 };
+        if (D.users.filter(function (u) { return u.tenant_id === T3.id && u.active }).length >= s3.seats) E(409, 'no-seats'); if (!b.username || !b.name) E(400, 'invalid'); if (codeTaken(b.username)) E(409, 'code-exists');
+        var lv3 = +b.level || 1; if (lv3 < 1 || lv3 > (s3.max_levels || 1)) E(400, 'level-out-of-range'); var md3 = (b.mods || []).filter(function (k) { return s3.modules.indexOf(k) >= 0 }); if (!md3.length) md3 = s3.modules.slice(0, 1);
+        var pw3 = b.password || PIN, n3 = { id: nextId(D.users), code: b.username, name: b.name, role: b.readonly ? 'viewer' : 'member', tenant_id: T3.id, ucode: nextU(T3), level: lv3, mods: md3, home: md3.indexOf(b.home) >= 0 ? b.home : md3[0], pin: pw3, must_change: true, active: true, profile: {}, leader: !!b.leader }; D.users.push(n3);
+        log(U, 'tenant.user.create', n3.ucode); return { ucode: n3.ucode, username: n3.code, password: pw3 };
+      }
       if ((x = /^\/admin\/tenants\/(\d+)(\/subscription)?$/.exec(p))) {
         var T = tn(+x[1]); if (!T) E(404, 'not-found');
         if (x[2]) { newSub(T.id, b); log(U, 'tenant.subscription', T.code); return { ok: true } }
+        if (m === 'DELETE') { var gone = D.users.filter(function (u) { return u.tenant_id === T.id }).map(function (u) { return u.id }); D.users = D.users.filter(function (u) { return u.tenant_id !== T.id }); D.subs = D.subs.filter(function (s) { return s.tenant_id !== T.id }); D.tenants = D.tenants.filter(function (z) { return z.id !== T.id }); D.sessions && (D.sessions = D.sessions.filter(function (z) { return gone.indexOf(z.uid) < 0 })); log(U, 'tenant.delete', T.code); return { ok: true } }
         if (m === 'PATCH') { if ('msp' in b) { T.msp = !!b.msp; log(U, 'tenant.msp', T.code + ':' + T.msp); return { ok: true } } T.status = b.status === 'suspended' ? 'suspended' : 'active'; log(U, 'tenant.status', T.code); return { ok: true } }
         return { tenant: T, active: active(T), subs: D.subs.filter(function (s) { return s.tenant_id === T.id }).sort(function (a, b) { return b.created - a.created }), users: D.users.filter(function (u) { return u.tenant_id === T.id }).map(pub) };
       }

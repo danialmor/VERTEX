@@ -49,3 +49,7 @@ nav.side .own{display:none}
 /* left-to-right base: sidebar is on the left, so floating buttons move to the right */
 html[dir=ltr] #vxaiFab{left:auto;right:16px}html[dir=ltr] #vxai{left:auto;right:16px}
 html[dir=ltr] #vxAb{left:auto;right:21px}html[dir=ltr] #vxAbB{left:auto;right:16px;direction:ltr;text-align:left}
+/* larger detail windows (owner, 2026-11-23) */
+dialog{width:min(1500px,96vw);max-height:94vh;border-radius:8px}
+dialog .dl{padding:24px 28px}
+dialog .grid.g4 .card.kpi{min-height:0}

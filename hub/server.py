@@ -757,6 +757,14 @@ class H(BaseHTTPRequestHandler):
                 if b.get('name'): hub.q('UPDATE tenants SET name=? WHERE id=?', (str(b['name'])[:80], tid))
                 if isinstance(b.get('contact'), dict): hub.q('UPDATE tenants SET contact=? WHERE id=?', (json.dumps({k: str(v)[:120] for k, v in b['contact'].items()}, ensure_ascii=False), tid))
                 hub.log(adm['code'], 'tenant-update', t['code']); return self.send(200, {'ok': True})
+            if len(seg) == 2 and m == 'DELETE':  # ecosystem admin deletes a subscription company with its users and subscriptions
+                hub.q('DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE tenant_id=?)', (tid,)) if hub.one("SELECT 1 FROM sqlite_master WHERE name='sessions'") else None
+                hub.q('DELETE FROM users WHERE tenant_id=?', (tid,)); hub.q('DELETE FROM subscriptions WHERE tenant_id=?', (tid,)); hub.q('DELETE FROM tenants WHERE id=?', (tid,))
+                hub.tcodes.pop(tid, None); hub.log(adm['code'], 'tenant-delete', t['code']); return self.send(200, {'ok': True})
+            if len(seg) == 3 and seg[2] == 'users' and m == 'POST':  # ecosystem admin adds a user to a subscription (same rules as its owner)
+                own = hub.one("SELECT * FROM users WHERE tenant_id=? AND role='owner' ORDER BY id LIMIT 1", (tid,))
+                if not own: return self.send(409, {'error': 'no-owner'})
+                return self.panel('POST', ['users'], dict(own))
             if len(seg) == 3 and seg[2] == 'subscription' and m == 'POST':
                 c, r = self.sub_create(tid, self.body()); hub.log(adm['code'], 'subscription', t['code']); return self.send(c, r)
         if seg == ['signups'] and m == 'GET': return self.send(200, {'items': hub.all('SELECT * FROM signups ORDER BY id DESC LIMIT 200')})

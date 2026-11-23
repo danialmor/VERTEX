@@ -8,5 +8,5 @@
   document.documentElement.dataset.ui = v;
   var lg = 'en'; try { lg = localStorage.getItem('vxLang') || 'en' } catch (e) { }
   if (lg !== 'fa') { document.documentElement.lang = 'en'; document.documentElement.dir = 'ltr' }
-  if (FILES[v]) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FILES[v] + '?v=3'; l.id = 'vxUIcss'; document.head.appendChild(l) }
+  if (FILES[v]) { var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = FILES[v] + '?v=4'; l.id = 'vxUIcss'; document.head.appendChild(l) }
 })();
