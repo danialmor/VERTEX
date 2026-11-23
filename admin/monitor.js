@@ -65,6 +65,14 @@
         '<div class="x"><dl><dt>مسیر</dt><dd>' + (p.path ? '<a href="' + ROOT + p.path + '" target="_blank" rel="noopener"><code>' + esc(p.path) + '</code></a>' : '—') + '</dd><dt>قابلیت‌ها</dt><dd>' + (F.filter(function (f) { return f.platform === s }).map(function (f) { return '<code>' + esc(f.code) + '</code>' }).join('') || '—') + '</dd></dl>' +
         '<ul class="log">' + (p.changelog || []).map(function (c) { return '<li><b>' + esc(c.v) + '</b> ' + esc(c.date || '') + ' · ' + esc(c.title) + (c.items && c.items.length ? '<br><span class="pl">' + c.items.map(esc).join(' · ') + '</span>' : '') + '</li>' }).join('') + '</ul></div>';
     }).join('') + '</div></div>';
+    /* design versions (VX-009) */
+    if (R.ui) { var cur = (window.VX_UI || {}).current || R.ui.official;
+      h += '<div class="card"><h2>نسخه‌ی طراحی</h2><div class="rows">' + R.ui.versions.map(function (u) {
+        var on = u.id === cur, off = u.id === R.ui.official;
+        return '<div class="r pv" style="grid-template-columns:60px minmax(0,1fr) auto;cursor:default"><span class="ver">' + esc(u.id) + '</span><span class="nm">' + esc(u.name) + (off ? ' <span class="chip ok">رسمی</span>' : ' <span class="chip">' + (u.status === 'preview' ? 'پیش‌نمایش' : esc(u.status)) + '</span>') + '<br><span class="pl">' + esc(u.note || '') + ' · ' + esc(u.base) + '</span></span>' +
+          (on ? '<span class="pl">در حال نمایش</span>' : '<button class="btn" type="button" data-ui="' + esc(u.id) + '">' + (off ? 'برگشت به رسمی' : 'پیش‌نمایش') + '</button>') + '</div>';
+      }).join('') + '</div><p class="pl" style="margin:8px 0 0">پیش‌نمایش فقط در همین مرورگر است. رسمی‌کردن برای همه: <code>admin/ui/current.js</code> و <code>releases.json → ui.official</code>.</p></div>';
+    }
     /* features */
     var opts = '<option value="">همه‌ی پلتفرم‌ها</option>' + known.map(function (s) { return '<option value="' + s + '">' + esc(pname(s)) + '</option>' }).join('');
     h += '<div class="card"><h2>قابلیت‌ها</h2><div class="tb"><input id="mQ" type="search" placeholder="جست‌وجوی کد یا نام…"><select id="mP">' + opts + '</select><select id="mS"><option value="">همه‌ی وضعیت‌ها</option>' + Object.keys(ST).map(function (k) { return '<option value="' + k + '">' + ST[k][0] + '</option>' }).join('') + '</select><button class="btn" type="button" id="mRe">بررسی دوباره</button></div>' +
@@ -84,7 +92,7 @@
           '<dt>بررسی اتصال</dt><dd>' + (hl ? hl.items.map(function (i) { return '<span class="dot ' + (i[1] ? 'ok' : 'bad') + '"></span> <code>' + esc(i[0]) + '</code> ' }).join('') + (hl.bad.length ? '<br><span style="color:var(--bad)">پیوند ناشناخته: ' + hl.bad.map(esc).join('، ') + '</span>' : '') : (f.check && f.check.length ? 'در حال بررسی…' : 'چیزی برای بررسی نیست (هنوز ساخته نشده).')) + '</dd></dl></div>';
       }).join('') : '<div class="r hd" style="justify-content:center">موردی نیست.</div>');
     }
-    $('#mon').onclick = function (e) { var r = e.target.closest('.r[role=button]'); if (!r || e.target.closest('a')) return; r.setAttribute('aria-expanded', r.getAttribute('aria-expanded') === 'true' ? 'false' : 'true') };
+    $('#mon').onclick = function (e) { var ub = e.target.closest('[data-ui]'); if (ub) { try { if (ub.dataset.ui === R.ui.official) localStorage.removeItem('vxUI'); else localStorage.setItem('vxUI', ub.dataset.ui) } catch (x) { } location.reload(); return } var r = e.target.closest('.r[role=button]'); if (!r || e.target.closest('a')) return; r.setAttribute('aria-expanded', r.getAttribute('aria-expanded') === 'true' ? 'false' : 'true') };
     $('#mon').onkeydown = function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.r[role=button]')) { e.preventDefault(); e.target.click() } };
     ['mQ', 'mP', 'mS'].forEach(function (id) { $('#' + id).oninput = rows });
     function check() {

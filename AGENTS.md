@@ -95,3 +95,4 @@ The control panel (admin, tab «مرکز کنترل», `admin/monitor.js`) is th
 2. Every new feature gets a code in `releases.json → features` (`VX-` ecosystem, `PC-` project control, `AD-` Aide, `MS-` messenger, `ML-` mail, `FM-` files, `TR-` trading; next free number), with a short Persian description, status (live/partial/planned), files, links to other platforms and `check` paths. The tab shows it as an expandable row and checks its connections every time it opens.
 3. Every platform shows its own About (`shared/about.js`, loaded by `shared/auth.js`; Aide: menu under the brand A) from the same file.
 4. Keep text in the panel small (13px body, 11.5–12px meta).
+- Design versions (VX-009): yearly UI redesign = a new `admin/ui/<year>-<name>.css` over the panel.css tokens; process in `docs/UI-REDESIGN.md`.

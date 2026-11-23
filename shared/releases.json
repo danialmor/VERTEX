@@ -1,8 +1,17 @@
 {
  "updated": "2026-11-23",
  "ecosystem": {
-  "version": "5.1.0",
+  "version": "5.2.0",
   "changelog": [
+   {
+    "v": "5.2.0",
+    "date": "1405/09/02",
+    "title": "نسخه‌های طراحی سالانه",
+    "items": [
+     "کنترل پنل نسخه‌ی طراحی دارد؛ طراحی ۲۰۲۷ (AdminKit) برای پیش‌نمایش آماده است.",
+     "روند بازطراحی هر سال در docs/UI-REDESIGN.md."
+    ]
+   },
    {
     "v": "5.1.0",
     "date": "1405/09/02",
@@ -70,9 +79,17 @@
    ]
   },
   "users-panel": {
-   "version": "2.1.0",
+   "version": "2.2.0",
    "path": "admin/",
    "changelog": [
+    {
+     "v": "2.2.0",
+     "date": "1405/09/02",
+     "title": "نسخه‌ی طراحی",
+     "items": [
+      "انتخاب و پیش‌نمایش نسخه‌ی طراحی در مرکز کنترل."
+     ]
+    },
     {
      "v": "2.1.0",
      "date": "1405/09/02",
@@ -343,6 +360,26 @@
    ]
   },
   {
+   "code": "VX-009",
+   "name": "نسخه‌های طراحی سالانه (UI)",
+   "platform": "users-panel",
+   "since": "2.2.0",
+   "status": "live",
+   "desc": "هر سال یک فایل طراحی تازه روی همان متغیرها؛ پیش‌نمایش در مرورگر خود، سپس رسمی‌کردن در admin/ui/current.js.",
+   "files": [
+    "admin/ui/current.js",
+    "admin/ui/2027-adminkit.css",
+    "docs/UI-REDESIGN.md"
+   ],
+   "links": [
+    "ecosystem"
+   ],
+   "check": [
+    "admin/ui/current.js",
+    "admin/ui/2027-adminkit.css"
+   ]
+  },
+  {
    "code": "PC-001",
    "name": "داشبورد کنترل پروژه",
    "platform": "project-control",
@@ -539,5 +576,26 @@
     "trading/"
    ]
   }
- ]
+ ],
+ "ui": {
+  "official": "2026",
+  "versions": [
+   {
+    "id": "2026",
+    "name": "طراحی ۲۰۲۶ · TailAdmin",
+    "base": "TailAdmin (MIT)",
+    "status": "live",
+    "file": "admin/panel.css",
+    "note": "سایدبار روشن، آبی #465fff، گوشه‌های ۱۶px."
+   },
+   {
+    "id": "2027",
+    "name": "طراحی ۲۰۲۷ · AdminKit",
+    "base": "AdminKit (MIT)",
+    "status": "preview",
+    "file": "admin/ui/2027-adminkit.css",
+    "note": "سایدبار تیره‌ی اسلیت، آبی #3b7ddd، گوشه‌های ۶px، سایه‌های آرام."
+   }
+  ]
+ }
 }
