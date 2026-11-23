@@ -1,8 +1,17 @@
 {
  "updated": "2026-11-23",
  "ecosystem": {
-  "version": "5.6.1",
+  "version": "5.7.0",
   "changelog": [
+   {
+    "v": "5.7.0",
+    "date": "1405/09/02",
+    "title": "مسنجر مستقل",
+    "items": [
+     "مسنجر نشانی خودش را دارد: /VERTEX/messenger/ (و /VERTEX/Messenger/).",
+     "دکمه‌ی مسنجر در همه‌ی پلتفرم‌ها برای کسانی که دسترسی دارند."
+    ]
+   },
    {
     "v": "5.6.1",
     "date": "1405/09/02",
@@ -107,9 +116,18 @@
    ]
   },
   "messenger": {
-   "version": "0.2.1",
-   "path": "msp-bi/?app=chat",
+   "version": "0.3.0",
+   "path": "messenger/",
    "changelog": [
+    {
+     "v": "0.3.0",
+     "date": "1405/09/02",
+     "title": "مسنجر مستقل",
+     "items": [
+      "مسنجر نشانی خودش را دارد: /VERTEX/messenger/ (و /VERTEX/Messenger/).",
+      "دکمه‌ی مسنجر در همه‌ی پلتفرم‌ها برای کسانی که دسترسی دارند."
+     ]
+    },
     {
      "v": "0.2.1",
      "date": "1405/09/02",
@@ -670,6 +688,28 @@
     "users-panel"
    ],
    "check": []
+  },
+  {
+   "code": "MS-002",
+   "name": "دکمه‌ی مسنجر در همه‌ی پلتفرم‌ها",
+   "platform": "messenger",
+   "since": "0.3.0",
+   "status": "live",
+   "desc": "نشانی مستقل /VERTEX/messenger/ و دکمه‌ی نارنجی مسنجر در همه‌ی پلتفرم‌ها برای کسانی که دسترسی دارند.",
+   "files": [
+    "messenger/index.html",
+    "shared/msgbtn.js",
+    "shared/auth.js"
+   ],
+   "links": [
+    "ecosystem",
+    "project-control"
+   ],
+   "check": [
+    "messenger/",
+    "Messenger/",
+    "shared/msgbtn.js"
+   ]
   },
   {
    "code": "ML-001",
