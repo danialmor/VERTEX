@@ -100,7 +100,10 @@
   async function pull() { if (REMOTE.busy || !(CL && CL.on)) return; try { var j = await fetchRemote(); if (j && j.hub && j.t !== REMOTE.t && adopt(j)) { try { window.dispatchEvent(new CustomEvent('vx-data')) } catch (e) { } } } catch (e) { } }
   setInterval(pull, 20000); document.addEventListener('visibilitychange', function () { if (!document.hidden) pull() });
   window.VX_HUB = { pull: pull, merge: m3 };
+  paint.n = 0;
   function paint() { var d = document.getElementById('demoBar'); if (!d) return; var sp = d.querySelector('span'); if (!sp) return;
+    var bad = REMOTE.err && true; d.style.background = bad ? 'rgba(180,35,24,.94)' : 'rgba(34,46,60,.92)'; clearTimeout(paint.t); d.style.opacity = '1'; d.style.transform = 'translateX(-50%)';
+    if (!bad && !REMOTE.busy) paint.t = setTimeout(function () { d.style.opacity = '0'; d.style.transform = 'translate(-50%,12px)' }, paint.n++ ? 6000 : 180000);
     sp.textContent = REMOTE.busy ? 'در حال ذخیره‌ی آنلاین…' : (REMOTE.err === 'no-cloud' ? 'فضای آنلاین تنظیم نشده — تغییرها فقط در این مرورگر' : REMOTE.err ? 'ذخیره‌ی آنلاین نشد: ' + REMOTE.err : '✓ داده‌ها آنلاین ذخیره می‌شود (Cloudflare)') }
   function log(u, a, t) { D.audit.unshift({ ts: now(), user: u ? u.code : '-', action: a, target: t || '' }); D.audit = D.audit.slice(0, 2000) }
   function E(st, err) { var e = { status: st, body: { error: err } }; throw e }
@@ -301,7 +304,7 @@
   /* نوار «حالت نمایشی» با دکمه‌ی پاک کردن داده‌ها */
   function bar() {
     if (document.getElementById('demoBar')) return; var d = document.createElement('div'); d.id = 'demoBar'; d.setAttribute('role', 'note');
-    d.style.cssText = 'position:fixed;top:calc(8px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:100000;background:#f2b640;color:#1a1408;font:600 12px Vazirmatn,Tahoma,sans-serif;direction:rtl;border-radius:99px;padding:5px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.35)';
+    d.style.cssText = 'position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);z-index:9990;background:rgba(34,46,60,.92);color:#f8f9fa;font:500 12px Vazirmatn,Tahoma,sans-serif;direction:rtl;border-radius:8px;padding:6px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 6px 20px rgba(0,0,0,.25);backdrop-filter:blur(6px);pointer-events:none;transition:opacity .4s,transform .4s;max-width:calc(100vw - 150px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
     try{document.documentElement.classList.add('tsuba-demo')}catch(e){}
     d.innerHTML = '<span>داده‌ها از مخزن خوانده می‌شود</span>';
     // reset button removed: the data is shared by every system (data/vertex.json)

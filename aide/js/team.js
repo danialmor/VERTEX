@@ -10,7 +10,7 @@
   function hub() {
     if (hubReady) return hubReady;
     var need = function (src) { return new Promise(function (r) { var s = document.createElement('script'); s.src = ROOT + src; s.onload = r; s.onerror = r; document.head.appendChild(s) }) };
-    hubReady = (window.VX_HUB ? Promise.resolve() : need('shared/cloud.js?v=413').then(function () { return window.BRAND ? 0 : need('shared/brand.js') }).then(function () { return need('shared/demo.js?v=414') }))
+    hubReady = (window.VX_HUB ? Promise.resolve() : need('shared/cloud.js?v=413').then(function () { return window.BRAND ? 0 : need('shared/brand.js') }).then(function () { return need('shared/demo.js?v=420') }))
       .then(function () { var b = document.getElementById('demoBar'); if (b) b.remove() });
     return hubReady;
   }
