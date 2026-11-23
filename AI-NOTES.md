@@ -17,3 +17,6 @@
 
 ## 6.5.1
 - New panel page #creds (NAV_ADMIN, group Customers & users): GET /admin/creds lists every subscription user with password (masked until "Show passwords"), search, copy, last connected. Verified on the live data copy.
+
+## 6.6.0 — VX-019 corner dock
+- shared/vxdock.js (loaded by auth.js for signed-in users, top frame, not the landing): VERTEX button bottom-left; tap fans out tabs AI (VXAI.open, loads ai.js if missing), Chat (if allowed messenger), About (vxAbout), Home (not on home/app). body.vx-dock hides #vxaiFab #vxAb #vxMsg #vxHomeBtn. Bell stays bottom-right.
