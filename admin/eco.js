@@ -25,14 +25,38 @@
   };
 
   P.A.ecosite = function () {
-    var V = vis(), meta = {};
-    $('#pg').innerHTML = css + head('سایت کلی', 'همه‌ی پلتفرم‌ها: وضعیت، نسخه و بازدید') + '<div id="ecoS"></div>';
+    var V = vis(), meta = {}, cfg = { active: 'cinematic', options: ['cinematic', 'classic'] }, cfgSha = '', cfgPath = '/repos/danialmor/VERTEX/contents/shared/home-config.json';
+    $('#pg').innerHTML = css + head('سایت کلی', 'همه‌ی پلتفرم‌ها: وضعیت، نسخه، بازدید و انتخاب صفحه‌ی اصلی') + '<div id="ecoS"><p>در حال خواندن تنظیمات…</p></div>';
+    function saveHome(mode, btn) {
+      if (!/^(cinematic|classic)$/.test(mode)) return;
+      var token = ''; try { token = localStorage.getItem('ghTok') || ''; } catch (e) {}
+      if (!token) { toast('ابتدا کلید GitHub را در «ذخیره در GitHub» ثبت کنید.'); return; }
+      btn.disabled = true; btn.textContent = 'در حال ذخیره…';
+      var next = { active: mode, updated: new Date().toISOString(), options: ['cinematic', 'classic'] };
+      fetch('https://api.github.com' + cfgPath + '?ref=main', { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+        .then(function (r) { if (!r.ok) throw new Error('خواندن تنظیمات GitHub ناموفق بود (' + r.status + ')'); return r.json(); })
+        .then(function (old) {
+          return fetch('https://api.github.com' + cfgPath, { method: 'PUT', headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'panel: switch VERTEX homepage to ' + mode, content: btoa(unescape(encodeURIComponent(JSON.stringify(next, null, 2)))), sha: old.sha, branch: 'main' }) });
+        })
+        .then(function (r) { if (!r.ok) throw new Error('ذخیره در GitHub ناموفق بود (' + r.status + ')'); cfg.active = mode; cfg.updated = next.updated; toast('صفحه‌ی اصلی با موفقیت تغییر کرد. پس از انتشار GitHub Pages اعمال می‌شود.'); draw(); })
+        .catch(function (e) { toast(e.message || 'ذخیره انجام نشد.'); })
+        .then(function () { btn.disabled = false; });
+    }
     var draw = function () {
       var all = 0; for (var k in V) all += sum(V[k]);
-      $('#ecoS').innerHTML = '<div class="eco-k"><div class="card"><b>' + plats().filter(function (p) { return p.href }).length + ' / 12</b><small>پلتفرم فعال</small></div><div class="card"><b>' + all + '</b><small>بازدید (این مرورگر)</small></div><div class="card"><b>' + sum(V.site, 30) + '</b><small>بازدید صفحه‌ی اصلی، ۳۰ روز</small></div></div>' +
+      var active = cfg.active === 'classic' ? 'classic' : 'cinematic';
+      var selector = '<div class="card" style="margin-bottom:14px"><h2>انتخاب نسخه‌ی صفحه‌ی اصلی VERTEX</h2><p>نسخه‌ی فعال برای همه‌ی بازدیدکنندگان صفحه‌ی <code>/home/</code> استفاده می‌شود. نسخه‌ی قبلی بدون تغییر در <code>/home/classic.html</code> نگه‌داری شده است.</p><div class="eco-g">' +
+        '<div class="card"><h3>نسخه‌ی جدید · Cinematic</h3><p><small>هاب سه‌بعدی، مدارهای نورانی، افق دیجیتال و کارت‌های ۱۲ پلتفرم.</small></p><span class="eco-st' + (active === 'cinematic' ? ' ok' : '') + '">' + (active === 'cinematic' ? 'نسخه‌ی فعال' : 'غیرفعال') + '</span><p><a target="_blank" rel="noopener" href="../home/?preview=cinematic">پیش‌نمایش نسخه‌ی جدید ↗</a></p><button class="btn p" type="button" data-home="cinematic" ' + (active === 'cinematic' ? 'disabled' : '') + '>فعال‌کردن نسخه‌ی جدید</button></div>' +
+        '<div class="card"><h3>نسخه‌ی قبلی · Classic</h3><p><small>طرح مثلثی قبلی با چیدمان اولیه‌ی دوازده پلتفرم.</small></p><span class="eco-st' + (active === 'classic' ? ' ok' : '') + '">' + (active === 'classic' ? 'نسخه‌ی فعال' : 'غیرفعال') + '</span><p><a target="_blank" rel="noopener" href="../home/classic.html">مشاهده‌ی نسخه‌ی قبلی ↗</a></p><button class="btn" type="button" data-home="classic" ' + (active === 'classic' ? 'disabled' : '') + '>بازگشت به نسخه‌ی قبلی</button></div></div><p><small>آخرین تغییر: ' + esc(cfg.updated || '—') + ' · ذخیره‌ی تغییر از طریق GitHub انجام می‌شود؛ کلید باید در بخش «ذخیره در GitHub» ثبت شده باشد.</small></p></div>';
+      $('#ecoS').innerHTML = selector + '<div class="eco-k"><div class="card"><b>' + plats().filter(function (p) { return p.href }).length + ' / 12</b><small>پلتفرم فعال</small></div><div class="card"><b>' + all + '</b><small>بازدید (این مرورگر)</small></div><div class="card"><b>' + sum(V.site, 30) + '</b><small>بازدید صفحه‌ی اصلی، ۳۰ روز</small></div></div>' +
         '<div class="card"><h2>پلتفرم‌ها</h2><div class="eco-g">' + plats().map(function (p) { var m = meta[p.slug]; return '<div class="eco-p">' + B.mark(p.slug, 44) + '<div><b>' + p.n + ' — ' + esc(p.fa) + '</b><br><span class="eco-st' + (p.href ? ' ok' : '') + '">' + (p.href ? 'فعال' : 'برنامه‌ریزی') + '</span> ' + (m ? '<small>v' + esc(m.version) + '</small>' : '') + '<br><small>بازدید ۳۰ روز: ' + sum(V[p.slug], 30) + '</small></div></div>' }).join('') + '</div><p><small>آمار بازدید واقعی همه‌ی کاربران بعد از راه‌اندازی سرور اختصاصی؛ فعلاً شمارش همین مرورگر است.</small></p></div>';
+      $('#ecoS').querySelectorAll('[data-home]').forEach(function (b) { b.onclick = function () { saveHome(b.getAttribute('data-home'), b); }; });
     };
-    draw(); return j('../msp-bi/platform.json').then(function (m) { meta['project-control'] = m; draw() }, function () {});
+    draw();
+    return Promise.all([
+      j('../shared/home-config.json').then(function (x) { cfg = x; }, function () {}),
+      j('../msp-bi/platform.json').then(function (m) { meta['project-control'] = m; }, function () {})
+    ]).then(draw);
   };
 
   P.A['eco-pc'] = function () {
