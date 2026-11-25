@@ -3,9 +3,10 @@
   "installerSourceVersion": "0.5.1-beta",
   "nextTarget": "0.6.0",
   "releaseStatus": "development",
-  "compiledDll": "reported successful",
-  "ribbon": "user screenshot confirmed",
+  "compiledDll": "previous version only; dev.1 untested",
+  "ribbon": "dev.1 source updated; runtime pending",
   "productionInstaller": false,
   "cloudIntegration": "planned",
-  "updated": "2026-11-25"
+  "updated": "2026-11-26",
+  "sourceMilestone": "0.6.0-dev.1"
 }
