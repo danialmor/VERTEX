@@ -7,7 +7,7 @@ if(!(Test-Path $runtime)){throw 'Supply official Microsoft .NET 4.8 offline redi
 $sig=Get-AuthenticodeSignature $runtime
 if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Microsoft Corporation'){throw 'Invalid Microsoft runtime signature'}
 $project=Join-Path $PSScriptRoot '..\add-in\UniversalMspOptimizer.csproj'
-& msbuild $project /restore /p:Configuration=Release /p:PlatformTarget=x64 "/p:OfficePiaPath=$OfficePiaPath"
+& msbuild $project /t:Build /p:Configuration=Release /p:PlatformTarget=x64 "/p:OfficePiaPath=$OfficePiaPath"
 if($LASTEXITCODE -ne 0){throw 'MSBuild failed'}
 $iscc=Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
 if(!(Test-Path $iscc)){throw 'Inno Setup 6 missing'}
