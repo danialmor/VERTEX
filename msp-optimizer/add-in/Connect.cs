@@ -5,7 +5,7 @@ using Extensibility;
 using Microsoft.Office.Core;
 using MSP = Microsoft.Office.Interop.MSProject;
 namespace UniversalMspOptimizer {
-[ComVisible(true), Guid("8B5F014E-CC5D-4B43-981A-6B73E5B2B112"), ProgId("UniversalMspOptimizer.Connect"), ClassInterface(ClassInterfaceType.None)]
+[ComVisible(true), Guid("8B5F014E-CC5D-4B43-981A-6B73E5B2B112"), ProgId("UniversalMspOptimizer.Connect"), ClassInterface(ClassInterfaceType.AutoDispatch)]
 public class Connect : IDTExtensibility2, IRibbonExtensibility {
  private MSP.Application app;
  private bool busy;
@@ -16,7 +16,7 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  public void OnAddInsUpdate(ref Array custom) {}
  public void OnStartupComplete(ref Array custom) {}
  public void OnBeginShutdown(ref Array custom) { StopBridge(null); if(panel != null && !panel.IsDisposed) panel.Close(); }
- public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""MSP Optimizer""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" onAction=""SaveLock""/><button id=""trialLock"" label=""Trial target"" onAction=""TrialLock""/></group></tab></tabs></ribbon></customUI>"; }
+ public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""VERTEX MSP""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" imageMso=""FileOpen"" screentip=""Read active project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" imageMso=""FileSaveAs"" size=""large"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" imageMso=""CancelRequest"" size=""large"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" imageMso=""FileSave"" size=""large"" onAction=""SaveLock""/><button id=""trialLock"" label=""Trial target"" imageMso=""CalculateNow"" size=""large"" onAction=""TrialLock""/></group></tab></tabs></ribbon></customUI>"; }
  public void StopBridge(IRibbonControl control) { if(bridge!=null) { bridge.Dispose(); bridge=null; } }
  public void StartBridge(IRibbonControl control) {
  if(busy || app==null) return;
