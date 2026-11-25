@@ -16,7 +16,7 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  public void OnAddInsUpdate(ref Array custom) {}
  public void OnStartupComplete(ref Array custom) {}
  public void OnBeginShutdown(ref Array custom) { StopBridge(null); if(panel != null && !panel.IsDisposed) panel.Close(); }
- public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""MSP Optimizer""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" onAction=""SaveLock""/></group></tab></tabs></ribbon></customUI>"; }
+ public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""MSP Optimizer""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" onAction=""SaveLock""/><button id=""trialLock"" label=""Trial target"" onAction=""TrialLock""/></group></tab></tabs></ribbon></customUI>"; }
  public void StopBridge(IRibbonControl control) { if(bridge!=null) { bridge.Dispose(); bridge=null; } }
  public void StartBridge(IRibbonControl control) {
  if(busy || app==null) return;
@@ -52,6 +52,26 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  }
  }
  } catch(Exception ex) { MessageBox.Show("Target save failed: "+ex.Message); } finally { busy=false; }
+ }
+ public void TrialLock(IRibbonControl control) {
+ if(busy || app==null) return; busy=true;
+ try {
+ if(app.Projects.Count==0) throw new InvalidOperationException("Open a disposable saved MPP copy.");
+ var p=app.ActiveProject;
+ var profiles=new LockProfiles().Read().FindAll(x=>string.Equals(x.ProjectPath,p.FullName,StringComparison.OrdinalIgnoreCase));
+ if(profiles.Count==0) throw new InvalidOperationException("Save a WBS target first.");
+ using(var dialog=new Form { Text="Experimental trial — disposable MPP only", Width=650, Height=180 }) {
+ var list=new ComboBox { Dock=DockStyle.Top, DropDownStyle=ComboBoxStyle.DropDownList };
+ foreach(var item in profiles) list.Items.Add(item.SummaryUniqueId+" | "+item.TargetFinish.ToString("yyyy-MM-dd HH:mm"));
+ list.SelectedIndex=0;
+ var run=new Button { Dock=DockStyle.Bottom, Text="Run trial and restore", DialogResult=DialogResult.OK };
+ dialog.Controls.Add(list);dialog.Controls.Add(run);
+ if(dialog.ShowDialog()!=DialogResult.OK)return;
+ if(MessageBox.Show("Trial changes the open schedule temporarily. Confirm this is a disposable saved copy with no unsaved work.","Experimental trial",MessageBoxButtons.YesNo,MessageBoxIcon.Warning)!=DialogResult.Yes)return;
+ StopBridge(null);
+ MessageBox.Show(ScheduleOptimizer.Run(app,profiles[list.SelectedIndex],false));
+ }
+ } catch(Exception ex){MessageBox.Show(ex.Message);} finally {busy=false;}
  }
  public void InspectProject(IRibbonControl control) {
  if(busy || app==null) return;
