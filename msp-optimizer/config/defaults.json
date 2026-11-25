@@ -11,5 +11,11 @@
     "milestones": true,
     "baseline": true
   },
-  "locks": []
+  "locks": [],
+  "updates": {
+    "autoCheck": true,
+    "autoDownload": true,
+    "keepPreviousVersion": true,
+    "checkInterval": "startup"
+  }
 }
