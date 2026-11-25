@@ -1,0 +1,2 @@
+# Installation
+See ../installer/README.md for build instructions. Build machine: MSBuild, net48 targeting pack, Office PIAs, Inno Setup, official signed offline runtime. User machine: compatible Windows x64 and licensed desktop Project; intended single VERTEX-MSP-Setup.exe with runtime and COM registration. No Git, SDK or developer pack required for end user. Installer source exists; executable and clean-machine test pending. Development registration tested only for ribbon visibility. Do not trial on production MPP.
