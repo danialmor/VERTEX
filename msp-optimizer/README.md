@@ -1,0 +1,2 @@
+# Universal MSP Optimizer
+Phase 1 — isolated VERTEX module. No changes to MSP-BI. Windows Project 2016 x64 COM engine and bridge are not implemented in this phase. Public repository: never commit project data, credentials or tokens. Preview-only by default. See docs/architecture.md.
