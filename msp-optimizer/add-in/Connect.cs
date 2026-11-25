@@ -16,7 +16,7 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  public void OnAddInsUpdate(ref Array custom) {}
  public void OnStartupComplete(ref Array custom) {}
  public void OnBeginShutdown(ref Array custom) { StopBridge(null); if(panel != null && !panel.IsDisposed) panel.Close(); }
- public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""MSP Optimizer""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" onAction=""StopBridge""/></group></tab></tabs></ribbon></customUI>"; }
+ public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""MSP Optimizer""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" onAction=""SaveLock""/></group></tab></tabs></ribbon></customUI>"; }
  public void StopBridge(IRibbonControl control) { if(bridge!=null) { bridge.Dispose(); bridge=null; } }
  public void StartBridge(IRibbonControl control) {
  if(busy || app==null) return;
@@ -29,6 +29,29 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  dialog.Controls.Add(new Label { Text="Copy token into VERTEX. Stop sharing to revoke it.", Dock=DockStyle.Bottom }); dialog.ShowDialog();
  }
  } catch(Exception ex) { StopBridge(null); MessageBox.Show("Bridge failed: "+ex.Message); } finally { busy=false; }
+ }
+ public void SaveLock(IRibbonControl control) {
+ if(busy || app==null) return; busy=true;
+ try {
+ if(app.Projects.Count==0) throw new InvalidOperationException("Open a saved MPP first.");
+ var project=app.ActiveProject;
+ string path=project.FullName;
+ if(!System.IO.Path.IsPathRooted(path) || !System.IO.File.Exists(path)) throw new InvalidOperationException("Save the local MPP first.");
+ var rows=SnapshotReader.Read(project).Tasks.FindAll(t=>t.Summary && t.UniqueId>0);
+ using(var dialog=new Form { Text="Save WBS target (no schedule edits)", Width=650, Height=220, StartPosition=FormStartPosition.CenterScreen }) {
+ var list=new ComboBox { Dock=DockStyle.Top, DropDownStyle=ComboBoxStyle.DropDownList };
+ foreach(var row in rows) list.Items.Add(row.UniqueId+" | "+row.Wbs+" | "+row.Name);
+ var date=new DateTimePicker { Dock=DockStyle.Top, Format=DateTimePickerFormat.Custom, CustomFormat="yyyy-MM-dd HH:mm", Value=DateTime.Today.AddHours(17) };
+ var save=new Button { Dock=DockStyle.Bottom, Text="Save target", DialogResult=DialogResult.OK };
+ dialog.Controls.Add(date); dialog.Controls.Add(list); dialog.Controls.Add(save); dialog.AcceptButton=save;
+ if(rows.Count==0) throw new InvalidOperationException("No summary tasks.");
+ list.SelectedIndex=0;
+ if(dialog.ShowDialog()==DialogResult.OK) {
+ new LockProfiles().Save(new WbsLock { ProjectPath=path, SummaryUniqueId=rows[list.SelectedIndex].UniqueId, TargetFinish=date.Value, Enabled=false });
+ MessageBox.Show("Target saved locally. Automatic enforcement is not yet available.");
+ }
+ }
+ } catch(Exception ex) { MessageBox.Show("Target save failed: "+ex.Message); } finally { busy=false; }
  }
  public void InspectProject(IRibbonControl control) {
  if(busy || app==null) return;
