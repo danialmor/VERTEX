@@ -1,0 +1,51 @@
+using System;
+using System.Net;
+using System.Text;
+using System.Threading;
+using System.Security.Cryptography;
+using System.Web.Script.Serialization;
+namespace UniversalMspOptimizer {
+internal sealed class LocalBridge : IDisposable {
+ const string Origin="https://danialmor.github.io";
+ readonly HttpListener listener=new HttpListener();
+ readonly string token;
+ readonly byte[] snapshot;
+ public string Token { get { return token; } }
+ public LocalBridge(ProjectSnapshot data) {
+ var key=new byte[32]; using(var rng=RandomNumberGenerator.Create()) rng.GetBytes(key);
+ token=Convert.ToBase64String(key);
+ snapshot=Encoding.UTF8.GetBytes(new JavaScriptSerializer { MaxJsonLength=16000000 }.Serialize(data));
+ listener.Prefixes.Add("http://127.0.0.1:18765/");
+ try { listener.Start(); ThreadPool.QueueUserWorkItem(_=>Run()); } catch { listener.Close(); throw; }
+ }
+ bool Authorized(string value) {
+ if(value==null || value.Length!=token.Length) return false;
+ int diff=0; for(int i=0;i<token.Length;i++) diff|=value[i]^token[i]; return diff==0;
+ }
+ void Run() {
+ while(listener.IsListening) {
+ HttpListenerContext c; try { c=listener.GetContext(); } catch { break; }
+ try { Handle(c); } catch { try { c.Response.StatusCode=500; } catch {} } finally { try { c.Response.Close(); } catch {} }
+ }
+ }
+ void Handle(HttpListenerContext c) {
+ var q=c.Request; var r=c.Response;
+ r.Headers["Cache-Control"]="no-store";
+ if(q.UserHostName!="127.0.0.1:18765" || q.Headers["Origin"]!=Origin) { r.StatusCode=403; return; }
+ r.Headers["Access-Control-Allow-Origin"]=Origin;
+ r.Headers["Vary"]="Origin";
+ if(q.Url.AbsolutePath!="/v1/snapshot") { r.StatusCode=404; return; }
+ if(q.HttpMethod=="OPTIONS") {
+ if(q.Headers["Access-Control-Request-Method"]!="GET") { r.StatusCode=405; return; }
+ r.Headers["Access-Control-Allow-Methods"]="GET, OPTIONS";
+ r.Headers["Access-Control-Allow-Headers"]="Authorization";
+ if(q.Headers["Access-Control-Request-Private-Network"]=="true") r.Headers["Access-Control-Allow-Private-Network"]="true";
+ r.StatusCode=204; return;
+ }
+ if(q.HttpMethod!="GET") { r.StatusCode=405; return; }
+ if(!Authorized(q.Headers["Authorization"]!=null && q.Headers["Authorization"].StartsWith("Bearer ",StringComparison.Ordinal)?q.Headers["Authorization"].Substring(7):null)) { r.StatusCode=401; return; }
+ r.ContentType="application/json; charset=utf-8"; r.ContentLength64=snapshot.Length; r.OutputStream.Write(snapshot,0,snapshot.Length);
+ }
+ public void Dispose() { listener.Close(); }
+}
+}
