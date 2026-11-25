@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "installerSourceVersion": "0.5.1-beta",
+  "nextTarget": "0.6.0",
+  "releaseStatus": "development",
+  "compiledDll": "reported successful",
+  "ribbon": "user screenshot confirmed",
+  "productionInstaller": false,
+  "cloudIntegration": "planned",
+  "updated": "2026-11-25"
+}
