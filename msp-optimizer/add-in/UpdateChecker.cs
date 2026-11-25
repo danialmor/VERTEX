@@ -7,11 +7,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 namespace UniversalMspOptimizer {
 internal static class UpdateChecker {
- internal const string Build="0.6.0-dev.2";
+ internal const string Build="0.6.0-dev.3";
+ internal const bool AutoCheck=true, AutoDownload=true, KeepPreviousVersion=true;
+ internal const string CheckInterval="startup";
+ // Download and backup preferences are reserved until signed package verification and rollback are implemented.
  static int running;
  const string Api="https://api.github.com/repos/danialmor/VERTEX/releases/latest";
  const string Releases="https://github.com/danialmor/VERTEX/releases";
  internal static async void Check(bool interactive) {
+ if(!interactive && (!AutoCheck || CheckInterval!="startup")) return;
  if(Interlocked.Exchange(ref running,1)!=0) return;
  try {
  using(var client=new WebClient()) {
