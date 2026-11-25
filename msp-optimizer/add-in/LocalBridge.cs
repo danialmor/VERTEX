@@ -9,15 +9,16 @@ internal sealed class LocalBridge : IDisposable {
  const string Origin="https://danialmor.github.io";
  readonly HttpListener listener=new HttpListener();
  readonly string token;
- readonly byte[] snapshot;
+ volatile byte[] snapshot;
  public string Token { get { return token; } }
  public LocalBridge(ProjectSnapshot data) {
  var key=new byte[32]; using(var rng=RandomNumberGenerator.Create()) rng.GetBytes(key);
  token=Convert.ToBase64String(key);
- snapshot=Encoding.UTF8.GetBytes(new JavaScriptSerializer { MaxJsonLength=16000000 }.Serialize(data));
+ Refresh(data);
  listener.Prefixes.Add("http://127.0.0.1:18765/");
  try { listener.Start(); ThreadPool.QueueUserWorkItem(_=>Run()); } catch { listener.Close(); throw; }
  }
+ public void Refresh(ProjectSnapshot data) { snapshot=Encoding.UTF8.GetBytes(new JavaScriptSerializer { MaxJsonLength=16000000 }.Serialize(data)); }
  bool Authorized(string value) {
  if(value==null || value.Length!=token.Length) return false;
  int diff=0; for(int i=0;i<token.Length;i++) diff|=value[i]^token[i]; return diff==0;
@@ -44,7 +45,7 @@ internal sealed class LocalBridge : IDisposable {
  }
  if(q.HttpMethod!="GET") { r.StatusCode=405; return; }
  if(!Authorized(q.Headers["Authorization"]!=null && q.Headers["Authorization"].StartsWith("Bearer ",StringComparison.Ordinal)?q.Headers["Authorization"].Substring(7):null)) { r.StatusCode=401; return; }
- r.ContentType="application/json; charset=utf-8"; r.ContentLength64=snapshot.Length; r.OutputStream.Write(snapshot,0,snapshot.Length);
+ r.ContentType="application/json; charset=utf-8"; var bytes=snapshot; r.ContentLength64=bytes.Length; r.OutputStream.Write(bytes,0,bytes.Length);
  }
  public void Dispose() { listener.Close(); }
 }
