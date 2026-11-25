@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "host": "Microsoft Project 2016 x64",
+  "mode": "preview",
+  "autoApply": false,
+  "method": "equal",
+  "scope": "selectedWbs",
+  "protect": {
+    "actual": true,
+    "logic": true,
+    "milestones": true,
+    "baseline": true
+  },
+  "locks": []
+}
