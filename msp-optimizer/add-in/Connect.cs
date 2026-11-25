@@ -14,9 +14,9 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  public void OnConnection(object Application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom) { app = (MSP.Application)Application; }
  public void OnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom) { StopBridge(null); if(panel != null && !panel.IsDisposed) panel.Close(); panel=null; app=null; }
  public void OnAddInsUpdate(ref Array custom) {}
- public void OnStartupComplete(ref Array custom) {}
+ public void OnStartupComplete(ref Array custom) { UpdateChecker.Check(false); }
  public void OnBeginShutdown(ref Array custom) { StopBridge(null); if(panel != null && !panel.IsDisposed) panel.Close(); }
- public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""VERTEX MSP""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" imageMso=""FileOpen"" screentip=""Read active project"" size=""large"" onAction=""InspectProject""/><button id=""startBridge"" label=""Share snapshot"" imageMso=""FileSaveAs"" size=""large"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" imageMso=""CancelRequest"" size=""large"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" imageMso=""FileSave"" size=""large"" onAction=""SaveLock""/><button id=""trialLock"" label=""Trial target"" imageMso=""CalculateNow"" size=""large"" onAction=""TrialLock""/></group></tab></tabs></ribbon></customUI>"; }
+ public string GetCustomUI(string RibbonID) { return @"<customUI xmlns=""http://schemas.microsoft.com/office/2009/07/customui""><ribbon><tabs><tab id=""vertexOptimizer"" label=""VERTEX MSP""><group id=""snapshotGroup"" label=""Read-only tools""><button id=""inspectProject"" label=""Inspect project"" imageMso=""FileOpen"" screentip=""Read active project"" size=""large"" onAction=""InspectProject""/><button id=""refreshData"" label=""Refresh Data"" imageMso=""RefreshAll"" size=""large"" onAction=""RefreshData""/><button id=""startBridge"" label=""Share snapshot"" imageMso=""FileSaveAs"" size=""large"" onAction=""StartBridge""/><button id=""stopBridge"" label=""Stop sharing"" imageMso=""CancelRequest"" size=""large"" onAction=""StopBridge""/></group><group id=""lockGroup"" label=""WBS targets""><button id=""saveLock"" label=""Save WBS target"" imageMso=""FileSave"" size=""large"" onAction=""SaveLock""/><button id=""trialLock"" label=""Trial target"" imageMso=""CalculateNow"" size=""large"" onAction=""TrialLock""/></group><group id=""updateGroup"" label=""Updates""><button id=""updatePlugin"" label=""Update Plugin"" imageMso=""FileDownload"" size=""large"" onAction=""UpdatePlugin""/></group></tab></tabs></ribbon></customUI>"; }
  public void StopBridge(IRibbonControl control) { if(bridge!=null) { bridge.Dispose(); bridge=null; } }
  public void StartBridge(IRibbonControl control) {
  if(busy || app==null) return;
@@ -72,6 +72,20 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  MessageBox.Show(ScheduleOptimizer.Run(app,profiles[list.SelectedIndex],false));
  }
  } catch(Exception ex){MessageBox.Show(ex.Message);} finally {busy=false;}
+ }
+ public void UpdatePlugin(IRibbonControl control) { UpdateChecker.Check(true); }
+ public void RefreshData(IRibbonControl control) {
+ if(busy || app==null) return; busy=true;
+ try {
+ if(app.Projects.Count==0) throw new InvalidOperationException("Open a project first.");
+ var data=SnapshotReader.Read(app.ActiveProject);
+ if(bridge!=null) {
+ if(MessageBox.Show("Refresh the shared snapshot with the active project?","VERTEX MSP",MessageBoxButtons.YesNo)!=DialogResult.Yes) return;
+ bridge.Refresh(data);
+ }
+ if(panel==null || panel.IsDisposed) panel=new SnapshotForm();
+ panel.LoadSnapshot(data); if(!panel.Visible) panel.Show(); panel.Activate();
+ } catch(Exception ex) { MessageBox.Show("Refresh failed: "+ex.Message); } finally {busy=false;}
  }
  public void InspectProject(IRibbonControl control) {
  if(busy || app==null) return;
