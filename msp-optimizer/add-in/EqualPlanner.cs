@@ -19,7 +19,7 @@ public static class EqualPlanner {
  if(candidates==null) throw new ArgumentNullException("candidates");
  var rows=candidates.ToList();
  if(rows.Any(x=>x==null || x.UniqueId<=0 || x.MinimumMinutes<1 || x.RemainingMinutes<x.MinimumMinutes) || rows.Select(x=>x.UniqueId).Distinct().Count()!=rows.Count) throw new ArgumentException("Invalid candidates");
- return rows.Select(x=>new DurationChange { UniqueId=x.UniqueId, Before=x.RemainingMinutes, After=(int)Math.Max(x.MinimumMinutes,checked(x.RemainingMinutes+(long)signedMinutes)) }).Select(x=>x).ToList();
+ return rows.Select(x=>new DurationChange { UniqueId=x.UniqueId, Before=x.RemainingMinutes, After=checked((int)Math.Max(x.MinimumMinutes,x.RemainingMinutes+(long)signedMinutes)) }).ToList();
  }
 }
 }
