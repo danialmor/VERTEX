@@ -12,6 +12,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Stage approved offline runtime
+        shell: powershell
+        run: |
+          if (!$env:MSP_DOTNET48_OFFLINE) { throw 'Configure MSP_DOTNET48_OFFLINE on trusted build machine' }
+          New-Item -ItemType Directory -Force .\msp-optimizer\installer\prerequisites | Out-Null
+          Copy-Item -LiteralPath $env:MSP_DOTNET48_OFFLINE -Destination .\msp-optimizer\installer\prerequisites\dotnet48.exe
       - name: Build installer
         shell: powershell
         run: |
@@ -20,6 +26,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: MSP-Optimizer-Experimental
-          path: msp-optimizer/installer/output/Setup.exe
+          path: msp-optimizer/installer/output/VERTEX-MSP-Setup.exe
           if-no-files-found: error
           retention-days: 7
