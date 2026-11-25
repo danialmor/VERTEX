@@ -1,3 +1,6 @@
 # API
 Implemented source: local loopback GET /v1/snapshot with bearer session token and exact origin; read-only cached snapshot, not verified end-to-end.
 Proposed cloud contract (not implemented): account-authorized pairing, scoped device credential, status, projects, full/delta sync, history, revoke. Define schema, limits, idempotency, tenant authorization and retention before deployment. No remote schedule writes in initial release.
+
+## 2026-11-26 — v0.6 reader/Ribbon source milestone
+Connect.cs: large Office imageMso buttons, VERTEX MSP tab, AutoDispatch for callback testing. SnapshotReader.cs: additive optional project/task/resource/assignment fields via late-bound COM property reads, null and capped warnings for unavailable fields; existing protection logic preserved. SnapshotForm.cs: counts. No cloud upload added. Existing local bridge may now serialize expanded fields after explicit sharing; review privacy before sharing. Compile, image IDs, callbacks, COM reflection, performance and data parity unverified. Calendars/custom fields/baselines 1–10/timephased data not complete. Rollback via reverting the three source commits. Next: Windows build and Inspect on disposable MPP; compare counts and warnings before cloud work.
