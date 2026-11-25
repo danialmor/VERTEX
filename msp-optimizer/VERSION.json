@@ -3,11 +3,17 @@
   "installerSourceVersion": "0.5.1-beta",
   "nextTarget": "0.6.0",
   "releaseStatus": "development",
-  "compiledDll": "previous version only; dev.2 untested",
+  "compiledDll": "previous version only; dev.3 untested",
   "ribbon": "dev.1 source updated; runtime pending",
   "productionInstaller": false,
   "cloudIntegration": "planned",
   "updated": "2026-11-26",
-  "sourceMilestone": "0.6.0-dev.2",
-  "updateStatus": "release check only; signed auto-install pending"
+  "sourceMilestone": "0.6.0-dev.3",
+  "updateStatus": "startup check source; download and backup preferences recorded, implementation pending",
+  "updatePreferences": {
+    "autoCheck": true,
+    "autoDownload": true,
+    "keepPreviousVersion": true,
+    "checkInterval": "startup"
+  }
 }
