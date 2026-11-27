@@ -1,28 +1,39 @@
-# Danimor Platform
+# VERTEX · Danimor Platform
 
-یک دامین، چند سایت: `/` (لوگو) · `/msp-bi/` (کنترل پروژه) · `/aide/` (تقویم منشی) · `/admin/` (مرکز کنترل) · `/api/` (هاب).
+ورتکس مجموعه‌ای از ابزارهای کنترل پروژه، تقویم کاری، مدیریت فایل و ارتباطات تیمی است.
 
-- برنامه‌ی کامل: [docs/PLAN-fa.md](docs/PLAN-fa.md)
-- هاست و راه‌اندازی: [docs/HOSTING-fa.md](docs/HOSTING-fa.md)
-- اتصال Aide: [docs/AIDE-CONTRACT-fa.md](docs/AIDE-CONTRACT-fa.md)
+| بخش | توضیح |
+| --- | --- |
+| [Platform Home · صفحهٔ اصلی VERTEX](https://danialmor.github.io/VERTEX/) | ورودی پلتفرم |
+| [داشبورد مدیریت](https://danialmor.github.io/VERTEX/home/) | صفحهٔ مدیریت VERTEX |
+| [مرکز کنترل](https://danialmor.github.io/VERTEX/admin/) | پنل مدیریت پلتفرم |
+| [MSP-BI](https://danialmor.github.io/VERTEX/msp-bi/) | داشبورد برنامه‌ریزی و کنترل پروژه |
+| [AIDE در VERTEX](https://danialmor.github.io/VERTEX/aide/) | تقویم و میز کار، همگام با [AIDE مستقل](https://danialmor.github.io/aide/) |
+| [مدیریت فایل](https://danialmor.github.io/VERTEX/files/) | دسترسی به بخش فایل‌ها |
+| [VERTEX Messenger](https://danialmor.github.io/VERTEX/messenger/) | ماژول مستقل مبتنی بر Mattermost. این لینک صفحهٔ وضعیت است و چت در انتظار راه‌اندازی سرور است. |
 
-- صفحه‌ی اول: <https://danialmor.github.io/VERTEX/>
-- پنل کاربری: <https://danialmor.github.io/VERTEX/admin/>
-- کنترل پروژه: <https://danialmor.github.io/VERTEX/msp-bi/>
-- فایل منیجر: <https://danialmor.github.io/VERTEX/files/>
-- دستیار (Aide): <https://danialmor.github.io/VERTEX/aide/>
-/
+## مستندات
+
+- [برنامهٔ پلتفرم](docs/PLAN-fa.md)
+- [میزبانی و راه‌اندازی](docs/HOSTING-fa.md)
+- [اتصال AIDE](docs/AIDE-CONTRACT-fa.md)
+- [فهرست ایده‌های مسنجر](messenger/IDEAS-fa.md)
+
 ## ساختار
+
 ```
-index.html            صفحه‌ی اول (لوگوی متحرک، بدون لینک)
-msp-bi/               سایت کنترل پروژه و داشبورد
-aide/                 نقطه‌ی اتصال Aide
-admin/                مرکز کنترل
-shared/sdk.js         SDK مشترک (ورود، صف آفلاین، همگام‌سازی)
-hub/server.py         بک‌اند (فقط کتابخانه‌ی استاندارد پایتون)
-hub/deploy/           Caddy، systemd، پشتیبان، راه‌اندازی سرور
-hub/tests/            آزمون‌ها
-.github/workflows/    deploy (آزمون ← استقرار)، unpack-bundle
+index.html             صفحهٔ ورودی VERTEX
+home/                  داشبورد مدیریت
+msp-bi/                داشبورد کنترل پروژه
+aide/                  نسخهٔ همگام‌شده از AIDE مستقل
+files/                 مدیریت فایل
+messenger/             صفحهٔ وضعیت و سورس مسنجر
+admin/                 مرکز کنترل
+shared/sdk.js          SDK مشترک برای ورود، صف آفلاین و همگام‌سازی
+hub/server.py          بک‌اند پلتفرم
+hub/deploy/            تنظیمات Caddy، systemd و پشتیبان‌گیری
+hub/tests/             آزمون‌های هاب
+.github/workflows/     گردش‌کارهای GitHub Actions، شامل همگام‌سازی AIDE
 ```
 
 ## اجرای محلی برای آزمون
