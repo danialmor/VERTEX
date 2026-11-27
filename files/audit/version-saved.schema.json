@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "action",
+    "actorId",
+    "occurredAt",
+    "projectId",
+    "documentId",
+    "baseVersion",
+    "newVersion"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "const": "document.version.saved"
+    },
+    "actorId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Authenticated account, assigned by the server."
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$",
+      "description": "Server time in UTC."
+    },
+    "projectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "documentId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "newVersion": {
+      "type": "integer",
+      "minimum": 2
+    }
+  },
+  "description": "Starter schema for a successful version save. The server verifies authorization, version ancestry, changed content and atomic audit persistence."
+}
