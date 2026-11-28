@@ -20,10 +20,10 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  public void StopBridge(IRibbonControl control) { if(bridge!=null) { bridge.Dispose(); bridge=null; } }
  public void StartBridge(IRibbonControl control) {
  if(busy || app==null) return;
- if(MessageBox.Show("Share a read-only snapshot of the active project with VERTEX on this computer?","MSP Optimizer",MessageBoxButtons.YesNo)!=DialogResult.Yes) return;
+ if(MessageBox.Show("Share an extended read-only snapshot (including custom fields, notes, costs and formulas) with VERTEX on this computer?","MSP Optimizer",MessageBoxButtons.YesNo)!=DialogResult.Yes) return;
  busy=true;
  try { StopBridge(null); if(app.Projects.Count==0) throw new InvalidOperationException("Open a project first.");
- bridge=new LocalBridge(SnapshotReader.Read(app.ActiveProject));
+ bridge=new LocalBridge(SnapshotReader.Read(app.ActiveProject,true,app));
  using(var dialog=new Form { Text="Local session token", Width=620, Height=150, StartPosition=FormStartPosition.CenterScreen }) {
  dialog.Controls.Add(new TextBox { Text=bridge.Token, ReadOnly=true, Dock=DockStyle.Top });
  dialog.Controls.Add(new Label { Text="Copy token into VERTEX. Stop sharing to revoke it.", Dock=DockStyle.Bottom }); dialog.ShowDialog();
@@ -78,9 +78,9 @@ public class Connect : IDTExtensibility2, IRibbonExtensibility {
  if(busy || app==null) return; busy=true;
  try {
  if(app.Projects.Count==0) throw new InvalidOperationException("Open a project first.");
- var data=SnapshotReader.Read(app.ActiveProject);
+ var data=SnapshotReader.Read(app.ActiveProject,bridge!=null,app);
  if(bridge!=null) {
- if(MessageBox.Show("Refresh the shared snapshot with the active project?","VERTEX MSP",MessageBoxButtons.YesNo)!=DialogResult.Yes) return;
+ if(MessageBox.Show("Refresh the shared extended snapshot, including custom fields and notes, with the active project?","VERTEX MSP",MessageBoxButtons.YesNo)!=DialogResult.Yes) return;
  bridge.Refresh(data);
  }
  if(panel==null || panel.IsDisposed) panel=new SnapshotForm();
