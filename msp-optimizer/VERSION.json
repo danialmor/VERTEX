@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "installerSourceVersion": "0.7.0-dev.4",
+  "installerSourceVersion": "0.7.0-dev.5",
   "nextTarget": "0.7.0",
   "releaseStatus": "development",
   "compiledDll": "dev.3 user-reported installed; extended source uncompiled",
@@ -8,8 +8,8 @@
   "productionInstaller": false,
   "cloudIntegration": "planned",
   "updated": "2026-11-28",
-  "sourceMilestone": "0.7.0-dev.4",
-  "updateStatus": "signed staging source; trust provisioning, secure install and rollback pending",
+  "sourceMilestone": "0.7.0-dev.5",
+  "updateStatus": "offline key and signing helpers added; key provisioning, secure installation, rollback and tests pending",
   "updatePreferences": {
     "autoCheck": true,
     "autoDownload": true,
