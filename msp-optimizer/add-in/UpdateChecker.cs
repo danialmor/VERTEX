@@ -13,8 +13,8 @@ internal static class UpdateChecker {
  internal const string Build="0.7.0-dev.5";
  internal const bool AutoCheck=true, AutoDownload=true, KeepPreviousVersion=true;
  internal const string CheckInterval="startup";
- // Release owner must provision an offline RSA public key before production build.
- const string TrustedPublicKey="";
+ // Owner-provisioned V2 public verification key; private key stays offline.
+ const string TrustedPublicKey="<RSAKeyValue><Modulus>uq/R0z+7Uaw9FeGuQCtdsoM8mA0WmEKz1I5+nYHe/jj6KGjm+wGsDVjz17xHADsp3msvK0bSB6wmlSuwdJxZBD1Y6wCcEcNkpuF5w1DGYZ1hhCQeODtZ5U5gHQXazOpK4VV0fHMhWrzprJyrABzqOolEvbimL/I4iDr9lCzBcdcVgaKSa24+ZHRLhIXngg5ssn/Fxxy+Xa7FVA9CDT4O21jnpZEYjqW9/UU/S6m3WJWmwQB4g0sYTWjxO4ocOGh7ZtWfJhhXeGM5Kma5ppfO4IAFuDQ63pWd3fhr+W+zd4Gc44i9q1Jqu5oRQJIvud7sSmjXBSuXOL8fYp2N0qOCQKB+97k5EXe0+dIXPXKsba0YML4A7ZMF3GrjffIXCwSbcbvIwKQpQTvfQ5FfqvglsBBR2X4l/Gh9QFq3mghshOMz6MSDvnog2eJKkXE5f5FtvPubnfulhetD2Qxhly5ns19pPQb8iD7HdYvHyckIFVfwDkMnPyHb2SNim+zZRdMF</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
  const string Root="https://github.com/danialmor/VERTEX/releases/download/";
  static int running;
  internal static string Status="Not checked";
