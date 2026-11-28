@@ -18,7 +18,7 @@ internal sealed class LocalBridge : IDisposable {
  listener.Prefixes.Add("http://127.0.0.1:18765/");
  try { listener.Start(); ThreadPool.QueueUserWorkItem(_=>Run()); } catch { listener.Close(); throw; }
  }
- public void Refresh(ProjectSnapshot data) { snapshot=Encoding.UTF8.GetBytes(new JavaScriptSerializer { MaxJsonLength=16000000 }.Serialize(data)); }
+ public void Refresh(ProjectSnapshot data) { snapshot=Encoding.UTF8.GetBytes(new JavaScriptSerializer { MaxJsonLength=64000000 }.Serialize(data)); }
  bool Authorized(string value) {
  if(value==null || value.Length!=token.Length) return false;
  int diff=0; for(int i=0;i<token.Length;i++) diff|=value[i]^token[i]; return diff==0;
