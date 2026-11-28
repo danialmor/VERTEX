@@ -15,6 +15,9 @@ public sealed class ProjectSnapshot {
  public List<Dictionary<string,object>> Resources=new List<Dictionary<string,object>>();
  public List<Dictionary<string,object>> Assignments=new List<Dictionary<string,object>>();
  public List<string> ReadWarnings=new List<string>();
+ public int SchemaVersion=2;
+ public Dictionary<string,object> FieldCatalog=new Dictionary<string,object>();
+ public Dictionary<string,int> FieldFailures=new Dictionary<string,int>();
  public List<TaskSnapshot> Tasks=new List<TaskSnapshot>();
 }
 public static class SnapshotReader {
@@ -30,7 +33,23 @@ public static class SnapshotReader {
  } catch(Exception) { target[field]=null; if(warnings.Count<200) warnings.Add(context+"."+field+": unavailable"); }
  }
  }
- public static ProjectSnapshot Read(MSP.Project project) {
+ // Enumerate local custom field families by stable PjField identifiers, not localized captions.
+ static void Custom(object source, Dictionary<string,object> target, ProjectSnapshot result, string entity) {
+ var values=new Dictionary<string,object>(); target["CustomFields"]=values;
+ string[] families={"Text:30","Number:20","Date:10","Start:10","Finish:10","Duration:10","Flag:20","Cost:10","OutlineCode:10"};
+ foreach(string family in families) {
+ var parts=family.Split(':'); int count=int.Parse(parts[1]);
+ for(int i=1;i<=count;i++) {
+ string name="pj"+entity+parts[0]+i; MSP.PjField field;
+ if(!Enum.TryParse<MSP.PjField>(name,out field)) continue;
+ string id=((int)field).ToString(System.Globalization.CultureInfo.InvariantCulture);
+ if(!result.FieldCatalog.ContainsKey(id)) result.FieldCatalog[id]=new Dictionary<string,object>{{"Id",(int)field},{"Constant",name},{"Entity",entity},{"Type",parts[0]}};
+ try { dynamic item=source; values[id]=Field(item.GetField(field)); }
+ catch(Exception) { values[id]=null; int n; result.FieldFailures.TryGetValue(id,out n); result.FieldFailures[id]=n+1; }
+ }
+ }
+ }
+ public static ProjectSnapshot Read(MSP.Project project, bool extended=false) {
  var result=new ProjectSnapshot { Name=project.Name };
  Capture(project,result.Extra,result.ReadWarnings,"Project","Start","Finish","StatusDate","CurrencySymbol","MinutesPerDay","MinutesPerWeek");
  foreach(MSP.Task t in project.Tasks) {
@@ -44,12 +63,18 @@ public static class SnapshotReader {
  // Conservative candidate classification only. Further constraints, calendars, external links and assignments must be validated before any write.
  row.Eligible=reasons.Count==0; row.ProtectionReason=string.Join(", ",reasons);
  Capture(t,row.Extra,result.ReadWarnings,"Task "+row.UniqueId,"ID","Duration","Work","ActualWork","RemainingWork","Cost","ActualCost","RemainingCost","BaselineCost","BaselineStart","BaselineFinish","BaselineDuration","BaselineWork","BCWS","BCWP","ACWP","SPI","CPI","Critical","TotalSlack","FreeSlack","Successors","ConstraintType","ConstraintDate","Deadline","PhysicalPercentComplete","Manual","Calendar");
+ if(extended) {
+ Custom(t,row.Extra,result,"Task");
+ Capture(t,row.Extra,result.ReadWarnings,"Task "+row.UniqueId,"Notes","Priority","Active","ExternalTask","TaskMode","ActualOvertimeWork","OvertimeWork","FixedCost","FixedCostAccrual","RemainingOvertimeWork","PercentWorkComplete","ActualCost","CostVariance","WorkVariance","StartVariance","FinishVariance","SV","CV","EAC","VAC","TCPI");
+ for(int b=1;b<=10;b++) { string prefix="Baseline"+b; Capture(t,row.Extra,result.ReadWarnings,"Task "+row.UniqueId,prefix+"Start",prefix+"Finish",prefix+"Duration",prefix+"Work",prefix+"Cost"); }
+ }
  result.Tasks.Add(row);
  }
  foreach(MSP.Resource resource in project.Resources) {
  if(resource==null) continue;
  var row=new Dictionary<string,object>();
  Capture(resource,row,result.ReadWarnings,"Resource","UniqueID","ID","Name","Type","MaxUnits","Work","ActualWork","RemainingWork","Cost","ActualCost","BaselineCost","StandardRate","OvertimeRate");
+ if(extended) { Custom(resource,row,result,"Resource"); Capture(resource,row,result.ReadWarnings,"Resource","Group","Code","Initials","MaterialLabel","CostPerUse","AccrueAt","PeakUnits","Overallocated","Notes"); for(int b=1;b<=10;b++) Capture(resource,row,result.ReadWarnings,"Resource","Baseline"+b+"Work","Baseline"+b+"Cost"); }
  result.Resources.Add(row);
  }
  foreach(MSP.Task task in project.Tasks) {
@@ -58,6 +83,7 @@ public static class SnapshotReader {
  if(assignment==null) continue;
  var row=new Dictionary<string,object>(); row["TaskUniqueID"]=task.UniqueID;
  Capture(assignment,row,result.ReadWarnings,"Assignment","UniqueID","ResourceUniqueID","ResourceName","Start","Finish","Units","Work","ActualWork","RemainingWork","Cost","ActualCost","BaselineCost");
+ if(extended) { Capture(assignment,row,result.ReadWarnings,"Assignment","ActualStart","ActualFinish","ActualOvertimeWork","OvertimeWork","RemainingOvertimeWork","PercentWorkComplete","BaselineStart","BaselineFinish","BaselineWork","CostVariance","WorkVariance"); for(int b=1;b<=10;b++) Capture(assignment,row,result.ReadWarnings,"Assignment","Baseline"+b+"Start","Baseline"+b+"Finish","Baseline"+b+"Work","Baseline"+b+"Cost"); }
  result.Assignments.Add(row);
  }
  }
