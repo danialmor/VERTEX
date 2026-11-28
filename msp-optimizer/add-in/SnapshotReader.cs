@@ -16,6 +16,8 @@ public sealed class ProjectSnapshot {
  public List<Dictionary<string,object>> Assignments=new List<Dictionary<string,object>>();
  public List<string> ReadWarnings=new List<string>();
  public int SchemaVersion=2;
+ public string PluginVersion=UpdateChecker.Build;
+ public string UpdateStatus=UpdateChecker.Status;
  public bool Extended;
  public Dictionary<string,object> FieldCatalog=new Dictionary<string,object>();
  public Dictionary<string,int> FieldFailures=new Dictionary<string,int>();
