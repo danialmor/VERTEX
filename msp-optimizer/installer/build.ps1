@@ -9,8 +9,8 @@ if($sig.Status -ne 'Valid' -or $sig.SignerCertificate.Subject -notmatch 'Microso
 $project=Join-Path $PSScriptRoot '..\add-in\UniversalMspOptimizer.csproj'
 & msbuild $project /t:Build /p:Configuration=Release /p:PlatformTarget=x64 "/p:OfficePiaPath=$OfficePiaPath"
 if($LASTEXITCODE -ne 0){throw 'MSBuild failed'}
-$iscc=Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
-if(!(Test-Path $iscc)){throw 'Inno Setup 6 missing'}
+$iscc=@(foreach($root in @($env:ProgramFiles,${env:ProgramFiles(x86)})){foreach($v in @(7,6)){if($root){Join-Path $root "Inno Setup $v\ISCC.exe"}}}) | Where-Object {Test-Path $_} | Select-Object -First 1
+if(!$iscc){throw 'Inno Setup 6 or 7 missing'}
 & $iscc (Join-Path $PSScriptRoot 'Setup.iss')
 if($LASTEXITCODE -ne 0){throw 'Installer build failed'}
 $setup=Join-Path $PSScriptRoot 'output\VERTEX-MSP-Setup.exe'
