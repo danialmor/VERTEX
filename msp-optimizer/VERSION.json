@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "installerSourceVersion": "0.7.0-dev.3",
+  "installerSourceVersion": "0.7.0-dev.4",
   "nextTarget": "0.7.0",
   "releaseStatus": "development",
   "compiledDll": "dev.3 user-reported installed; extended source uncompiled",
@@ -8,7 +8,7 @@
   "productionInstaller": false,
   "cloudIntegration": "planned",
   "updated": "2026-11-28",
-  "sourceMilestone": "0.7.0-dev.3",
+  "sourceMilestone": "0.7.0-dev.4",
   "updateStatus": "signed staging source; trust provisioning, secure install and rollback pending",
   "updatePreferences": {
     "autoCheck": true,
@@ -16,5 +16,6 @@
     "keepPreviousVersion": true,
     "checkInterval": "startup"
   },
-  "extendedExtraction": "source only; Windows parity pending"
+  "extendedExtraction": "source only; Windows parity pending",
+  "aboutFeed": "https://danialmor.github.io/VERTEX/msp-bi/plugin-about.json"
 }
