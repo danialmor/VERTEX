@@ -1,4 +1,4 @@
-#define AppVersion "0.7.0-dev.4"
+#define AppVersion "0.7.0-dev.5"
 [Setup]
 AppId=UniversalMspOptimizer
 AppName=Universal MSP Optimizer (Experimental)
