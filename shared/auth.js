@@ -97,6 +97,14 @@
   var need = document.currentScript.getAttribute('data-require'); if (need === 'project-control') { if (/[?&]app=chat\b/.test(location.search)) need = 'messenger'; else if (/[?&]app=mail\b/.test(location.search)) need = 'mail'; else if (/[?&]app=work\b/.test(location.search)) need = 'desk'; } if (need && !DEMO) require(need);
   try { if (!/[?&]demo\b/.test(location.search) && !/\/aide\//.test(location.pathname) && !/\/admin\/?$/.test(location.pathname)) { var vxn = document.createElement('script'); vxn.src = ROOT + 'shared/notify.js?v=1'; vxn.defer = true; (document.head || document.documentElement).appendChild(vxn) } } catch (e) { }
   try { var vxp = document.createElement('script'); vxp.src = ROOT + 'shared/pwa.js?v=1'; (document.head || document.documentElement).appendChild(vxp) } catch (e) { }
+  // VX-022: every open page checks for a new release (on return to the tab and every 5 min) and updates itself, so all subscribers get changes the same day
+  try { if (self === top) (function () { var seen = null, bar = null;
+    var chk = function () { fetch(ROOT + 'shared/releases.json?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.json() }).then(function (j) { var v = j && j.ecosystem && j.ecosystem.version; if (!v) return; if (!seen) { seen = v; return } if (v === seen) return;
+      if (document.hidden) { location.reload(); return }
+      if (bar) return; bar = document.createElement('button'); bar.type = 'button'; bar.textContent = (document.documentElement.lang || '').indexOf('en') === 0 ? 'A new version (' + v + ') is ready — tap to update' : 'نسخه‌ی تازه (' + v + ') آماده است — برای به‌روزرسانی بزنید';
+      bar.style.cssText = 'position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:2147483001;border:0;border-radius:22px;padding:10px 18px;background:#1b6f52;color:#fff;font:600 14px Vazirmatn,Inter,system-ui,sans-serif;box-shadow:0 10px 24px -10px rgba(0,0,0,.5);cursor:pointer';
+      bar.onclick = function () { location.reload() }; document.body.appendChild(bar) }).catch(function () { }) };
+    chk(); setInterval(chk, 300000); document.addEventListener('visibilitychange', function () { if (!document.hidden) chk() }) })() } catch (e) { }
   // VX-021 icon button standard on every page
   try { var vxc = document.createElement('link'); vxc.rel = 'stylesheet'; vxc.href = ROOT + 'shared/ui-btn.css?v=1'; (document.head || document.documentElement).appendChild(vxc); document.documentElement.setAttribute('data-vxui', /\/admin\//.test(location.pathname) ? 'panel' : 'page') } catch (e) { }
   try { if (s0 && self === top && location.pathname.replace(/\/index\.html$/, '/') !== new URL(ROOT, location.href).pathname) { var vxd = document.createElement('script'); vxd.src = ROOT + 'shared/vxdock.js?v=3'; vxd.defer = true; (document.head || document.documentElement).appendChild(vxd) } } catch (e) { }   // VX-019 corner dock

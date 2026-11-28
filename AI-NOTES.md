@@ -28,3 +28,6 @@
 ## VX-021 icon button standard
 - shared/ui-btn.css (loaded by auth.js everywhere; html[data-vxui=page|panel]). Frame: 38px circle; tree toggles 30px; AI header 34px (header wraps to two rows). Light page = A outline ring, admin light = I neumorphic, dark = E dark glass. Use class .vxb for any new icon button.
 - Bell: #vxBell hidden when the dock is present; dock tab "bell" clicks it, #vxBellBox moves to the left; unread count mirrored on #vxDockB.
+
+## VX-022 auto update
+- auth.js polls shared/releases.json (no-store) on load, every 5 min and on visibilitychange; version change → reload if hidden, else green "new version" bar. msp-bi/sw.js navigation fetch uses cache:no-cache.
