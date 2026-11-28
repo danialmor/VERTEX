@@ -31,3 +31,4 @@
 
 ## VX-022 auto update
 - auth.js polls shared/releases.json (no-store) on load, every 5 min and on visibilitychange; version change → reload if hidden, else green "new version" bar. msp-bi/sw.js navigation fetch uses cache:no-cache.
+- sw.js (root) and msp-bi/sw.js: same-origin pages/scripts/styles network-first with cache:no-cache, cache only as offline fallback. Root sw no longer builds new Request() from navigate requests (threw). Verified: changed page visible on the first reload despite max-age=600.
