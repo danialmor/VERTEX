@@ -58,7 +58,7 @@
     var s = { u: u, role: 'admin', sites: [], t: Date.now() }; save(s, true); try { sessionStorage.setItem('vxPw', p); } catch (e) {}
     return s;
   }
-  function logout() { try { localStorage.removeItem(SK); sessionStorage.removeItem(SK); sessionStorage.removeItem('vxPw'); localStorage.removeItem('hub.token'); } catch (e) {} location.href = ROOT + 'admin/'; }
+  function logout() { try { indexedDB.deleteDatabase('vxvault') } catch (e) { } try { localStorage.removeItem(SK); sessionStorage.removeItem(SK); sessionStorage.removeItem('vxPw'); localStorage.removeItem('hub.token'); } catch (e) {} location.href = ROOT + 'admin/'; }
   // Guard a platform page: no session → sign-in page; not allowed → root page.
   function require(slug) {
     if (!STATIC) return;

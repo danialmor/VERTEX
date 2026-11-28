@@ -43,3 +43,5 @@
 7. **Aide migration** to the hub: A1 bridge (events only), then A2 full migration.
 8. **Sales side of subscriptions:** price list per plan/seat, wallet + manual top-up, online payment gateway paying to the owner's account (country/currency still unknown), automatic renewal reminders before `ends`.
 9. Build the planned modules: training, portfolio, shared cursor, designer workspace, CRM, company space.
+
+## VX-023 (stage 1 handoff) — MSP LIVE token vault, test mode. See msp-bi/PLATFORM.md.
