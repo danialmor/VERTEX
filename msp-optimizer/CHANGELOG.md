@@ -1,3 +1,15 @@
+
+## 2026-11-28 — GitHub-hosted Windows x64 1.7.2 candidate build
+- Purpose: replace the self-hosted-only pipeline with a GitHub-hosted Windows build; no private Windows computer or Microsoft Project installation is required on the runner.
+- Changed: `.github/workflows/msp-optimizer-build.yml`, `installer/build-hosted.ps1`, `installer/build.ps1`, `installer/Setup.iss`, `add-in/UniversalMspOptimizer.csproj`.
+- Technique: pin Inno Setup 6.4.0; verify Microsoft signatures on .NET 4.8 offline runtime and Office 2010 PIA redistributable; use Microsoft Visual Studio Interop 17.14.40260 only on hosted builds; compile x64 add-in and updater; package a fixed-name installer; upload an unsigned test artifact and build log to Actions (7-day retention). Local Extensibility.dll build remains supported.
+- Verified CI result: **success** at https://github.com/danialmor/VERTEX/actions/runs/46145040661 (source commit `40ee7980a8eed25cf92fa60610c578460232c205`). Installer `VERTEX-MSP-Setup.exe` SHA256 `8E56B3675A1A751F56D0845BD673CFFAD5C084D6C36D387D6996428115CDFF38`; test ZIP artifact ID `15263257293`, logs artifact ID `15263347120`.
+- Failed builds and repair evidence: run `46144493909` blocked by preinstalled newer Inno; run `46144596560` lacked Extensibility.dll; run `46144819290` could not embed VS SDK interop as PIA; source repairs committed before the successful run. Failed/cancelled CI attempts must not count as verified releases.
+- **NOT tested**: clean Windows install/uninstall, Microsoft Project 2016/2024 COM load/ribbon/data parity, production security, packaging license clearance, updater rollback/health recovery, code signing, signature manifest, cloud pairing. Existing unsigned 1.7.2 helper and WBS optimizer are not production-ready. No GitHub Release created. The user-approved 1.8.0 base acceptance remains open; current source is still 1.7.2.
+- Decision: no auto-published unsigned release, no private signing key uploaded or embedded; GitHub Actions artifact is for isolated validation only, not for installation on business projects. `publishedVersion` stays null. Changes stay on feature branch without merging main.
+- Rollback: revert hosted CI + PIA compatibility commits `f559c1b3`, `f5d4ffd5`, `536e2615`, `58ecd6ba`, `79e9a85c`, `e1e7878d`, `dc717a66`, `40ee7980` in reverse order. Preserve old self-hosted workflow from Git history if needed.
+- Next: review installer COM runtime dependency and Microsoft license, test clean Windows and Project x64 integration, finish recovery engine and multi-project registry, sign with owner's offline V2 key, verify 1.8.0 acceptance before any official Release.
+
 # Changelog
 ## Unreleased — 0.6.0 target
 - Establish mandatory documentation protocol and retrospective development baseline.
