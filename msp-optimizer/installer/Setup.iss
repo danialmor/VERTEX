@@ -1,4 +1,4 @@
-#define AppVersion "1.7.1-rc.1"
+#define AppVersion "1.7.1"
 [Setup]
 AppId=UniversalMspOptimizer
 AppName=VERTEX MSP (Release Candidate)
