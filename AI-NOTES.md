@@ -24,3 +24,7 @@
 ## VX-020 Plugin tab
 - msp-bi: new tab data-v="plugin" (#v-plugin, MSP LIVE preview shell, sub-tab bar disabled until the design preview is approved — see the MSP LIVE design brief). Projects tab (#v-proj) kept intact but hidden by default.
 - Tab switches: module settings.tabs {proj, plugin} for project-control, edited in admin/platforms.js (Dashboard tabs fieldset), exposed publicly as modules[].tabs; msp-bi applies them (cached in localStorage vxTabs), show() refuses hidden tabs.
+
+## VX-021 icon button standard
+- shared/ui-btn.css (loaded by auth.js everywhere; html[data-vxui=page|panel]). Frame: 38px circle; tree toggles 30px; AI header 34px (header wraps to two rows). Light page = A outline ring, admin light = I neumorphic, dark = E dark glass. Use class .vxb for any new icon button.
+- Bell: #vxBell hidden when the dock is present; dock tab "bell" clicks it, #vxBellBox moves to the left; unread count mirrored on #vxDockB.

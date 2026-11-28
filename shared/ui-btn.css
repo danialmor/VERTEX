@@ -1,0 +1,26 @@
+/* VERTEX · icon button standard (feature VX-021). One frame for every icon button on every platform.
+   Light pages: A "outline ring" · light flat admin panel: I "neumorphic" · dark theme: E "dark glass".
+   Size: 38px (same as the sort / enlarge / PDF circles); tree toggles 30px. Icons are single-line SVG, 1.6 stroke. */
+:root{--vxb:38px;--vxb-s:30px}
+.ib,#vxai header button,.vxb,
+html[data-vxui] .tg[data-tg]{width:var(--vxb)!important;height:var(--vxb)!important;min-width:var(--vxb);border-radius:50%!important;display:inline-grid!important;place-items:center;padding:0!important;
+  background:#fff!important;border:1.5px solid #d0d5dd!important;color:#344054!important;box-shadow:none;cursor:pointer;transition:border-color .15s,background .15s,color .15s,box-shadow .15s;flex:none}
+html[data-vxui] .tg[data-tg]{width:var(--vxb-s)!important;height:var(--vxb-s)!important;min-width:var(--vxb-s);opacity:1}
+.ib:hover,#vxai header button:hover,.vxb:hover,html[data-vxui] .tg[data-tg]:hover{border-color:#98a2b3!important;color:#101828!important}
+.ib:focus-visible,#vxai header button:focus-visible,.vxb:focus-visible,.tg[data-tg]:focus-visible{outline:3px solid #7fb6ff;outline-offset:2px}
+#vxai header button.on{color:#1b6f52!important;border-color:#1b6f52!important}
+.ib svg,#vxai header button svg,.vxb svg,.tg[data-tg] svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tg[data-tg] svg{width:15px;height:15px}
+#vxai header .hb{gap:6px!important}
+/* I · neumorphic, on the flat light control panel */
+html[data-vxui=panel]:not([data-theme=dark]) .vxb,html[data-vxui=panel]:not([data-theme=dark]) #vxai header button{background:#eef1f5!important;border:0!important;box-shadow:4px 4px 8px #cfd5de,-4px -4px 8px #fff!important}
+html[data-vxui=panel]:not([data-theme=dark]) .vxb:active,html[data-vxui=panel]:not([data-theme=dark]) #vxai header button:active{box-shadow:inset 3px 3px 6px #cfd5de,inset -3px -3px 6px #fff!important}
+/* E · dark glass */
+html[data-theme=dark] .ib,html[data-theme=dark] #vxai header button,html[data-theme=dark] .vxb,html[data-theme=dark][data-vxui] .tg[data-tg]{background:rgba(255,255,255,.04)!important;border:1px solid rgba(127,182,255,.35)!important;color:#cfe0ff!important;box-shadow:none!important}
+html[data-theme=dark] .ib:hover,html[data-theme=dark] #vxai header button:hover,html[data-theme=dark] .vxb:hover,html[data-theme=dark] .tg[data-tg]:hover{border-color:#7fb6ff!important;color:#fff!important}
+@media (prefers-reduced-motion:reduce){.ib,.vxb,#vxai header button{transition:none}}
+/* the AI panel is narrow: same frame, a little smaller, and the title may shrink */
+#vxai header button{width:34px!important;height:34px!important;min-width:34px}
+#vxai header .hb{gap:4px!important;flex-wrap:nowrap;min-width:0}
+#vxai header>div:not(.hb){min-width:0;overflow:hidden}
+#vxai header{flex-wrap:wrap;row-gap:8px}

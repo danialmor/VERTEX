@@ -23,7 +23,7 @@
     } catch (e) { return '' }
   };
   window.VXAI_SUGGEST = ['What is on today?', 'Which meetings clash this week?', 'Draft a reminder message for tomorrow\'s meetings', 'Find a free hour for a 60-min meeting this week'];
-  var src = /\/VERTEX\//.test(location.pathname) ? '../shared/ai/ai.js?v=419' : 'https://danialmor.github.io/VERTEX/shared/ai/ai.js?v=419';
+  var src = /\/VERTEX\//.test(location.pathname) ? '../shared/ai/ai.js?v=421' : 'https://danialmor.github.io/VERTEX/shared/ai/ai.js?v=421';
   var sc = document.createElement('script'); sc.src = src; sc.defer = true;
   sc.onload = function () { // desk-specific quick questions instead of the project ones
     var t = setInterval(function () { var c = document.querySelector('#vxai .chips'); if (!c) return; clearInterval(t);
