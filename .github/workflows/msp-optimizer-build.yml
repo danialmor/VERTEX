@@ -1,31 +1,55 @@
-name: MSP Optimizer experimental build
+name: VERTEX MSP Windows x64 candidate build
 on:
+  push:
+    branches:
+      - feature/msp-optimizer
+    paths:
+      - '.github/workflows/msp-optimizer-build.yml'
+      - 'msp-optimizer/**'
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: vertex-msp-candidate-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     if: github.ref == 'refs/heads/feature/msp-optimizer'
-    runs-on: [self-hosted, Windows, X64, msp2016-build]
-    timeout-minutes: 20
+    runs-on: windows-2022
+    timeout-minutes: 50
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout audited source
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Stage approved offline runtime
-        shell: powershell
+      - name: Install Inno Setup 6.4.0 (pre-commercial-license series)
+        shell: pwsh
         run: |
-          if (!$env:MSP_DOTNET48_OFFLINE) { throw 'Configure MSP_DOTNET48_OFFLINE on trusted build machine' }
-          New-Item -ItemType Directory -Force .\msp-optimizer\installer\prerequisites | Out-Null
-          Copy-Item -LiteralPath $env:MSP_DOTNET48_OFFLINE -Destination .\msp-optimizer\installer\prerequisites\dotnet48.exe
-      - name: Build installer
-        shell: powershell
+          choco install innosetup --version=6.4.0 --yes --no-progress --limit-output
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup install failed: $LASTEXITCODE" }
+      - name: Build candidate with validated Microsoft prerequisites
+        shell: pwsh
         run: |
-          if (!$env:MSP_PIA_PATH) { throw 'Configure MSP_PIA_PATH on the trusted runner' }
-          & .\msp-optimizer\installer\build.ps1 -OfficePiaPath $env:MSP_PIA_PATH
-      - uses: actions/upload-artifact@v4
+          Start-Transcript -Path "$env:RUNNER_TEMP\vertex-msp-build.log" -Force
+          try {
+            & .\msp-optimizer\installer\build-hosted.ps1
+            if (-not (Test-Path .\msp-optimizer\installer\output\VERTEX-MSP-Setup.exe)) { throw 'Installer missing' }
+          } finally {
+            Stop-Transcript
+          }
+      - name: Publish unsigned TEST artifact only (not a release)
+        if: success()
+        uses: actions/upload-artifact@v4
         with:
-          name: MSP-Optimizer-Experimental
+          name: VERTEX-MSP-Windows-x64-TEST-UNSIGNED
           path: msp-optimizer/installer/output/VERTEX-MSP-Setup.exe
           if-no-files-found: error
+          retention-days: 7
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VERTEX-MSP-Build-Log
+          path: ${{ runner.temp }}/vertex-msp-build.log
+          if-no-files-found: warn
           retention-days: 7
