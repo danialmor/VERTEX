@@ -1,0 +1,11 @@
+# Hosting portability and protected developer identity
+2026-11-28 — Owner requirements for VERTEX MSP 1.7.1 and future ecosystem migration.
+GitHub is the development and initial distribution environment, not a permanent hosting dependency. Preserve source history and separate deployment configuration from code.
+## Identity
+Original product VERTEX; developer danialmor; original public contact https://t.me/Danimor1991. Preserve original attribution in compiled metadata, About, release manifests, module metadata and exported reports where appropriate. Legal copyright holder and license require owner confirmation; do not invent a legal entity. No ordinary tenant or admin UI may edit original attribution. Display name, current website and current support contact are separate mutable fields. Record signed append-only identity history. Absolute immutability against a machine administrator or source fork cannot be guaranteed.
+## Deployment
+Central versioned configuration for website, API, authentication, distribution and metadata endpoints. Separate development, staging and production. Owner-only management via Plugin tab, server-enforced authorization, audit history and rollback. Never store credentials in public GitHub or signed public configuration.
+## Trust and migration
+Public release-verification key embedded in plugin. Signed configuration with canonical payload, monotonic revision, expiry, schema version and HTTPS endpoint validation. Trust changes require offline owner signature; a dashboard edit alone cannot redirect executable downloads. Keep last known valid configuration and original bootstrap endpoint. Do not forward bearer tokens to a new origin; require explicit re-pairing. Test new host, migrate tenant data and backups, verify access isolation, retain transition endpoint and rollback before retiring old host. Key rotation must be authenticated by existing trust or a manually trusted installer.
+## Status
+Requirements only; no runtime implementation, hosting migration, licensing declaration or production release. Next: implement signed configuration and owner-only controls after updater safety gates. Revert this document to undo this documentation change.

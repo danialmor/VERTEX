@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "installerSourceVersion": "1.7.2",
+  "nextTarget": "1.8.0",
+  "releaseStatus": "development",
+  "compiledDll": "1.7.2 hosted Windows x64 CI success; no install test",
+  "ribbon": "user-confirmed Inspect and local connection",
+  "productionInstaller": false,
+  "cloudIntegration": "planned",
+  "updated": "2026-11-28",
+  "sourceMilestone": "1.7.2",
+  "updateStatus": "1.7.2 updater candidate compiled; runtime, rollback and security acceptance pending",
+  "updatePreferences": {
+    "autoCheck": true,
+    "autoDownload": true,
+    "keepPreviousVersion": true,
+    "checkInterval": "startup"
+  },
+  "extendedExtraction": "dev.5 compiled; parity pending",
+  "aboutFeed": "https://danialmor.github.io/VERTEX/msp-bi/plugin-about.json",
+  "hostedBuild": {
+    "sourceVersion": "1.7.2",
+    "status": "success",
+    "environment": "GitHub Actions windows-2022",
+    "runUrl": "https://github.com/danialmor/VERTEX/actions/runs/46145040661",
+    "installerFilename": "VERTEX-MSP-Setup.exe",
+    "sha256": "8E56B3675A1A751F56D0845BD673CFFAD5C084D6C36D387D6996428115CDFF38",
+    "artifactId": 15263257293,
+    "signed": false,
+    "installedTested": false,
+    "publishedRelease": false
+  }
+}

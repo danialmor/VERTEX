@@ -1,0 +1,55 @@
+name: VERTEX MSP Windows x64 candidate build
+on:
+  push:
+    branches:
+      - feature/msp-optimizer
+    paths:
+      - '.github/workflows/msp-optimizer-build.yml'
+      - 'msp-optimizer/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: vertex-msp-candidate-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: github.ref == 'refs/heads/feature/msp-optimizer'
+    runs-on: windows-2022
+    timeout-minutes: 50
+    steps:
+      - name: Checkout audited source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install Inno Setup 6.4.0 (pre-commercial-license series)
+        shell: pwsh
+        run: |
+          choco install innosetup --version=6.4.0 --yes --no-progress --limit-output --allow-downgrade
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup install failed: $LASTEXITCODE" }
+      - name: Build candidate with validated Microsoft prerequisites
+        shell: pwsh
+        run: |
+          Start-Transcript -Path "$env:RUNNER_TEMP\vertex-msp-build.log" -Force
+          try {
+            & .\msp-optimizer\installer\build-hosted.ps1
+            if (-not (Test-Path .\msp-optimizer\installer\output\VERTEX-MSP-Setup.exe)) { throw 'Installer missing' }
+          } finally {
+            Stop-Transcript
+          }
+      - name: Publish unsigned TEST artifact only (not a release)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VERTEX-MSP-Windows-x64-TEST-UNSIGNED
+          path: msp-optimizer/installer/output/VERTEX-MSP-Setup.exe
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: VERTEX-MSP-Build-Log
+          path: ${{ runner.temp }}/vertex-msp-build.log
+          if-no-files-found: warn
+          retention-days: 7

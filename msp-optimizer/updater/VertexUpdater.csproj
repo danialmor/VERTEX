@@ -1,0 +1,5 @@
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<PropertyGroup><Configuration Condition="'$(Configuration)' == ''">Release</Configuration><OutputType>WinExe</OutputType><TargetFrameworkVersion>v4.8</TargetFrameworkVersion><PlatformTarget>x64</PlatformTarget><LangVersion>7.3</LangVersion><AssemblyName>VertexUpdater</AssemblyName><OutputPath>bin\$(Configuration)\</OutputPath></PropertyGroup>
+<ItemGroup><Reference Include="System"/><Reference Include="System.Core"/><Reference Include="System.Windows.Forms"/><Reference Include="System.Web.Extensions"/><Compile Include="Program.cs"/><Compile Include="..\add-in\UpdateChecker.cs"/></ItemGroup>
+<Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+</Project>
