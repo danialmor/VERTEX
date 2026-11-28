@@ -1,4 +1,4 @@
-#define AppVersion "1.7.1"
+#define AppVersion "1.7.2"
 [Setup]
 AppId=UniversalMspOptimizer
 AppName=VERTEX MSP (Release Candidate)
@@ -7,6 +7,8 @@ AppPublisherURL=https://danialmor.github.io/VERTEX/
 AppSupportURL=https://t.me/Danimor1991
 AppVersion={#AppVersion}
 DefaultDirName={autopf}\VERTEX\MSPOptimizer
+DisableDirPage=yes
+UsePreviousAppDir=no
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
@@ -18,6 +20,7 @@ SolidCompression=yes
 CloseApplications=no
 RestartApplications=no
 [Files]
+Source: "..\updater\bin\Release\VertexUpdater.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\add-in\bin\Release\net48\UniversalMspOptimizer.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "prerequisites\dotnet48.exe"; Flags: dontcopy
 [Registry]
@@ -47,6 +50,7 @@ var Code: Integer;
 begin
  Result := '';
  if CheckForMutexes('Global\\VERTEX-MSP-InstallBlock') then begin Result := 'Close Microsoft Project first.'; exit; end;
+ if CompareText(ExpandConstant('{app}'), ExpandConstant('{autopf}\VERTEX\MSPOptimizer')) <> 0 then begin Result := 'Fixed protected installation directory required.'; exit; end;
  if not HasNet48() then begin
  ExtractTemporaryFile('dotnet48.exe');
  if not Exec(ExpandConstant('{tmp}\dotnet48.exe'), '/passive /norestart /ChainingPackage VERTEX', '', SW_SHOW, ewWaitUntilTerminated, Code) then begin
