@@ -94,3 +94,6 @@ Existing v-plugin tab preserved; overview now reads the installed dev.3 add-in s
 
 ### 2026-11-28 — Local connection acceptance
 User reports successful connection after entering the temporary Share Snapshot key. This confirms user-reported local connection only; full field accuracy, refresh after schedule changes, disconnect and cloud pairing remain unverified. No credentials or project data recorded. Next: validate snapshot counts and refresh, then implement private account-scoped cloud sync.
+
+## 2026-11-28 — MSP Update Center
+Existing plugin tab now enables Connection & Plugin subtab with snapshot-reported PluginVersion and UpdateStatus, official releases and changelog links. Old snapshots show unknown version; source dev.3 explicitly not published. No browser-triggered installation, no cloud changes. Existing local read preserved. Runtime untested; rollback revert 8abe67ee3a378a62e575e3e5da215ff747bc0b16. Next test with installed old plugin and new Windows build after trust provisioning.
