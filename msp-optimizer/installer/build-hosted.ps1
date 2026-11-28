@@ -7,7 +7,7 @@ $work = Join-Path $env:RUNNER_TEMP 'vertex-msbuild-deps'
 $pia = Join-Path $work 'pia'
 $extract = Join-Path $work 'extracted'
 New-Item -ItemType Directory -Force $pia,$extract,(Join-Path $installer 'prerequisites') | Out-Null
-$names = @('Extensibility.dll','office.dll','Microsoft.Office.Interop.MSProject.dll')
+$names = @('office.dll','Microsoft.Office.Interop.MSProject.dll')
 function Find-Assembly([string]$name) {
   $pf86 = [Environment]::GetFolderPath('ProgramFilesX86')
   $roots = @(
@@ -54,6 +54,22 @@ if (@($names | Where-Object { -not (Test-Path -LiteralPath (Join-Path $pia $_)) 
 }
 $missing = @($names | Where-Object { -not (Test-Path -LiteralPath (Join-Path $pia $_)) })
 if ($missing.Count) { throw ('Authorized PIAs missing: ' + ($missing -join ', ')) }
+# Microsoft's signed Visual Studio SDK interop supplies the same IDTExtensibility2
+# COM GUID without requiring legacy Extensibility.dll on hosted runners.
+$pkgVersion = '17.14.40260'
+$pkgFile = Join-Path $work 'Microsoft.VisualStudio.Interop.nupkg'
+$pkgZip = Join-Path $work 'Microsoft.VisualStudio.Interop.zip'
+$pkgDir = Join-Path $work 'Microsoft.VisualStudio.Interop'
+Invoke-WebRequest -Uri "https://api.nuget.org/v3-flatcontainer/microsoft.visualstudio.interop/$pkgVersion/microsoft.visualstudio.interop.$pkgVersion.nupkg" -OutFile $pkgFile
+Copy-Item -LiteralPath $pkgFile -Destination $pkgZip
+Expand-Archive -LiteralPath $pkgZip -DestinationPath $pkgDir -Force
+$vsInterop = Get-ChildItem -LiteralPath $pkgDir -Filter Microsoft.VisualStudio.Interop.dll -Recurse -File |
+  Where-Object { $_.FullName -match 'net472' } | Select-Object -First 1
+if (-not $vsInterop) { throw 'Pinned Microsoft Visual Studio Interop net472 reference missing.' }
+$assemblyName = [Reflection.AssemblyName]::GetAssemblyName($vsInterop.FullName)
+$token = [BitConverter]::ToString($assemblyName.GetPublicKeyToken()).Replace('-','').ToLowerInvariant()
+if ($token -ne 'b03f5f7f11d50a3a') { throw "Unexpected Microsoft Visual Studio Interop public key token: $token" }
+Copy-Item -LiteralPath $vsInterop.FullName -Destination (Join-Path $pia 'Microsoft.VisualStudio.Interop.dll')
 $runtime = Join-Path $installer 'prerequisites\dotnet48.exe'
 Invoke-WebRequest -Uri 'https://go.microsoft.com/fwlink/?linkid=2088631' -OutFile $runtime
 $sig = Get-AuthenticodeSignature -FilePath $runtime
@@ -67,7 +83,7 @@ $msbuild = @(& $vswhere -latest -products '*' -requires Microsoft.Component.MSBu
   Where-Object { $_ -match '\\Current\\Bin\\MSBuild.exe$' } | Select-Object -First 1
 if (-not $msbuild) { throw 'MSBuild Current not found.' }
 $env:PATH = (Split-Path -Path $msbuild -Parent) + ';' + $env:PATH
-& (Join-Path $installer 'build.ps1') -OfficePiaPath $pia
+& (Join-Path $installer 'build.ps1') -OfficePiaPath $pia -UseMicrosoftVsInterop
 if ($LASTEXITCODE -ne 0) { throw "Build failed: $LASTEXITCODE" }
 $setup = Join-Path $installer 'output\VERTEX-MSP-Setup.exe'
 if (-not (Test-Path -LiteralPath $setup)) { throw 'Installer output missing.' }
