@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
-  "installerSourceVersion": "0.7.0-dev.5",
-  "nextTarget": "0.7.0",
+  "installerSourceVersion": "1.7.2",
+  "nextTarget": "1.7.2",
   "releaseStatus": "development",
-  "compiledDll": "dev.3 user-reported installed; extended source uncompiled",
+  "compiledDll": "dev.5 build log and user-reported installed",
   "ribbon": "user-confirmed Inspect and local connection",
   "productionInstaller": false,
   "cloudIntegration": "planned",
   "updated": "2026-11-28",
-  "sourceMilestone": "0.7.0-dev.5",
-  "updateStatus": "offline key and signing helpers added; key provisioning, secure installation, rollback and tests pending",
+  "sourceMilestone": "1.7.2",
+  "updateStatus": "candidate helper and failure recovery source; uncompiled and untested",
   "updatePreferences": {
     "autoCheck": true,
     "autoDownload": true,
     "keepPreviousVersion": true,
     "checkInterval": "startup"
   },
-  "extendedExtraction": "source only; Windows parity pending",
+  "extendedExtraction": "dev.5 compiled; parity pending",
   "aboutFeed": "https://danialmor.github.io/VERTEX/msp-bi/plugin-about.json"
 }
