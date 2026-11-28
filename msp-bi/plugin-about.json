@@ -9,10 +9,16 @@
   "repository": "https://github.com/danialmor/VERTEX",
   "releases": "https://github.com/danialmor/VERTEX/releases",
   "changelog": "https://github.com/danialmor/VERTEX/blob/feature/msp-optimizer/msp-optimizer/CHANGELOG.md",
-  "sourceVersion": "0.7.0-dev.4",
+  "sourceVersion": "0.7.0-dev.5",
   "publishedVersion": null,
   "description": "Microsoft Project integration for VERTEX project controls and reporting.",
   "history": [
+    {
+      "version": "0.7.0-dev.5",
+      "date": "2026-11-28",
+      "status": "development",
+      "notes": "Offline release key and signing helpers; corrected version comparison. No binary release."
+    },
     {
       "version": "0.7.0-dev.4",
       "date": "2026-11-28",
