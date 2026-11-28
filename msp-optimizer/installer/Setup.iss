@@ -1,7 +1,10 @@
-#define AppVersion "0.7.0-dev.5"
+#define AppVersion "1.7.1-rc.1"
 [Setup]
 AppId=UniversalMspOptimizer
-AppName=Universal MSP Optimizer (Experimental)
+AppName=VERTEX MSP (Release Candidate)
+AppPublisher=danialmor
+AppPublisherURL=https://danialmor.github.io/VERTEX/
+AppSupportURL=https://t.me/Danimor1991
 AppVersion={#AppVersion}
 DefaultDirName={autopf}\VERTEX\MSPOptimizer
 ArchitecturesAllowed=x64compatible
@@ -64,4 +67,4 @@ begin
  end;
 end;
 [UninstallRun]
-Filename: "{win}\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe"; Parameters: """{app}\UniversalMspOptimizer.dll"" /unregister"; Flags: runhidden waituntilterminated
+Filename: "{win}\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe"; Parameters: """{app}\UniversalMspOptimizer.dll"" /unregister"; Flags: runhidden waituntilterminated; RunOnceId: "UnregisterVertexMsp"
