@@ -16,6 +16,7 @@ public sealed class ProjectSnapshot {
  public List<Dictionary<string,object>> Assignments=new List<Dictionary<string,object>>();
  public List<string> ReadWarnings=new List<string>();
  public int SchemaVersion=2;
+ public bool Extended;
  public Dictionary<string,object> FieldCatalog=new Dictionary<string,object>();
  public Dictionary<string,int> FieldFailures=new Dictionary<string,int>();
  public List<TaskSnapshot> Tasks=new List<TaskSnapshot>();
@@ -49,8 +50,8 @@ public static class SnapshotReader {
  }
  }
  }
- public static ProjectSnapshot Read(MSP.Project project, bool extended=false) {
- var result=new ProjectSnapshot { Name=project.Name };
+ public static ProjectSnapshot Read(MSP.Project project, bool extended=false, MSP.Application application=null) {
+ var result=new ProjectSnapshot { Name=project.Name, Extended=extended };
  Capture(project,result.Extra,result.ReadWarnings,"Project","Start","Finish","StatusDate","CurrencySymbol","MinutesPerDay","MinutesPerWeek");
  foreach(MSP.Task t in project.Tasks) {
  if(t==null) continue;
@@ -87,6 +88,7 @@ public static class SnapshotReader {
  result.Assignments.Add(row);
  }
  }
+ if(extended && application!=null) foreach(var entry in result.FieldCatalog) { var meta=(Dictionary<string,object>)entry.Value; var field=(MSP.PjField)(int)meta["Id"]; dynamic a=application; try { meta["DisplayName"]=Field(a.FieldConstantToFieldName(field)); } catch { meta["DisplayName"]=null; } try { meta["Alias"]=Field(a.CustomFieldGetName(field)); } catch { meta["Alias"]=null; } try { meta["Formula"]=Field(a.CustomFieldGetFormula(field)); } catch { meta["Formula"]=null; } }
  return result;
  }
 }
