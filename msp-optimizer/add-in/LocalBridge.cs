@@ -12,8 +12,7 @@ internal sealed class LocalBridge : IDisposable {
  volatile byte[] snapshot;
  public string Token { get { return token; } }
  public LocalBridge(ProjectSnapshot data) {
- var key=new byte[32]; using(var rng=RandomNumberGenerator.Create()) rng.GetBytes(key);
- token=Convert.ToBase64String(key);
+ token=DeviceToken.LoadOrCreate();
  Refresh(data);
  listener.Prefixes.Add("http://127.0.0.1:18765/");
  try { listener.Start(); ThreadPool.QueueUserWorkItem(_=>Run()); } catch { listener.Close(); throw; }

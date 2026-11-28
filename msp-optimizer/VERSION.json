@@ -29,5 +29,6 @@
     "signed": false,
     "installedTested": false,
     "publishedRelease": false
-  }
+  },
+  "localDeviceToken": "DPAPI CurrentUser source implemented; runtime pending; cloud vault not implemented"
 }
