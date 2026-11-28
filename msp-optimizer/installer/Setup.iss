@@ -1,4 +1,4 @@
-#define AppVersion "0.5.1-beta"
+#define AppVersion "0.7.0-dev.3"
 [Setup]
 AppId=UniversalMspOptimizer
 AppName=Universal MSP Optimizer (Experimental)
@@ -12,6 +12,8 @@ OutputBaseFilename=VERTEX-MSP-Setup
 UninstallDisplayName=Universal MSP Optimizer (Experimental)
 Compression=lzma2
 SolidCompression=yes
+CloseApplications=no
+RestartApplications=no
 [Files]
 Source: "..\add-in\bin\Release\net48\UniversalMspOptimizer.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "prerequisites\dotnet48.exe"; Flags: dontcopy
@@ -41,6 +43,7 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var Code: Integer;
 begin
  Result := '';
+ if CheckForMutexes('Global\\VERTEX-MSP-InstallBlock') then begin Result := 'Close Microsoft Project first.'; exit; end;
  if not HasNet48() then begin
  ExtractTemporaryFile('dotnet48.exe');
  if not Exec(ExpandConstant('{tmp}\dotnet48.exe'), '/passive /norestart /ChainingPackage VERTEX', '', SW_SHOW, ewWaitUntilTerminated, Code) then begin
