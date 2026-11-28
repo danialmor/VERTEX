@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 namespace UniversalMspOptimizer {
 internal static class UpdateChecker {
- internal const string Build="0.7.0-dev.3";
+ internal const string Build="0.7.0-dev.4";
  internal const bool AutoCheck=true, AutoDownload=true, KeepPreviousVersion=true;
  internal const string CheckInterval="startup";
  // Release owner must provision an offline RSA public key before production build.
