@@ -25,7 +25,7 @@ jobs:
       - name: Install Inno Setup 6.4.0 (pre-commercial-license series)
         shell: pwsh
         run: |
-          choco install innosetup --version=6.4.0 --yes --no-progress --limit-output
+          choco install innosetup --version=6.4.0 --yes --no-progress --limit-output --allow-downgrade
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup install failed: $LASTEXITCODE" }
       - name: Build candidate with validated Microsoft prerequisites
         shell: pwsh
