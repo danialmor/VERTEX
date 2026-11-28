@@ -1319,7 +1319,8 @@ html.app-mail #projSel,html.app-mail .pjsel{display:none!important}
 <button type="button" class="tab" role="tab" data-v="home" aria-selected="true">خانه</button>
 <button type="button" class="tab" role="tab" data-v="dash" aria-selected="false">داشبورد</button>
 <button type="button" class="tab" role="tab" data-v="work" aria-selected="false">میز کار من</button>
-<button type="button" class="tab" role="tab" data-v="proj" aria-selected="false">پروژه‌ها</button>
+<button type="button" class="tab" role="tab" data-v="proj" aria-selected="false" hidden>پروژه‌ها</button>
+<button type="button" class="tab" role="tab" data-v="plugin" aria-selected="false">پلاگین</button>
 <button type="button" class="tab" role="tab" data-v="sched" aria-selected="false">کنترل پروژه</button>
 <button type="button" class="tab" role="tab" data-v="upd" aria-selected="false">برنامه</button>
 <button type="button" class="tab" role="tab" data-v="plan" aria-selected="false">برنامه‌ریزی</button>
@@ -1359,6 +1360,13 @@ html.app-mail #projSel,html.app-mail .pjsel{display:none!important}
 <div class="rise" style="--i:2" id="schedBody"></div>
 </section>
 <!-- پروژه‌ها -->
+<section class="view" id="v-plugin" aria-label="پلاگین"><div class="wkbar rise" style="--i:0"><h1 class="wkt">پلاگین <small style="font-size:13px;font-weight:500;opacity:.7">MSP LIVE</small></h1></div>
+<div class="vxpl-wrap" style="padding:0 4px">
+<div class="vxpl-bar" role="tablist" aria-label="بخش‌های پلاگین" style="display:flex;gap:6px;overflow-x:auto;padding:4px 0 10px">
+<button type="button" class="chip on" aria-selected="true">نمای کلی</button><button type="button" class="chip" disabled>پروژه‌ها</button><button type="button" class="chip" disabled>فعالیت‌ها / WBS</button><button type="button" class="chip" disabled>گانت</button><button type="button" class="chip" disabled>پیشرفت و EVM</button><button type="button" class="chip" disabled>منابع</button><button type="button" class="chip" disabled>هزینه</button><button type="button" class="chip" disabled>Baseline</button><button type="button" class="chip" disabled>مسیر بحرانی</button><button type="button" class="chip" disabled>قفل WBS</button><button type="button" class="chip" disabled>همگام‌سازی</button><button type="button" class="chip" disabled>اتصال و افزونه</button><button type="button" class="chip" disabled>گزارش خطا</button></div>
+<div class="card" style="padding:18px;border-radius:18px"><span class="chip" style="background:#f2b64033">پیش‌نمایش · متصل نیست</span>
+<h2 style="margin:10px 0 6px;font-size:18px">اتصال زنده به Microsoft Project</h2>
+<p style="margin:0;line-height:1.9;opacity:.85">این تب جای افزونه‌ی MSP LIVE است: خواندن پروژه‌ها، فعالیت‌ها، منابع، Baseline و همگام‌سازی از Microsoft Project روی دستگاه شما. هنوز هیچ دستگاهی متصل نیست و داده‌ای نمایش داده نمی‌شود. طراحی کامل بخش‌ها پس از تأیید پیش‌نمایش اضافه می‌شود.</p></div></div></section>
 <section class="view" id="v-proj" aria-label="پروژه‌ها"> <div class="wkbar rise" style="--i:0"><h1 class="wkt">پروژه‌ها</h1><div class="wkst" id="pvStats"></div><span class="sp"></span><div class="seg" id="segPV" role="group" aria-label="نمای پروژه‌ها"><span class="knob"></span><button type="button" aria-pressed="true" data-pv="all">همه‌ی پروژه‌ها</button><button type="button" aria-pressed="false" data-pv="det">جزئیات پروژه</button></div></div> <div id="pjAll"></div> <div id="pjDet" hidden> <div class="rise" style="--i:0"><div id="pjPick"></div></div> <div class="bar rise" style="--i:2"><div class="seg" id="segP" role="group" aria-label="بخش‌های پروژه"><span class="knob"></span><button type="button" aria-pressed="true" data-pt="ov">نمای کلی</button><button type="button" aria-pressed="false" data-pt="st">وضعیت</button><button type="button" aria-pressed="false" data-pt="act">فعالیت‌ها</button><button type="button" aria-pressed="false" data-pt="ord">دستور کارها</button><button type="button" aria-pressed="false" data-pt="cm">گفتگو</button><button type="button" aria-pressed="false" data-pt="dr">گزارش روزانه</button><button type="button" aria-pressed="false" data-pt="ph">تصاویر</button><button type="button" aria-pressed="false" data-pt="ms">نقاط عطف</button><button type="button" aria-pressed="false" data-pt="in">اطلاعات</button><button type="button" aria-pressed="false" data-pt="tm">تیم</button><button type="button" aria-pressed="false" data-pt="rn">رندر</button><button type="button" aria-pressed="false" data-pt="ct">کاتالوگ</button><button type="button" aria-pressed="false" data-pt="pl">نقشه</button></div></div> <div class="card pjh rise" style="--i:1" id="pjHead"></div>  <div class="card rise fitc" style="--i:3" id="pjTabCard"><div id="pjTab"></div></div> <div class="card rise" style="--i:3" id="pjActCard" hidden><div class="bar" style="margin:0 0 12px"><div class="seg" id="segA" role="group" aria-label="نوع فعالیت‌ها"><span class="knob"></span><button type="button" aria-pressed="true" data-a="cur">فعالیت‌های جاری</button><button type="button" aria-pressed="false" data-a="sch">کنترل پروژه</button></div><div class="sp"></div><span class="tag" id="pjSum"></span><button class="btn dark" type="button" id="pjAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>فعالیت جدید</button></div><div id="pjBody"></div></div> </div>
 </section>
 <!-- راندمان -->
@@ -1461,6 +1469,7 @@ function pcConnSet(k,on){var c=pcConn();c[k]=!!on;try{localStorage.setItem('pcCo
 function mailUrl(v){return v==='work'?'../desk/':v==='chat'?'../messenger/':'../vmail/'}
 if(APPM)setTimeout(function(){try{var t=document.getElementById('appTitle');var cl=document.documentElement.classList,nm=cl.contains('app-only-chat')?'مسنجر':cl.contains('app-only-work')?'میز کار من':'نامه‌نگاری';if(t)t.textContent=nm;[].forEach.call(document.querySelectorAll('#v-mail h1.wkt'),function(h){h.textContent=nm});var w=/[?&](v|app)=work\b/.test(location.search)?'work':'mail';busy=false;show(w,false)}catch(e){}},60);
 function show(v,animate){
+  var tbV=document.querySelector('#nav [data-v="'+v+'"]');if(tbV&&tbV.hidden)return;
   if(!APPM&&(v==='mail'||v==='work')&&!pcConn()[v]){try{window.open(mailUrl(v),'_blank','noopener')}catch(e){location.href=mailUrl(v)}return}
   if(APPM&&v!=='mail'&&v!=='work')return;
   if(v===cur||busy)return;var from=$('#v-'+cur),to=$('#v-'+v);if(!to)return;busy=true;
@@ -4452,5 +4461,9 @@ window.VX_CTX=function(){try{var f=function(v){return v==null||v===''?'-':(typeo
 if(VXDEMO)vxDemoLock();
 </script>
 <script src="../shared/ai/ai.js?v=419" defer></script>
+<script>/* VX-020: which dashboard tabs are on — set by the ecosystem admin in the control panel (Project Control › advanced settings). Hidden tabs keep their content. */
+(function(){var DEF={proj:false,plugin:true};function apply(t){t=Object.assign({},DEF,t||{});Object.keys(t).forEach(function(k){document.querySelectorAll('[role=tab][data-v="'+k+'"]').forEach(function(b){b.hidden=!t[k]})});try{localStorage.setItem('vxTabs',JSON.stringify(t))}catch(e){}try{window.dispatchEvent(new Event('resize'))}catch(e){}}
+var c=null;try{c=JSON.parse(localStorage.getItem('vxTabs')||'null')}catch(e){}apply(c);
+fetch('../api/v1/modules',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){var m=(j.modules||[]).filter(function(x){return x.slug==='project-control'})[0];if(m)apply(m.tabs||(m.settings||{}).tabs)}).catch(function(){})})();</script>
 </body>
 </html>

@@ -20,3 +20,7 @@
 
 ## 6.6.0 — VX-019 corner dock
 - shared/vxdock.js (loaded by auth.js for signed-in users, top frame, not the landing): VERTEX button bottom-left; tap fans out tabs AI (VXAI.open, loads ai.js if missing), Chat (if allowed messenger), About (vxAbout), Home (not on home/app). body.vx-dock hides #vxaiFab #vxAb #vxMsg #vxHomeBtn. Bell stays bottom-right.
+
+## VX-020 Plugin tab
+- msp-bi: new tab data-v="plugin" (#v-plugin, MSP LIVE preview shell, sub-tab bar disabled until the design preview is approved — see the MSP LIVE design brief). Projects tab (#v-proj) kept intact but hidden by default.
+- Tab switches: module settings.tabs {proj, plugin} for project-control, edited in admin/platforms.js (Dashboard tabs fieldset), exposed publicly as modules[].tabs; msp-bi applies them (cached in localStorage vxTabs), show() refuses hidden tabs.

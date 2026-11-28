@@ -55,6 +55,7 @@
       '<label class="f">سایت دسترسی<input name="site" class="ltr" value="' + esc(mod.site || '') + '"></label></div>' +
       '<div class="fs" style="grid-template-columns:minmax(0,3fr) minmax(120px,1fr)"><label class="f">اطلاعیه برای کاربران این پلتفرم (خالی = بدون اطلاعیه)<input name="notice" value="' + esc(no.text || '') + '" placeholder="مثلاً: امشب ساعت ۲۲ به‌روزرسانی داریم."></label>' +
       '<label class="f">نوع اطلاعیه<select name="kind"><option value="info">اطلاع</option><option value="warn"' + (no.kind === 'warn' ? ' selected' : '') + '>هشدار</option></select></label></div>' +
+      (p.slug === 'project-control' ? '<fieldset class="f" style="border:1px solid var(--line);border-radius:10px;padding:8px 12px"><legend>تب‌های داشبورد</legend>' + [['proj','پروژه‌ها','Projects',false],['plugin','پلاگین','Plugin',true]].map(function (t) { var on = se.tabs && t[0] in se.tabs ? se.tabs[t[0]] : t[3]; return '<label style="display:inline-flex;gap:6px;align-items:center;margin-inline-end:18px"><input type="checkbox" name="tab_' + t[0] + '"' + (on ? ' checked' : '') + '> ' + t[1] + '</label>' }).join('') + '<br><span class="pl">تب خاموش از نوار داشبورد برداشته می‌شود؛ محتوای آن پاک نمی‌شود و با روشن کردن دوباره برمی‌گردد.</span></fieldset>' : '') +
       '<label class="f">یادداشت خصوصی مدیر<textarea name="notes">' + esc(se.notes || '') + '</textarea></label>' +
       '<div class="row" style="gap:8px;align-items:center"><button class="btn p">ذخیره‌ی تنظیمات</button><span class="pl">اطلاعیه بالای همه‌ی صفحه‌های این پلتفرم نشان داده می‌شود.</span></div></form>' : '<p class="pl">این پلتفرم هنوز در ماژول‌های هاب ثبت نشده است.</p>') + '<div id="pfX"></div></div>';
 
@@ -76,7 +77,7 @@
     var f = $('#pfSet'); if (f) f.onsubmit = function (e) {
       e.preventDefault(); var b = f.querySelector('button.p'); b.disabled = true;
       api('POST', '/admin/modules', { slug: mod.slug, name_fa: mod.name_fa, name_en: mod.name_en, status: f.status.value, path: f.path.value.trim(), site: f.site.value.trim(), color: mod.color, icon: mod.icon, ord: mod.ord, summary_en: mod.summary_en,
-        settings: { notice: f.notice.value.trim() ? { text: f.notice.value.trim(), kind: f.kind.value } : null, notes: f.notes.value, ai: se.ai !== false } })
+        settings: { notice: f.notice.value.trim() ? { text: f.notice.value.trim(), kind: f.kind.value } : null, notes: f.notes.value, ai: se.ai !== false, tabs: p.slug === 'project-control' ? { proj: !!(f.tab_proj && f.tab_proj.checked), plugin: !!(f.tab_plugin && f.tab_plugin.checked) } : (se.tabs || null) } })
         .then(function () { toast('ذخیره شد.'); page(p) }, function (x) { toast(P.emsg(x)); b.disabled = false });
     };
     /* open a subscription */

@@ -426,7 +426,7 @@ class H(BaseHTTPRequestHandler):
         if seg == ['modules'] and m == 'GET':  # public registry; access flags only when signed in
             uu = self.user(); rows = hub.all('SELECT slug,name_fa,name_en,status,path,color,icon,ord,summary_en,site,settings FROM modules ORDER BY ord')
             for r in rows:
-                st = json.loads(r.pop('settings') or '{}'); r['notice'] = st.get('notice') or None
+                st = json.loads(r.pop('settings') or '{}'); r['notice'] = st.get('notice') or None; r['tabs'] = st.get('tabs') or None
                 if uu and uu['role'] == 'admin' and not uu.get('tenant_id'): r['settings'] = st
                 r['access'] = bool(uu) and hub.mod_access(uu, r)
                 if not uu: r.pop('site', None)
@@ -740,6 +740,7 @@ class H(BaseHTTPRequestHandler):
                   (slug, str(b['name_fa'])[:60], str(b['name_en'])[:60], b.get('status', 'planned'), str(b.get('path', ''))[:80], str(b.get('site', ''))[:40], str(b.get('color', ''))[:20], str(b.get('icon', ''))[:20], b.get('ord'), slug, str(b.get('summary_en', ''))[:300], now()))
             if isinstance(b.get('settings'), dict):
                 st = {k: (str(v)[:600] if isinstance(v, str) else v) for k, v in b['settings'].items() if k in ('notice', 'notes', 'ai')}
+                if isinstance(b['settings'].get('tabs'), dict): st['tabs'] = {str(k)[:20]: bool(v) for k, v in b['settings']['tabs'].items()}
                 if isinstance(st.get('notice'), dict): st['notice'] = {'text': str(st['notice'].get('text', ''))[:300], 'kind': 'warn' if st['notice'].get('kind') == 'warn' else 'info'} if st['notice'].get('text') else None
                 hub.q('UPDATE modules SET settings=? WHERE slug=?', (json.dumps(st, ensure_ascii=False), slug))
             hub.log(adm['code'], 'module-save', slug); return self.send(200, {'ok': True})
