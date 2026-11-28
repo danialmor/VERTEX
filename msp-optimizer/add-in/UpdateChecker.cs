@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 namespace UniversalMspOptimizer {
 internal static class UpdateChecker {
- internal const string Build="1.7.1";
+ internal const string Build="1.7.2";
  internal const bool AutoCheck=true, AutoDownload=true, KeepPreviousVersion=true;
  internal const string CheckInterval="startup";
  // Owner-provisioned V2 public verification key; private key stays offline.
@@ -18,7 +18,7 @@ internal static class UpdateChecker {
  const string Root="https://github.com/danialmor/VERTEX/releases/download/";
  static int running;
  internal static string Status="Not checked";
- static byte[] Get(string url,int max) {
+ internal static byte[] Get(string url,int max) {
  for(int redirects=0;redirects<6;redirects++){
  var u=new Uri(url); if(u.Scheme!="https" || !u.IsDefaultPort || u.UserInfo!="" || !(u.Host=="github.com" || u.Host=="api.github.com" || u.Host=="release-assets.githubusercontent.com" || u.Host=="objects.githubusercontent.com")) throw new InvalidOperationException("Untrusted download host");
  var q=(HttpWebRequest)WebRequest.Create(u); q.AllowAutoRedirect=false;q.Timeout=30000;q.ReadWriteTimeout=30000;q.UserAgent="VERTEX-MSP/"+Build;
@@ -30,11 +30,15 @@ internal static class UpdateChecker {
  }throw new IOException("Too many redirects");
  }
  static string Hex(byte[] b){return BitConverter.ToString(b).Replace("-","").ToLowerInvariant();}
- static string Stage(){
+ internal static string FindLatest(){
  var js=new JavaScriptSerializer{MaxJsonLength=4000000};var releases=js.Deserialize<List<Dictionary<string,object>>>(System.Text.Encoding.UTF8.GetString(Get("https://api.github.com/repos/danialmor/VERTEX/releases?per_page=100",4000000)));
  Version current=Version.Parse(Build.Split('-')[0]),best=null;string tag=null;bool development=Build.Contains("-");
  foreach(var r in releases){string t=Convert.ToString(r["tag_name"]);Version v;if(Convert.ToBoolean(r["draft"])||Convert.ToBoolean(r["prerelease"])||!t.StartsWith("msp-v",StringComparison.Ordinal)||!Version.TryParse(t.Substring(5),out v)||v.Build<0||v.Revision>=0)continue;if((v>current||(development&&v==current))&&(best==null||v>best)){best=v;tag=t;}}
- if(tag==null){Status="No newer MSP release";return null;}
+ return tag;
+ }
+ internal static byte[] FetchPackage(string tag){
+ if(!System.Text.RegularExpressions.Regex.IsMatch(tag,@"\Amsp-v[0-9]+\.[0-9]+\.[0-9]+\z"))throw new IOException("Invalid tag");
+ var js=new JavaScriptSerializer{MaxJsonLength=65536};
  if(string.IsNullOrEmpty(TrustedPublicKey))throw new InvalidOperationException("Release signing key not provisioned; automatic installation disabled.");
  string baseUrl=Root+tag+"/";byte[] manifest=Get(baseUrl+"msp-manifest.json",65536),signature=Get(baseUrl+"msp-manifest.sig",8192);
  using(var rsa=new RSACryptoServiceProvider()){rsa.PersistKeyInCsp=false;rsa.FromXmlString(TrustedPublicKey);if(!rsa.VerifyData(manifest,CryptoConfig.MapNameToOID("SHA256"),signature))throw new CryptographicException("Invalid release signature");}
@@ -42,15 +46,12 @@ internal static class UpdateChecker {
  if(Convert.ToString(m["tag"])!=tag||Convert.ToString(m["asset"])!="VERTEX-MSP-Setup.exe")throw new IOException("Manifest mismatch");
  byte[] data=Get(baseUrl+"VERTEX-MSP-Setup.exe",200000000);
  using(var sha=SHA256.Create()){if(!string.Equals(Hex(sha.ComputeHash(data)),Convert.ToString(m["sha256"]),StringComparison.OrdinalIgnoreCase))throw new CryptographicException("Package hash mismatch");}
- // Stage only. Never launch an executable from a user-writable cache with elevation.
- string dir=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"VERTEX","MSPOptimizer","updates",tag);Directory.CreateDirectory(dir);
- string file=Path.Combine(dir,"VERTEX-MSP-Setup.exe");File.WriteAllBytes(file+".partial",data);if(File.Exists(file))File.Replace(file+".partial",file,null);else File.Move(file+".partial",file);
- Status="Verified package staged: "+tag;return file;
+ return data;
  }
  internal static async void Check(bool interactive){
  if(!interactive&&(!AutoCheck||CheckInterval!="startup"))return;
  if(Interlocked.Exchange(ref running,1)!=0)return;
- try{Status="Checking";var file=await Task.Run(()=>Stage());if(file!=null){MessageBox.Show("Verified update downloaded. Save and close Project. Secure installer handoff is not enabled yet.","VERTEX MSP");}else if(interactive)MessageBox.Show(Status);}
+ try{Status="Checking";var tag=await Task.Run(()=>FindLatest());if(tag!=null){Status="Update available: "+tag;if(MessageBox.Show("Update available. Save and close all Project windows after approving the updater. Continue?","VERTEX MSP",MessageBoxButtons.YesNo)==DialogResult.Yes){var helper=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"VERTEX","MSPOptimizer","VertexUpdater.exe");Process.Start(new ProcessStartInfo(helper){UseShellExecute=true,Verb="runas"});}}else {Status="No newer MSP release";if(interactive)MessageBox.Show(Status);}}
  catch(Exception ex){Status="Update unavailable: "+ex.Message;if(interactive)MessageBox.Show(Status);}
  finally{Interlocked.Exchange(ref running,0);}
  }
