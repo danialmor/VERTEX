@@ -13,7 +13,7 @@
   <ItemGroup>
     <Reference Include="System"/><Reference Include="System.Core"/><Reference Include="System.Drawing"/><Reference Include="System.Windows.Forms"/><Reference Include="Microsoft.CSharp"/><Reference Include="System.Web.Extensions"/>
     <Reference Include="Extensibility" Condition="'$(UseMicrosoftVsInterop)' != 'true'"><HintPath>$(OfficePiaPath)\Extensibility.dll</HintPath><Private>false</Private><EmbedInteropTypes>true</EmbedInteropTypes></Reference>
-    <Reference Include="Microsoft.VisualStudio.Interop" Condition="'$(UseMicrosoftVsInterop)' == 'true'"><HintPath>$(OfficePiaPath)\Microsoft.VisualStudio.Interop.dll</HintPath><Private>false</Private><EmbedInteropTypes>true</EmbedInteropTypes></Reference>
+    <Reference Include="Microsoft.VisualStudio.Interop" Condition="'$(UseMicrosoftVsInterop)' == 'true'"><HintPath>$(OfficePiaPath)\Microsoft.VisualStudio.Interop.dll</HintPath><Private>true</Private><EmbedInteropTypes>false</EmbedInteropTypes></Reference>
     <Reference Include="office"><HintPath>$(OfficePiaPath)\office.dll</HintPath><Private>false</Private><EmbedInteropTypes>true</EmbedInteropTypes></Reference>
     <Reference Include="Microsoft.Office.Interop.MSProject"><HintPath>$(OfficePiaPath)\Microsoft.Office.Interop.MSProject.dll</HintPath><Private>false</Private><EmbedInteropTypes>true</EmbedInteropTypes></Reference>
     <Compile Include="*.cs"/>
