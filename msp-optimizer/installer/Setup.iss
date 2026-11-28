@@ -22,6 +22,9 @@ RestartApplications=no
 [Files]
 Source: "..\updater\bin\Release\VertexUpdater.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\add-in\bin\Release\net48\UniversalMspOptimizer.dll"; DestDir: "{app}"; Flags: ignoreversion
+#ifexist "..\add-in\bin\Release\net48\Microsoft.VisualStudio.Interop.dll"
+Source: "..\add-in\bin\Release\net48\Microsoft.VisualStudio.Interop.dll"; DestDir: "{app}"; Flags: ignoreversion
+#endif
 Source: "prerequisites\dotnet48.exe"; Flags: dontcopy
 [Registry]
 Root: HKLM64; Subkey: "Software\Microsoft\Office\MS Project\Addins\UniversalMspOptimizer.Connect"; ValueType: string; ValueName: "FriendlyName"; ValueData: "Universal MSP Optimizer (Experimental)"; Flags: uninsdeletekey
