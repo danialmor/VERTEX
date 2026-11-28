@@ -87,3 +87,7 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 - AI context (`VX_CTX(q)`) adds the schedule of the named / selected project.
 - mpp: uploaded to the cloud; `.github/workflows/mpp.yml` (every 10 min) runs `tools/mpp2xml.py` (MPXJ) and writes `<name>.xml` back; the inbox ingests it.
 - Subscriptions (panel, `admin/billing.js`, hub `/plans`, `/register`, `/orders`, `/admin/plans`, `/admin/orders`): unpaid owners only see «اشتراک و خرید»; `vxSess.paid=false` sends every platform page to `admin/#buy` (`shared/auth.js`).
+
+
+## 2026-11-28 — MSP LIVE local preview 0.7.0-dev.1
+Existing v-plugin tab preserved; overview now reads the installed dev.3 add-in snapshot via explicit temporary bearer key and GET loopback. Counts and task table rendered with textContent; no persistence or upload by this module. Other tabs remain disabled. Browser local-network permission and listener ACL may block access; runtime not tested. Cloud account pairing, server storage and write-back pending. Rollback: revert dashboard commit 6097b54a6d58d81fdbe21d7ccb3774568a5dd05f. Next: test Share Snapshot and Refresh Data on Windows, then implement authenticated private server integration. Existing project tab unchanged.
