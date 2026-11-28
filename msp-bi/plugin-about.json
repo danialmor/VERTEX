@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "product": "VERTEX MSP",
+  "brand": "VERTEX",
+  "developer": "danialmor",
+  "website": "https://danialmor.github.io/VERTEX/",
+  "dashboard": "https://danialmor.github.io/VERTEX/msp-bi/",
+  "telegram": "https://t.me/Danimor1991",
+  "repository": "https://github.com/danialmor/VERTEX",
+  "releases": "https://github.com/danialmor/VERTEX/releases",
+  "changelog": "https://github.com/danialmor/VERTEX/blob/feature/msp-optimizer/msp-optimizer/CHANGELOG.md",
+  "sourceVersion": "0.7.0-dev.4",
+  "publishedVersion": null,
+  "description": "Microsoft Project integration for VERTEX project controls and reporting.",
+  "history": [
+    {
+      "version": "0.7.0-dev.4",
+      "date": "2026-11-28",
+      "status": "development",
+      "notes": "About dialog and shared product metadata."
+    },
+    {
+      "version": "0.7.0-dev.3",
+      "date": "2026-11-28",
+      "status": "development",
+      "notes": "Signed update staging and dashboard Update Center; installation pending."
+    },
+    {
+      "version": "0.7.0-dev.2",
+      "date": "2026-11-28",
+      "status": "development",
+      "notes": "Extended custom fields and baselines; Windows validation pending."
+    },
+    {
+      "version": "0.6.0-dev.3",
+      "date": "2026-11-26",
+      "status": "user-tested local connection",
+      "notes": "Local read-only snapshot and update preferences."
+    }
+  ]
+}
