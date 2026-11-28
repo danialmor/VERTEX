@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 namespace UniversalMspOptimizer {
 internal static class UpdateChecker {
- internal const string Build="0.7.0-dev.5";
+ internal const string Build="1.7.1-rc.1";
  internal const bool AutoCheck=true, AutoDownload=true, KeepPreviousVersion=true;
  internal const string CheckInterval="startup";
  // Owner-provisioned V2 public verification key; private key stays offline.
