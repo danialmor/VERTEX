@@ -16,7 +16,8 @@
     {
       "version": "1.7.2",
       "date": "2026-11-28",
-      "description": "Updater and recovery source candidate; Windows testing pending."
+      "status": "CI test build",
+      "notes": "Windows x64 build passed; unsigned, installation not validated."
     },
     {
       "version": "0.7.0-dev.5",
@@ -48,5 +49,12 @@
       "status": "user-tested local connection",
       "notes": "Local read-only snapshot and update preferences."
     }
-  ]
+  ],
+  "testBuild": {
+    "version": "1.7.2",
+    "runUrl": "https://github.com/danialmor/VERTEX/actions/runs/46145292366",
+    "downloadUrl": "https://github.com/danialmor/VERTEX/actions/runs/46145292366/artifacts/15263815767",
+    "signed": false,
+    "expiresAt": "2026-12-05T12:35:50Z"
+  }
 }
