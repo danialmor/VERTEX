@@ -91,3 +91,6 @@ Owner: Danial (sole admin). UI language: Persian (RTL).
 
 ## 2026-11-28 — MSP LIVE local preview 0.7.0-dev.1
 Existing v-plugin tab preserved; overview now reads the installed dev.3 add-in snapshot via explicit temporary bearer key and GET loopback. Counts and task table rendered with textContent; no persistence or upload by this module. Other tabs remain disabled. Browser local-network permission and listener ACL may block access; runtime not tested. Cloud account pairing, server storage and write-back pending. Rollback: revert dashboard commit 6097b54a6d58d81fdbe21d7ccb3774568a5dd05f. Next: test Share Snapshot and Refresh Data on Windows, then implement authenticated private server integration. Existing project tab unchanged.
+
+### 2026-11-28 — Local connection acceptance
+User reports successful connection after entering the temporary Share Snapshot key. This confirms user-reported local connection only; full field accuracy, refresh after schedule changes, disconnect and cloud pairing remain unverified. No credentials or project data recorded. Next: validate snapshot counts and refresh, then implement private account-scoped cloud sync.
