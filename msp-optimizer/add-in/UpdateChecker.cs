@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 namespace UniversalMspOptimizer {
 internal static class UpdateChecker {
- internal const string Build="0.7.0-dev.4";
+ internal const string Build="0.7.0-dev.5";
  internal const bool AutoCheck=true, AutoDownload=true, KeepPreviousVersion=true;
  internal const string CheckInterval="startup";
  // Release owner must provision an offline RSA public key before production build.
@@ -31,9 +31,9 @@ internal static class UpdateChecker {
  }
  static string Hex(byte[] b){return BitConverter.ToString(b).Replace("-","").ToLowerInvariant();}
  static string Stage(){
- var js=new JavaScriptSerializer();var releases=js.Deserialize<List<Dictionary<string,object>>>(System.Text.Encoding.UTF8.GetString(Get("https://api.github.com/repos/danialmor/VERTEX/releases?per_page=100",4000000)));
- Version current=new Version(0,7,0),best=null;string tag=null;
- foreach(var r in releases){string t=Convert.ToString(r["tag_name"]);Version v;if(Convert.ToBoolean(r["draft"])||Convert.ToBoolean(r["prerelease"])||!t.StartsWith("msp-v",StringComparison.Ordinal)||!Version.TryParse(t.Substring(5),out v)||v.Build<0||v.Revision>=0)continue;if(v>=current&&(best==null||v>best)){best=v;tag=t;}}
+ var js=new JavaScriptSerializer{MaxJsonLength=4000000};var releases=js.Deserialize<List<Dictionary<string,object>>>(System.Text.Encoding.UTF8.GetString(Get("https://api.github.com/repos/danialmor/VERTEX/releases?per_page=100",4000000)));
+ Version current=Version.Parse(Build.Split('-')[0]),best=null;string tag=null;bool development=Build.Contains("-");
+ foreach(var r in releases){string t=Convert.ToString(r["tag_name"]);Version v;if(Convert.ToBoolean(r["draft"])||Convert.ToBoolean(r["prerelease"])||!t.StartsWith("msp-v",StringComparison.Ordinal)||!Version.TryParse(t.Substring(5),out v)||v.Build<0||v.Revision>=0)continue;if((v>current||(development&&v==current))&&(best==null||v>best)){best=v;tag=t;}}
  if(tag==null){Status="No newer MSP release";return null;}
  if(string.IsNullOrEmpty(TrustedPublicKey))throw new InvalidOperationException("Release signing key not provisioned; automatic installation disabled.");
  string baseUrl=Root+tag+"/";byte[] manifest=Get(baseUrl+"msp-manifest.json",65536),signature=Get(baseUrl+"msp-manifest.sig",8192);
